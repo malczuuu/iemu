@@ -1,0 +1,65 @@
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "4.0.3"
+    id "io.franzbecker.gradle-lombok" version "1.14"
+}
+
+group = "io.github.malczuuu"
+version = "1.0.0-SNAPSHOT"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io/" }
+}
+
+dependencies {
+    implementation("org.slf4j:slf4j-api:1.7.25")
+    runtimeOnly("ch.qos.logback:logback-classic:1.2.3")
+
+    implementation("io.javalin:javalin:2.4.0")
+
+    implementation("org.eclipse.leshan:leshan-client-cf:1.0.0-M10")
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.7")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7")
+    implementation("com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.7")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.7")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7")
+
+    implementation("io.github.malczuuu.problem4j:problem4j-jackson:1.0.1")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
+    testImplementation("org.mockito:mockito-all:1.10.19")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    manifest {
+        attributes("Main-Class": "io.github.malczuuu.iemu.App")
+    }
+}
+build.dependsOn(shadowJar)
+
+lombok {
+    version = "1.18.4"
+    sha256 = ""
+}
+
+artifacts {
+    shadowJar
+}
+
+jar.enabled = false
+
+task run(type: JavaExec) {
+    main = "io.github.malczuuu.iemu.App"
+    classpath = sourceSets.main.runtimeClasspath
+}
+run.dependsOn(classes)

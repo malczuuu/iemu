@@ -1,0 +1,7 @@
+/.gradle/
+/build/
+/.idea/
+/out/
+*.class
+/*.iml
+state.*.json
