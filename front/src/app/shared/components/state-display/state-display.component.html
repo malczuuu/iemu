@@ -1,0 +1,64 @@
+<div class="card">
+  <div class="card-header">
+    <h1 class="card-header-title">State</h1>
+  </div>
+  <div class="card-content">
+    <div class="content">
+      <table class="table is-hoverable">
+        <tbody>
+        <tr>
+          <td>Current time</td>
+          <td><code>{{ state.currentTime }}</code></td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td>Time zone</td>
+          <td><code>{{ state.timeZone }}</code></td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td>UTC offset</td>
+          <td><code>{{ state.utcOffset }}</code></td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td>On / off</td>
+          <td>
+            <span *ngIf="state.on" class="tag is-primary">On</span>
+            <span *ngIf="!state.on" class="tag is-danger">Off</span>
+          </td>
+          <td class="has-text-right">
+            <button class="button is-small" (click)="onOffToggle.emit(true)">Toggle</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Dimmer</td>
+          <td>
+            <label for="dimmerInput" class="is-sr-only">Dimmer</label>
+            <input #dimmerInput
+                   id="dimmerInput"
+                   type="number"
+                   class="input is-small"
+                   [value]="state.dimmer"/>
+          </td>
+          <td class="has-text-right">
+            <button class="button is-small"
+                    (click)="dimmerSave.emit(dimmerInput.value)">Save
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>On time</td>
+          <td><code>{{ state.onTime }} s</code></td>
+          <td class="has-text-right">
+            <button class="button is-small" (click)="onTimeReset.emit(0)">Reset</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

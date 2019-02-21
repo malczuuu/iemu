@@ -1,0 +1,23 @@
+<div class="container">
+  <div class="columns">
+    <div class="column is-12">
+      <section class="hero is-info welcome is-small">
+        <div class="hero-body">
+          <div class="container">
+            <h1 class="title">iEmu - IoT Device Emulator</h1>
+            <h2 class="subtitle">Management UI for iEmu - IoT Device Emulator</h2>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div class="columns is-multiline">
+    <div class="column is-12-mobile is-8-desktop is-offset-2-desktop is-6-widescreen is-offset-3-widescreen">
+      <app-state-display *ngIf="state"
+                         [state]="state"
+                         (onOffToggle)="onOffToggle()"
+                         (dimmerSave)="onDimmerChanged($event)"
+                         (onTimeReset)="onOnTimeReset()"></app-state-display>
+    </div>
+  </div>
+</div>

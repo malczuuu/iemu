@@ -1,0 +1,11 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "~node_modules/bulma/bulma";
+
+html, body {
+  font-family: sans-serif, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  height: 100%;
+  background: #ECF0F3;
+}

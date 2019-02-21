@@ -1,0 +1,21 @@
+.not-bordered {
+  border: 0;
+  background-color: transparent;
+}
+
+.button {
+  width: 100%;
+  max-width: 75px;
+}
+
+.input {
+  max-width: 150px;
+}
+
+.progress {
+  max-width: 150px;
+}
+
+td {
+  vertical-align: middle !important;
+}
