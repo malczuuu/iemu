@@ -1,0 +1,44 @@
+/.gradle/
+/build/
+/.idea/
+/out/
+*.class
+/*.iml
+
+# Front
+
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/front/dist
+/front/tmp
+/front/out-tsc
+
+# dependencies
+/front/node_modules
+
+# IDEs and editors
+/front/.idea
+/front/.project
+/front/.classpath
+/front/.c9/
+/front/*.launch
+/front/.settings/
+/front/*.sublime-workspace
+
+# IDE - VSCode
+/front/.vscode/*
+
+# misc
+/front/.sass-cache
+/front/connect.lock
+/front/coverage
+/front/libpeerconnection.log
+/front/npm-debug.log
+/front/yarn-error.log
+/front/testem.log
+/front/typings
+
+# System Files
+/front/.DS_Store
+/front/Thumbs.db
