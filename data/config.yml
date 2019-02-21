@@ -1,0 +1,13 @@
+---
+http:
+  port: 4500
+
+lwm2m:
+  enabled: true
+  localPort: 5693
+  endpoint: client
+  bootstrap: false
+  upstream: localhost:5683
+  security:
+    identity: null
+    psk: null
