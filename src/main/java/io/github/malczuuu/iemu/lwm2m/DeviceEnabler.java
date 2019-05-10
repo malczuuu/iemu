@@ -3,7 +3,7 @@ package io.github.malczuuu.iemu.lwm2m;
 import io.github.malczuuu.iemu.domain.ErrorDTO;
 import io.github.malczuuu.iemu.domain.StateDTO;
 import io.github.malczuuu.iemu.domain.StateService;
-import java.sql.Date;
+import java.util.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
