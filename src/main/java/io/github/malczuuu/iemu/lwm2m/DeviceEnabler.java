@@ -3,16 +3,17 @@ package io.github.malczuuu.iemu.lwm2m;
 import io.github.malczuuu.iemu.domain.ErrorDTO;
 import io.github.malczuuu.iemu.domain.StateDTO;
 import io.github.malczuuu.iemu.domain.StateService;
-import java.util.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler;
+import org.eclipse.leshan.client.servers.ServerIdentity;
 import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.core.model.ResourceModel.Type;
 import org.eclipse.leshan.core.node.LwM2mResource;
@@ -78,14 +79,14 @@ public class DeviceEnabler extends BaseInstanceEnabler {
           BATTERY_STATUS,
           MEMORY_TOTAL);
 
-  private final StateService model;
+  private final StateService state;
 
-  private DeviceEnabler(StateService model) {
-    this.model = model;
+  private DeviceEnabler(StateService state) {
+    this.state = state;
   }
 
   @Override
-  public ReadResponse read(int resourceId) {
+  public ReadResponse read(ServerIdentity identity, int resourceId) {
     switch (resourceId) {
       case MANUFACTURER:
         return ReadResponse.success(resourceId, "Manufacturer");
@@ -101,22 +102,22 @@ public class DeviceEnabler extends BaseInstanceEnabler {
         return ReadResponse.success(resourceId, Runtime.getRuntime().freeMemory() / 1000);
       case ERROR_CODE:
         Map<Integer, Long> errorCodes = new HashMap<>();
-        List<ErrorDTO> errors = model.getState().getErrors();
+        List<ErrorDTO> errors = state.getState().getErrors();
         for (int i = 0; i < errors.size(); ++i) {
           errorCodes.put(i, errors.get(i).getCode().longValue());
         }
         return ReadResponse.success(resourceId, errorCodes, Type.INTEGER);
       case CURRENT_TIME:
         return ReadResponse.success(
-            resourceId, Date.from(Instant.parse(model.getState().getCurrentTime())));
+            resourceId, Date.from(Instant.parse(state.getState().getCurrentTime())));
       case UTC_OFFSET:
-        return ReadResponse.success(resourceId, model.getState().getUTCOffset());
+        return ReadResponse.success(resourceId, state.getState().getUTCOffset());
       case TIMEZONE:
-        return ReadResponse.success(resourceId, model.getState().getTimeZone());
+        return ReadResponse.success(resourceId, state.getState().getTimeZone());
       case SUPPORTED_BINDINGS_AND_MODES:
         return ReadResponse.success(resourceId, "U");
       case DEVICE_TYPE:
-        return ReadResponse.success(resourceId, model.getState().getDeviceType());
+        return ReadResponse.success(resourceId, state.getState().getDeviceType());
       case HARDWARE_VERSION:
         return ReadResponse.success(resourceId, "0.0.0");
       case SOFTWARE_VERSION:
@@ -126,32 +127,32 @@ public class DeviceEnabler extends BaseInstanceEnabler {
       case MEMORY_TOTAL:
         return ReadResponse.success(resourceId, Runtime.getRuntime().totalMemory() / 1000);
     }
-    return super.read(resourceId);
+    return super.read(identity, resourceId);
   }
 
   @Override
-  public WriteResponse write(int resourceId, LwM2mResource value) {
+  public WriteResponse write(ServerIdentity identity, int resourceId, LwM2mResource value) {
     if (resourceId == CURRENT_TIME) {
-      model.changeState(
+      state.changeState(
           StateDTO.changeCurrentTime(
               ((Date) value.getValue()).toInstant().truncatedTo(ChronoUnit.SECONDS).toString()));
       return WriteResponse.success();
     }
-    return super.write(resourceId, value);
+    return super.write(identity, resourceId, value);
   }
 
   @Override
-  public ExecuteResponse execute(int resourceId, String params) {
+  public ExecuteResponse execute(ServerIdentity identity, int resourceId, String params) {
     switch (resourceId) {
       case REBOOT:
         return ExecuteResponse.success();
       case FACTORY_RESET:
         return ExecuteResponse.success();
       case RESET_ERROR_CODE:
-        model.resetErrors();
+        state.resetErrors();
         return ExecuteResponse.success();
     }
-    return super.execute(resourceId, params);
+    return super.execute(identity, resourceId, params);
   }
 
   @Override

@@ -4,21 +4,22 @@ import io.github.malczuuu.iemu.common.config.LwM2mConfig;
 import io.github.malczuuu.iemu.domain.StateService;
 import io.github.malczuuu.iemu.lwm2m.DeviceEnabler;
 import io.github.malczuuu.iemu.lwm2m.LightControlEnabler;
-import io.github.malczuuu.iemu.lwm2m.SingularObjectEnabler;
 import java.util.List;
 import org.eclipse.californium.core.network.config.NetworkConfig;
-import org.eclipse.leshan.LwM2mId;
 import org.eclipse.leshan.client.californium.LeshanClient;
 import org.eclipse.leshan.client.californium.LeshanClientBuilder;
 import org.eclipse.leshan.client.object.Security;
 import org.eclipse.leshan.client.object.Server;
+import org.eclipse.leshan.client.resource.LwM2mInstanceEnabler;
 import org.eclipse.leshan.client.resource.LwM2mObjectEnabler;
 import org.eclipse.leshan.client.resource.ObjectsInitializer;
+import org.eclipse.leshan.core.LwM2mId;
 import org.eclipse.leshan.core.model.LwM2mModel;
 import org.eclipse.leshan.core.model.ObjectLoader;
 import org.eclipse.leshan.core.model.ObjectModel;
+import org.eclipse.leshan.core.model.StaticModel;
 import org.eclipse.leshan.core.request.BindingMode;
-import org.eclipse.leshan.util.Hex;
+import org.eclipse.leshan.core.util.Hex;
 
 public class LwM2mClientStarter implements Runnable {
 
@@ -58,20 +59,26 @@ public class LwM2mClientStarter implements Runnable {
       setupSecurityAndServerWithoutBootstrap(initializer);
     }
 
+    initializer.setFactoryForObject(
+        DeviceEnabler.OBJECT_ID,
+        (model, id, alreadyUsedIdentifier) -> createDeviceEnabler(model, id));
+    initializer.setFactoryForObject(
+        LightControlEnabler.OBJECT_ID,
+        (model, id, alreadyUsedIdentifier) -> createLightControlEnabler(model, id));
+
     initializer.setInstancesForObject(DeviceEnabler.OBJECT_ID, DeviceEnabler.create(stateService));
     initializer.setInstancesForObject(
         LightControlEnabler.OBJECT_ID, LightControlEnabler.create(stateService));
 
     List<LwM2mObjectEnabler> objects =
-        initializer.create(LwM2mId.SECURITY, LwM2mId.SERVER, DeviceEnabler.OBJECT_ID);
-    objects.add(
-        SingularObjectEnabler.create(
-            LightControlEnabler.OBJECT_ID,
-            models,
-            ignored -> LightControlEnabler.create(stateService)));
+        initializer.create(
+            LwM2mId.SECURITY,
+            LwM2mId.SERVER,
+            DeviceEnabler.OBJECT_ID,
+            LightControlEnabler.OBJECT_ID);
 
     builder.setObjects(objects);
-    builder.setCoapConfig(new NetworkConfig());
+    builder.setCoapConfig(new NetworkConfig().set(NetworkConfig.Keys.EXCHANGE_LIFETIME, 15000));
 
     LeshanClient client = builder.build();
 
@@ -80,31 +87,43 @@ public class LwM2mClientStarter implements Runnable {
     client.start();
   }
 
+  private LwM2mInstanceEnabler createDeviceEnabler(ObjectModel model, Integer id) {
+    DeviceEnabler enabler = DeviceEnabler.create(stateService);
+    enabler.setId(id);
+    enabler.setModel(model);
+    return enabler;
+  }
+
+  private LwM2mInstanceEnabler createLightControlEnabler(ObjectModel model, Integer id) {
+    LightControlEnabler enabler = LightControlEnabler.create(stateService);
+    enabler.setId(id);
+    enabler.setModel(model);
+    return enabler;
+  }
+
   private LwM2mModel loadModels() {
     List<ObjectModel> models = ObjectLoader.loadDefault();
     models.addAll(ObjectLoader.loadDdfResources("/models", modelPaths));
-    return new LwM2mModel(models);
+    return new StaticModel(models);
   }
 
   private void setupSecurityAndServerWithBootstrap(ObjectsInitializer initializer) {
     if (config.useSecureMode()) {
       initializer.setInstancesForObject(
           LwM2mId.SECURITY, Security.pskBootstrap(serverURI, identity, psk));
-      initializer.setClassForObject(LwM2mId.SERVER, Server.class);
     } else {
       initializer.setInstancesForObject(LwM2mId.SECURITY, Security.noSecBootstap(serverURI));
-      initializer.setClassForObject(LwM2mId.SERVER, Server.class);
     }
+    initializer.setClassForObject(LwM2mId.SERVER, Server.class);
   }
 
   private void setupSecurityAndServerWithoutBootstrap(ObjectsInitializer initializer) {
     if (config.useSecureMode()) {
       initializer.setInstancesForObject(
           LwM2mId.SECURITY, Security.psk(serverURI, 0, identity, psk));
-      initializer.setInstancesForObject(LwM2mId.SERVER, new Server(0, 30, BindingMode.U, false));
     } else {
       initializer.setInstancesForObject(LwM2mId.SECURITY, Security.noSec(serverURI, 0));
-      initializer.setInstancesForObject(LwM2mId.SERVER, new Server(0, 30, BindingMode.U, false));
     }
+    initializer.setInstancesForObject(LwM2mId.SERVER, new Server(0, 60, BindingMode.U, false));
   }
 }

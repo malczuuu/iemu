@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler;
+import org.eclipse.leshan.client.servers.ServerIdentity;
 import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.core.node.LwM2mResource;
 import org.eclipse.leshan.core.response.ReadResponse;
@@ -39,41 +40,41 @@ public class LightControlEnabler extends BaseInstanceEnabler {
   private static final Set<Integer> SUPPORTED_RESOURCES =
       new HashSet<>(Arrays.asList(ON_OFF, DIMMER, ON_TIME));
 
-  private final StateService model;
+  private final StateService state;
 
-  private LightControlEnabler(StateService model) {
-    this.model = model;
+  private LightControlEnabler(StateService state) {
+    this.state = state;
   }
 
   @Override
-  public ReadResponse read(int resourceId) {
+  public ReadResponse read(ServerIdentity identity, int resourceId) {
     switch (resourceId) {
       case ON_OFF:
-        return ReadResponse.success(resourceId, model.getState().getOn());
+        return ReadResponse.success(resourceId, state.getState().getOn());
       case DIMMER:
-        return ReadResponse.success(resourceId, model.getState().getDimmer());
+        return ReadResponse.success(resourceId, state.getState().getDimmer());
       case ON_TIME:
-        return ReadResponse.success(resourceId, model.getState().getOnTime());
+        return ReadResponse.success(resourceId, state.getState().getOnTime());
       case CUMULATIVE_ACTIVE_POWER:
         return ReadResponse.notFound();
     }
-    return super.read(resourceId);
+    return super.read(identity, resourceId);
   }
 
   @Override
-  public WriteResponse write(int resourceId, LwM2mResource value) {
+  public WriteResponse write(ServerIdentity identity, int resourceId, LwM2mResource value) {
     switch (resourceId) {
       case ON_OFF:
-        model.changeState(StateDTO.changeOn((Boolean) value.getValue()));
+        state.changeState(StateDTO.changeOn((Boolean) value.getValue()));
         break;
       case DIMMER:
-        model.changeState(StateDTO.changeDimmer(((Long) value.getValue()).intValue()));
+        state.changeState(StateDTO.changeDimmer(((Long) value.getValue()).intValue()));
         break;
       case ON_TIME:
-        model.changeState(StateDTO.changeOnTime(((Long) value.getValue()).intValue()));
+        state.changeState(StateDTO.changeOnTime(((Long) value.getValue()).intValue()));
         break;
       default:
-        return super.write(resourceId, value);
+        return super.write(identity, resourceId, value);
     }
     return WriteResponse.success();
   }
