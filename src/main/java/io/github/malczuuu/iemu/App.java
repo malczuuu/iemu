@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.malczuuu.iemu.common.ObjectMapperFactory;
 import io.github.malczuuu.iemu.common.config.Config;
 import io.github.malczuuu.iemu.common.config.ConfigReader;
+import io.github.malczuuu.iemu.common.config.ProfileSelector;
 import io.github.malczuuu.iemu.domain.StateService;
 import io.github.malczuuu.iemu.domain.StateServiceFactory;
 import io.github.malczuuu.iemu.http.WebSocketEvent;
@@ -18,7 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 public class App {
 
   public static void main(String[] args) {
-    new App(new ConfigReader(new ObjectMapperFactory().getYamlObjectMapper()).readConfig()).run();
+    String profile = new ProfileSelector(args).getProfileName();
+    ConfigReader reader = new ConfigReader(new ObjectMapperFactory().getYamlObjectMapper());
+    Config config = reader.readConfig(profile);
+    new App(config).run();
   }
 
   private final WebSocketService webSocketService = new WebSocketServiceFactory().create();
