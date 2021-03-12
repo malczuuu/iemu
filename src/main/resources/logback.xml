@@ -7,7 +7,7 @@
     </encoder>
   </appender>
 
-  <logger name="io.github.malczuuu" level="DEBUG" additivity="false">
+  <logger name="io.github.malczuuu" level="INFO" additivity="false">
     <appender-ref ref="STDOUT"/>
   </logger>
 
