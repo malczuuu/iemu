@@ -7,7 +7,7 @@ lwm2m:
   localPort: 5693
   endpoint: urn:uuid:00000000-0000-0000-0000-000000000000
   bootstrap: false
-  upstream: localhost:5683
+  upstream: leshan.eclipseprojects.io:5683
   security:
     identity: null
     psk: null
