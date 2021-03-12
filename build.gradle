@@ -2,6 +2,7 @@ plugins {
     id "java"
     id "com.github.johnrengelman.shadow" version "4.0.3"
     id "io.franzbecker.gradle-lombok" version "1.14"
+    id "com.github.sherter.google-java-format" version "0.9"
 }
 
 group = "io.github.malczuuu"
@@ -64,3 +65,7 @@ task run(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 run.dependsOn(classes)
+
+googleJavaFormat {
+    toolVersion = "1.8"
+}
