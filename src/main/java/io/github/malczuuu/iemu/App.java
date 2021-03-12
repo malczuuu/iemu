@@ -6,6 +6,8 @@ import io.github.malczuuu.iemu.common.ObjectMapperFactory;
 import io.github.malczuuu.iemu.common.config.Config;
 import io.github.malczuuu.iemu.common.config.ConfigReader;
 import io.github.malczuuu.iemu.common.config.ProfileSelector;
+import io.github.malczuuu.iemu.domain.FirmwareService;
+import io.github.malczuuu.iemu.domain.FirmwareServiceFactory;
 import io.github.malczuuu.iemu.domain.StateService;
 import io.github.malczuuu.iemu.domain.StateServiceFactory;
 import io.github.malczuuu.iemu.http.WebSocketEvent;
@@ -27,6 +29,7 @@ public class App {
 
   private final WebSocketService webSocketService = new WebSocketServiceFactory().create();
   private final StateService stateService = new StateServiceFactory().getStateService();
+  private final FirmwareService firmwareService = new FirmwareServiceFactory().getFirmwareService();
 
   private final ObjectMapper mapper = new ObjectMapperFactory().getJsonObjectMapper();
   private final Config config;
@@ -54,7 +57,7 @@ public class App {
     stateService.subscribeOnDimmerChange(ignored -> runnable.run());
 
     if (config.getLwM2mConfig().isEnabled()) {
-      new LwM2mClientStarter(config.getLwM2mConfig(), stateService).run();
+      new LwM2mClientStarter(config.getLwM2mConfig(), stateService, firmwareService).run();
     }
     new HttpServerStarter(config.getHttpConfig(), webSocketService, stateService, mapper).run();
   }

@@ -1,8 +1,10 @@
 package io.github.malczuuu.iemu.starter;
 
 import io.github.malczuuu.iemu.common.config.LwM2mConfig;
+import io.github.malczuuu.iemu.domain.FirmwareService;
 import io.github.malczuuu.iemu.domain.StateService;
 import io.github.malczuuu.iemu.lwm2m.DeviceEnabler;
+import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateEnabler;
 import io.github.malczuuu.iemu.lwm2m.LightControlEnabler;
 import java.util.List;
 import org.eclipse.californium.core.network.config.NetworkConfig;
@@ -27,14 +29,17 @@ public class LwM2mClientStarter implements Runnable {
 
   private final LwM2mConfig config;
   private final StateService stateService;
+  private final FirmwareService firmwareService;
 
   private final String serverURI;
   private final byte[] identity;
   private final byte[] psk;
 
-  public LwM2mClientStarter(LwM2mConfig config, StateService stateService) {
+  public LwM2mClientStarter(
+      LwM2mConfig config, StateService stateService, FirmwareService firmwareService) {
     this.config = config;
     this.stateService = stateService;
+    this.firmwareService = firmwareService;
 
     serverURI = (config.useSecureMode() ? "coaps://" : "coap://") + config.getUpstream();
     identity =
@@ -63,10 +68,15 @@ public class LwM2mClientStarter implements Runnable {
         DeviceEnabler.OBJECT_ID,
         (model, id, alreadyUsedIdentifier) -> createDeviceEnabler(model, id));
     initializer.setFactoryForObject(
+        FirmwareUpdateEnabler.OBJECT_ID,
+        (model, id, alreadyUsedIdentifier) -> createFirmwareEnabler(model, id));
+    initializer.setFactoryForObject(
         LightControlEnabler.OBJECT_ID,
         (model, id, alreadyUsedIdentifier) -> createLightControlEnabler(model, id));
 
     initializer.setInstancesForObject(DeviceEnabler.OBJECT_ID, DeviceEnabler.create(stateService));
+    initializer.setInstancesForObject(
+        FirmwareUpdateEnabler.OBJECT_ID, FirmwareUpdateEnabler.create(firmwareService));
     initializer.setInstancesForObject(
         LightControlEnabler.OBJECT_ID, LightControlEnabler.create(stateService));
 
@@ -75,6 +85,7 @@ public class LwM2mClientStarter implements Runnable {
             LwM2mId.SECURITY,
             LwM2mId.SERVER,
             DeviceEnabler.OBJECT_ID,
+            FirmwareUpdateEnabler.OBJECT_ID,
             LightControlEnabler.OBJECT_ID);
 
     builder.setObjects(objects);
@@ -89,6 +100,13 @@ public class LwM2mClientStarter implements Runnable {
 
   private LwM2mInstanceEnabler createDeviceEnabler(ObjectModel model, Integer id) {
     DeviceEnabler enabler = DeviceEnabler.create(stateService);
+    enabler.setId(id);
+    enabler.setModel(model);
+    return enabler;
+  }
+
+  private LwM2mInstanceEnabler createFirmwareEnabler(ObjectModel model, Integer id) {
+    FirmwareUpdateEnabler enabler = FirmwareUpdateEnabler.create(firmwareService);
     enabler.setId(id);
     enabler.setModel(model);
     return enabler;
