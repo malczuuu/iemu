@@ -1,23 +1,23 @@
 package io.github.malczuuu.iemu.lwm2m;
 
-public enum FirmwareUpdateMode {
+public enum FirmwareUpdateDeliveryMethod {
   PULL_ONLY(0),
   PUSH_ONLY(1),
   BOTH(2);
 
-  public static FirmwareUpdateMode initial() {
+  public static FirmwareUpdateDeliveryMethod initial() {
     return BOTH;
   }
 
-  public static FirmwareUpdateMode fromValue(Integer value) {
+  public static FirmwareUpdateDeliveryMethod fromValue(Integer value) {
     if (value == null) {
       return PULL_ONLY;
     }
     return fromValue(value.intValue());
   }
 
-  public static FirmwareUpdateMode fromValue(int value) {
-    for (FirmwareUpdateMode mode : values()) {
+  public static FirmwareUpdateDeliveryMethod fromValue(int value) {
+    for (FirmwareUpdateDeliveryMethod mode : values()) {
       if (mode.getValue() == value) {
         return mode;
       }
@@ -27,7 +27,7 @@ public enum FirmwareUpdateMode {
 
   private final int value;
 
-  FirmwareUpdateMode(int value) {
+  FirmwareUpdateDeliveryMethod(int value) {
     this.value = value;
   }
 

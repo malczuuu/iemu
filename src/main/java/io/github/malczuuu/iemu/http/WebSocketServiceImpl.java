@@ -39,7 +39,9 @@ class WebSocketServiceImpl implements WebSocketService {
         () -> {
           log.debug(
               "Closed session={} with statusCode={}, reason={}",
-              session.getId(), statusCode, reason);
+              session.getId(),
+              statusCode,
+              reason);
           sessions.remove(session.getId());
         });
   }

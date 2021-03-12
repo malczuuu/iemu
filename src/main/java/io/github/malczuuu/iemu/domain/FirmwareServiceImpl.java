@@ -1,10 +1,11 @@
 package io.github.malczuuu.iemu.domain;
 
+import io.github.malczuuu.iemu.domain.firmware.Downloaded;
 import io.github.malczuuu.iemu.domain.firmware.Downloading;
 import io.github.malczuuu.iemu.domain.firmware.FirmwareUpdateExecution;
 import io.github.malczuuu.iemu.domain.firmware.Idle;
 import io.github.malczuuu.iemu.domain.firmware.Updating;
-import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateMode;
+import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateDeliveryMethod;
 import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateResult;
 import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateState;
 import java.security.MessageDigest;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import org.eclipse.leshan.core.util.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +35,15 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
           FirmwareUpdateResult.initial(),
           "1.0.0-SNAPSHOT");
 
-  private final FirmwareUpdateMode mode = FirmwareUpdateMode.initial();
+  private final FirmwareUpdateDeliveryMethod deliveryMethod =
+      FirmwareUpdateDeliveryMethod.initial();
 
   private final List<Consumer<byte[]>> onFileChange = new ArrayList<>();
   private final List<Consumer<String>> onUrlChange = new ArrayList<>();
   private final List<Consumer<FirmwareUpdateState>> onStateChange = new ArrayList<>();
   private final List<Consumer<FirmwareUpdateResult>> onResultChange = new ArrayList<>();
   private final List<Consumer<String>> onPackageVersionChange = new ArrayList<>();
+  private final List<IntConsumer> onProgressChange = new ArrayList<>();
 
   public FirmwareServiceImpl(ScheduledExecutorService scheduler, MessageDigest digest) {
     this.scheduler = scheduler;
@@ -81,18 +85,24 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
     if (!firmware.getPackageVersion().equals(previousFirmware.getPackageVersion())) {
       onPackageVersionChange.forEach(c -> c.accept(firmware.getPackageVersion()));
     }
+    if (firmware.getProgress() != previousFirmware.getProgress()) {
+      onProgressChange.forEach(c -> c.accept(firmware.getProgress()));
+    }
   }
 
   @Override
   public FirmwareDTO getFirmware() {
     return new FirmwareDTO(
         firmware.getFile(),
-        firmware.getFile() != null ? Hex.encodeHexString(digest.digest(firmware.getFile())) : null,
+        firmware.getFile() != null
+            ? "sha256:" + Hex.encodeHexString(digest.digest(firmware.getFile()))
+            : null,
         firmware.getPackageUri(),
-        firmware.getPackageVersion(),
-        mode,
         firmware.getState(),
-        firmware.getResult());
+        firmware.getResult(),
+        firmware.getPackageVersion(),
+        deliveryMethod,
+        firmware.getProgress());
   }
 
   private String stringifyFile(byte[] file) {
@@ -111,33 +121,36 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
 
   @Override
   public void changeFirmware(FirmwareDTO firmware) {
+    FirmwareUpdateExecution previous = this.firmware;
     if (firmware.getFile() != null) {
       this.firmware =
-          new Idle(
+          new Downloaded(
               firmware.getFile(),
               this.firmware.getPackageUri(),
               FirmwareUpdateState.DOWNLOADED,
               this.firmware.getResult(),
               this.firmware.getPackageVersion());
-      onFileChange.forEach(c -> c.accept(this.firmware.getFile()));
+      fireOnAnythingChanged(previous);
       log.info("Updated firmware file to {}", stringifyFile(this.firmware.getFile()));
     }
-    if (firmware.getUrl() != null) {
+    if (firmware.getPackageUri() != null) {
       this.firmware =
           new Downloading(
               this.firmware.getFile(),
-              firmware.getUrl(),
-              this.firmware.getState(),
+              firmware.getPackageUri(),
+              FirmwareUpdateState.DOWNLOADING,
               this.firmware.getResult(),
               this.firmware.getPackageVersion());
-      onUrlChange.forEach(c -> c.accept(this.firmware.getPackageUri()));
+      fireOnAnythingChanged(previous);
       log.info("Updated firmware package URI to {}", this.firmware.getPackageUri());
     }
   }
 
   @Override
   public void executeFirmwareUpdate() {
+    FirmwareUpdateExecution previous = firmware;
     firmware = new Updating(firmware);
+    fireOnAnythingChanged(previous);
   }
 
   @Override
@@ -146,7 +159,7 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
   }
 
   @Override
-  public void subscribeOnUrlChange(Consumer<String> consumer) {
+  public void subscribeOnPackageUriChange(Consumer<String> consumer) {
     onUrlChange.add(consumer);
   }
 
@@ -163,5 +176,10 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
   @Override
   public void subscribeOnPackageVersionChange(Consumer<String> consumer) {
     onPackageVersionChange.add(consumer);
+  }
+
+  @Override
+  public void subscribeOnProgressChange(IntConsumer consumer) {
+    onProgressChange.add(consumer);
   }
 }

@@ -7,7 +7,9 @@ import java.util.List;
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler;
 import org.eclipse.leshan.client.servers.ServerIdentity;
 import org.eclipse.leshan.core.model.ObjectModel;
+import org.eclipse.leshan.core.node.LwM2mObjectInstance;
 import org.eclipse.leshan.core.node.LwM2mResource;
+import org.eclipse.leshan.core.node.LwM2mSingleResource;
 import org.eclipse.leshan.core.response.ExecuteResponse;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.core.response.WriteResponse;
@@ -22,7 +24,7 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
     FirmwareUpdateEnabler firmware = new FirmwareUpdateEnabler(service);
 
     service.subscribeOnFileChange(ign -> firmware.fireResourcesChange(FILE));
-    service.subscribeOnUrlChange(ign -> firmware.fireResourcesChange(PACKAGE_URI));
+    service.subscribeOnPackageUriChange(ign -> firmware.fireResourcesChange(PACKAGE_URI));
     service.subscribeOnStateChange(ign -> firmware.fireResourcesChange(STATE));
     service.subscribeOnResultChange(ign -> firmware.fireResourcesChange(UPDATE_RESULT));
     service.subscribeOnPackageVersionChange(ign -> firmware.fireResourcesChange(PACKAGE_VERSION));
@@ -54,10 +56,8 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
     log.debug(
         "Received read request to Firmware instanceId={} to resourceId={}", getId(), resourceId);
     switch (resourceId) {
-      case FILE:
-        return ReadResponse.success(resourceId, firmwareService.getFirmware().getFile());
       case PACKAGE_URI:
-        return ReadResponse.success(resourceId, firmwareService.getFirmware().getUrl());
+        return ReadResponse.success(resourceId, firmwareService.getFirmware().getPackageUri());
       case STATE:
         return ReadResponse.success(
             resourceId, firmwareService.getFirmware().getState().getValue());
@@ -65,12 +65,27 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
         return ReadResponse.success(
             resourceId, firmwareService.getFirmware().getResult().getValue());
       case PACKAGE_VERSION:
-        return ReadResponse.success(resourceId, firmwareService.getFirmware().getPackageVersion());
+        return ReadResponse.success(resourceId, firmwareService.getFirmware().getPkgVersion());
       case MODE:
-        return ReadResponse.success(resourceId, firmwareService.getFirmware().getMode().getValue());
+        return ReadResponse.success(
+            resourceId, firmwareService.getFirmware().getDeliveryMethod().getValue());
       default:
         return super.read(identity, resourceId);
     }
+  }
+
+  @Override
+  public ReadResponse read(ServerIdentity identity) {
+    log.debug("Received read request to Firmware instanceId={}", getId());
+    FirmwareDTO firmware = firmwareService.getFirmware();
+    return ReadResponse.success(
+        new LwM2mObjectInstance(
+            getId(),
+            LwM2mSingleResource.newStringResource(PACKAGE_URI, firmware.getPackageUri()),
+            LwM2mSingleResource.newIntegerResource(STATE, firmware.getState().getValue()),
+            LwM2mSingleResource.newIntegerResource(UPDATE_RESULT, firmware.getResult().getValue()),
+            LwM2mSingleResource.newStringResource(PACKAGE_VERSION, firmware.getPkgVersion()),
+            LwM2mSingleResource.newIntegerResource(MODE, firmware.getDeliveryMethod().getValue())));
   }
 
   @Override
@@ -83,11 +98,11 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
     switch (resourceId) {
       case FILE:
         firmwareService.changeFirmware(
-            new FirmwareDTO((byte[]) value.getValue(), null, null, null, null, null, null));
+            new FirmwareDTO((byte[]) value.getValue(), null, null, null, null, null, null, null));
         return WriteResponse.success();
       case PACKAGE_URI:
         firmwareService.changeFirmware(
-            new FirmwareDTO(null, null, (String) value.getValue(), null, null, null, null));
+            new FirmwareDTO(null, null, (String) value.getValue(), null, null, null, null, null));
         return WriteResponse.success();
       default:
         return super.write(identity, resourceId, value);

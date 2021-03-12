@@ -93,6 +93,11 @@ public class Updating implements FirmwareUpdateExecution {
   }
 
   @Override
+  public int getProgress() {
+    return progress;
+  }
+
+  @Override
   public String getPackageVersion() {
     return packageVersion;
   }

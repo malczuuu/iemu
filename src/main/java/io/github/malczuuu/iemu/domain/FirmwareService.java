@@ -3,6 +3,7 @@ package io.github.malczuuu.iemu.domain;
 import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateResult;
 import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateState;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public interface FirmwareService {
 
@@ -14,11 +15,13 @@ public interface FirmwareService {
 
   void subscribeOnFileChange(Consumer<byte[]> consumer);
 
-  void subscribeOnUrlChange(Consumer<String> consumer);
+  void subscribeOnPackageUriChange(Consumer<String> consumer);
 
   void subscribeOnStateChange(Consumer<FirmwareUpdateState> consumer);
 
   void subscribeOnResultChange(Consumer<FirmwareUpdateResult> consumer);
 
   void subscribeOnPackageVersionChange(Consumer<String> consumer);
+
+  void subscribeOnProgressChange(IntConsumer consumer);
 }

@@ -18,4 +18,6 @@ public interface FirmwareUpdateExecution {
   FirmwareUpdateState getState();
 
   FirmwareUpdateResult getResult();
+
+  int getProgress();
 }

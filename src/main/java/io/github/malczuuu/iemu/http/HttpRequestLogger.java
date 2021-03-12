@@ -12,6 +12,10 @@ public class HttpRequestLogger implements RequestLogger {
   public void handle(@NotNull Context ctx, @NotNull Float executionTimeMs) {
     log.debug(
         "Handled HTTP request method={}, path={}, query={}, headers={} in {}ms",
-        ctx.method(), ctx.method(), ctx.queryString(), ctx.headerMap(), executionTimeMs);
+        ctx.method(),
+        ctx.method(),
+        ctx.queryString(),
+        ctx.headerMap(),
+        executionTimeMs);
   }
 }

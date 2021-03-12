@@ -34,11 +34,22 @@ public class App {
   private final ObjectMapper mapper = new ObjectMapperFactory().getJsonObjectMapper();
   private final Config config;
 
-  private final Runnable runnable =
+  private final Runnable statePublish =
       () -> {
         try {
           webSocketService.sendMessage(
               mapper.writeValueAsString(new WebSocketEvent("state", stateService.getState())));
+        } catch (JsonProcessingException e) {
+          // Ignored
+        }
+      };
+
+  private final Runnable firmwarePublish =
+      () -> {
+        try {
+          webSocketService.sendMessage(
+              mapper.writeValueAsString(
+                  new WebSocketEvent("firmware", firmwareService.getFirmware())));
         } catch (JsonProcessingException e) {
           // Ignored
         }
@@ -51,14 +62,23 @@ public class App {
   private void run() {
     Runtime.getRuntime().addShutdownHook(new Thread(stateService::shutdown));
 
-    stateService.subscribeOnCurrentTimeChange(ignored -> runnable.run());
-    stateService.subscribeOnStateChange(ignored -> runnable.run());
-    stateService.subscribeOnTimeCounterChange(ignored -> runnable.run());
-    stateService.subscribeOnDimmerChange(ignored -> runnable.run());
+    stateService.subscribeOnCurrentTimeChange(ignored -> statePublish.run());
+    stateService.subscribeOnStateChange(ignored -> statePublish.run());
+    stateService.subscribeOnTimeCounterChange(ignored -> statePublish.run());
+    stateService.subscribeOnDimmerChange(ignored -> statePublish.run());
+
+    firmwareService.subscribeOnFileChange(ignored -> firmwarePublish.run());
+    firmwareService.subscribeOnPackageUriChange(ignored -> firmwarePublish.run());
+    firmwareService.subscribeOnStateChange(ignored -> firmwarePublish.run());
+    firmwareService.subscribeOnResultChange(ignored -> firmwarePublish.run());
+    firmwareService.subscribeOnPackageVersionChange(ignored -> firmwarePublish.run());
+    firmwareService.subscribeOnProgressChange(ign -> firmwarePublish.run());
 
     if (config.getLwM2mConfig().isEnabled()) {
       new LwM2mClientStarter(config.getLwM2mConfig(), stateService, firmwareService).run();
     }
-    new HttpServerStarter(config.getHttpConfig(), webSocketService, stateService, mapper).run();
+    new HttpServerStarter(
+            config.getHttpConfig(), webSocketService, stateService, firmwareService, mapper)
+        .run();
   }
 }

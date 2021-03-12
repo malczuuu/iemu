@@ -153,6 +153,11 @@ public class Downloading implements FirmwareUpdateExecution {
   }
 
   @Override
+  public int getProgress() {
+    return 0;
+  }
+
+  @Override
   public String getPackageVersion() {
     return packageVersion;
   }
