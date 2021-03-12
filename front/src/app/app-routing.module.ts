@@ -4,12 +4,11 @@ import { ExtraOptions, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [];
 
 const options: ExtraOptions = {
-  useHash: true
+  useHash: true,
 };
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, options)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule {
-}
+export class AppRoutingModule {}

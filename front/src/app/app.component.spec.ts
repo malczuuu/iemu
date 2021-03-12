@@ -7,9 +7,8 @@ describe('AppComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [AppComponent]
-    })
-    .compileComponents();
+      declarations: [AppComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -17,5 +16,4 @@ describe('AppComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-
 });

@@ -5,11 +5,9 @@ import { StateDTO, StatePatchDTO } from './state.model';
 
 @Injectable()
 export class StateService {
-
   private readonly api = '/api/state';
 
-  public constructor(private http: HttpClient) {
-  }
+  public constructor(private http: HttpClient) {}
 
   public getState(): Observable<StateDTO> {
     return this.http.get<StateDTO>(this.api);
@@ -18,5 +16,4 @@ export class StateService {
   public patchState(patch: StatePatchDTO): Observable<void> {
     return this.http.patch<void>(this.api, patch);
   }
-
 }

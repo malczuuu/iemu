@@ -1,9 +1,8 @@
-import {Injectable} from '@angular/core';
-import {Subject, Observable} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Subject, Observable } from 'rxjs';
 
 @Injectable()
 export class WebSocketService {
-
   private readonly api;
 
   private messages: Subject<any> = new Subject<any>();
@@ -26,10 +25,10 @@ export class WebSocketService {
 
   private connect(): void {
     this.socket = new WebSocket(this.api);
-    this.socket.onopen = event => null;
-    this.socket.onmessage = event => this.messages.next(event.data);
-    this.socket.onclose = event => this.socket = null;
-    this.socket.onerror = event => this.socket.close();
+    this.socket.onopen = (event) => null;
+    this.socket.onmessage = (event) => this.messages.next(event.data);
+    this.socket.onclose = (event) => (this.socket = null);
+    this.socket.onerror = (event) => this.socket.close();
   }
 
   public onMessage(): Observable<any> {

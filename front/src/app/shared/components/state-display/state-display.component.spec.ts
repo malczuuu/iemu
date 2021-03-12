@@ -7,9 +7,8 @@ describe('StateDisplayComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ StateDisplayComponent ]
-    })
-    .compileComponents();
+      declarations: [StateDisplayComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -17,5 +16,4 @@ describe('StateDisplayComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-
 });

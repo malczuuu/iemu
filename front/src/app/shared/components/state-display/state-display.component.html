@@ -3,126 +3,141 @@
     <div class="content">
       <table class="table is-hoverable">
         <tbody>
-        <tr>
-          <td colspan="4" class="has-text-weight-bold">Time Settings</td>
-        </tr>
-        <tr>
-          <td>Current time</td>
-          <td><code>/3/0/13</code></td>
-          <td><code>{{ state.currentTime }}</code></td>
-          <td>
-          </td>
-        </tr>
-        <tr>
-          <td>Time zone</td>
-          <td><code>/3/0/15</code></td>
-          <td><code>{{ state.timeZone }}</code></td>
-          <td>
-          </td>
-        </tr>
-        <tr>
-          <td>UTC offset</td>
-          <td><code>/3/0/14</code></td>
-          <td><code>{{ state.utcOffset }}</code></td>
-          <td>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="4"></td>
-        </tr>
-        <tr>
-          <td colspan="4" class="has-text-weight-bold">Light Control</td>
-        </tr>
-        <tr>
-          <td>On / off</td>
-          <td><code>/3311/0/5850</code></td>
-          <td>
-            <span *ngIf="state.on" class="tag is-primary">On</span>
-            <span *ngIf="!state.on" class="tag is-danger">Off</span>
-          </td>
-          <td class="has-text-right">
-            <button class="button is-small" (click)="onOffToggle.emit(true)">Toggle</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Dimmer</td>
-          <td><code>/3311/0/5851</code></td>
-          <td>
-            <label for="dimmerInput" class="is-sr-only">Dimmer</label>
-            <input #dimmerInput
-                   id="dimmerInput"
-                   type="number"
-                   class="input is-small"
-                   [value]="state.dimmer"/>
-          </td>
-          <td class="has-text-right">
-            <button class="button is-small"
-                    (click)="dimmerSave.emit(dimmerInput.value)">Save
-            </button>
-          </td>
-        </tr>
-        <tr>
-          <td>On time</td>
-          <td><code>/3311/0/5852</code></td>
-          <td><code>{{ state.onTime }} s</code></td>
-          <td class="has-text-right">
-            <button class="button is-small" (click)="onTimeReset.emit(0)">Reset</button>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="4"></td>
-        </tr>
-        <tr>
-          <td colspan="4" class="has-text-weight-bold">Firmware Update</td>
-        </tr>
-        <tr>
-          <td>Package</td>
-          <td><code>/5/0/0</code></td>
-          <td><code [title]="firmware.fileChecksum">{{ trimmedChecksum() }}</code></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Package URI</td>
-          <td><code>/5/0/1</code></td>
-          <td><code [title]="firmware.packageUri">{{ trimmedUri() }}</code></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>State</td>
-          <td><code>/5/0/3</code></td>
-          <td><code>{{ firmware.state + ' (' + firmware.stateValue + ')' }}</code></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Update Result</td>
-          <td><code>/5/0/5</code></td>
-          <td><code>{{ firmware.result + ' (' + firmware.resultValue + ')' }}</code></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Package Version</td>
-          <td><code>/5/0/7</code></td>
-          <td><code>{{ firmware.pkgVersion }}</code></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Delivery Method</td>
-          <td><code>/5/0/7</code></td>
-          <td>
-            <code>{{ firmware.deliveryMethod + ' (' + firmware.deliveryMethodValue + ')' }}</code>
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>Progress</td>
-          <td colspan="2">
-            <progress class="progress is-primary"
-                      [value]="firmware.progress"
-                      max="100">
-              {{ firmware.progress }}%
-            </progress>
-          </td>
-        </tr>
+          <tr>
+            <td colspan="4" class="has-text-weight-bold">Time Settings</td>
+          </tr>
+          <tr>
+            <td>Current time</td>
+            <td><code>/3/0/13</code></td>
+            <td>
+              <code>{{ state.currentTime }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Time zone</td>
+            <td><code>/3/0/15</code></td>
+            <td>
+              <code>{{ state.timeZone }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>UTC offset</td>
+            <td><code>/3/0/14</code></td>
+            <td>
+              <code>{{ state.utcOffset }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="4"></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="has-text-weight-bold">Light Control</td>
+          </tr>
+          <tr>
+            <td>On / off</td>
+            <td><code>/3311/0/5850</code></td>
+            <td>
+              <span *ngIf="state.on" class="tag is-primary">On</span>
+              <span *ngIf="!state.on" class="tag is-danger">Off</span>
+            </td>
+            <td class="has-text-right">
+              <button class="button is-small" (click)="onOffToggle.emit(true)">Toggle</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Dimmer</td>
+            <td><code>/3311/0/5851</code></td>
+            <td>
+              <label for="dimmerInput" class="is-sr-only">Dimmer</label>
+              <input
+                #dimmerInput
+                id="dimmerInput"
+                type="number"
+                class="input is-small"
+                [value]="state.dimmer"
+              />
+            </td>
+            <td class="has-text-right">
+              <button class="button is-small" (click)="dimmerSave.emit(dimmerInput.value)">
+                Save
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>On time</td>
+            <td><code>/3311/0/5852</code></td>
+            <td>
+              <code>{{ state.onTime }} s</code>
+            </td>
+            <td class="has-text-right">
+              <button class="button is-small" (click)="onTimeReset.emit(0)">Reset</button>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4"></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="has-text-weight-bold">Firmware Update</td>
+          </tr>
+          <tr>
+            <td>Package</td>
+            <td><code>/5/0/0</code></td>
+            <td>
+              <code [title]="firmware.fileChecksum">{{ trimmedChecksum() }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Package URI</td>
+            <td><code>/5/0/1</code></td>
+            <td>
+              <code [title]="firmware.packageUri">{{ trimmedUri() }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>State</td>
+            <td><code>/5/0/3</code></td>
+            <td>
+              <code>{{ firmware.state + ' (' + firmware.stateValue + ')' }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Update Result</td>
+            <td><code>/5/0/5</code></td>
+            <td>
+              <code>{{ firmware.result + ' (' + firmware.resultValue + ')' }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Package Version</td>
+            <td><code>/5/0/7</code></td>
+            <td>
+              <code>{{ firmware.pkgVersion }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Delivery Method</td>
+            <td><code>/5/0/7</code></td>
+            <td>
+              <code>{{ firmware.deliveryMethod + ' (' + firmware.deliveryMethodValue + ')' }}</code>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Progress</td>
+            <td colspan="2">
+              <progress class="progress is-primary" [value]="firmware.progress" max="100">
+                {{ firmware.progress }}%
+              </progress>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

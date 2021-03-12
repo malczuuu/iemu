@@ -1,14 +1,13 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {StateDTO} from '../../../core/state.model';
-import {FirmwareDTO} from '../../../core/firmware.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { StateDTO } from '../../../core/state.model';
+import { FirmwareDTO } from '../../../core/firmware.model';
 
 @Component({
   selector: 'app-state-display',
   templateUrl: './state-display.component.html',
-  styleUrls: ['./state-display.component.scss']
+  styleUrls: ['./state-display.component.scss'],
 })
 export class StateDisplayComponent implements OnInit {
-
   @Input()
   public state: StateDTO;
 
@@ -24,11 +23,9 @@ export class StateDisplayComponent implements OnInit {
   @Output()
   public onTimeReset: EventEmitter<number> = new EventEmitter<number>();
 
-  public constructor() {
-  }
+  public constructor() {}
 
-  public ngOnInit(): void {
-  }
+  public ngOnInit(): void {}
 
   trimmedChecksum(): string {
     return this.firmware.fileChecksum.substring(0, 32) + '...';

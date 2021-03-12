@@ -6,17 +6,8 @@ import { StateService } from './state.service';
 
 @NgModule({
   declarations: [],
-  imports: [
-    CommonModule,
-    HttpClientModule
-  ],
-  exports: [
-    HttpClientModule
-  ],
-  providers: [
-    StateService,
-    WebSocketService
-  ]
+  imports: [CommonModule, HttpClientModule],
+  exports: [HttpClientModule],
+  providers: [StateService, WebSocketService],
 })
-export class CoreModule {
-}
+export class CoreModule {}
