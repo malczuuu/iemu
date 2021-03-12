@@ -35,8 +35,8 @@ export class StateDisplayComponent implements OnInit {
     let packageUri = this.firmware.packageUri;
     if (packageUri.length > 32) {
       const trimm = packageUri.length - 32;
-      packageUri = packageUri.substring(trimm);
+      packageUri = '...' + packageUri.substring(trimm);
     }
-    return '...' + packageUri;
+    return packageUri;
   }
 }
