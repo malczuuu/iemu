@@ -6,7 +6,11 @@ Emulator application for an IoT device.
 Features
 --------
 
-1. LwM2M protocol support for `LwM2M Server (1)`, `Device (3)`, `Firmware Update (5)` and `Light Control (3311)` objects.
+1. LwM2M protocol support for objects:
+   * `LwM2M Server (1)`,
+   * `Device (3)`,
+   * `Firmware Update (5)`,
+   * `Light Control (3311)`.
 2. HTTP UI for device management (REST API and Angular UI).
 3. Docker build.
 
