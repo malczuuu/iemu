@@ -12,9 +12,11 @@
     </div>
   </div>
   <div class="columns is-multiline">
-    <div class="column is-12-mobile is-8-desktop is-offset-2-desktop is-6-widescreen is-offset-3-widescreen">
-      <app-state-display *ngIf="state"
-                         [state]="state"
+    <div
+      *ngIf="state && firmware"
+      class="column is-12-mobile is-10-desktop is-offset-1-desktop is-8-widescreen is-offset-2-widescreen">
+      <app-state-display [state]="state"
+                         [firmware]="firmware"
                          (onOffToggle)="onOffToggle()"
                          (dimmerSave)="onDimmerChanged($event)"
                          (onTimeReset)="onOnTimeReset()"></app-state-display>

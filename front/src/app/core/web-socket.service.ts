@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {Subject, Observable} from 'rxjs';
-import {environment} from '../../environments/environment';
 
 @Injectable()
 export class WebSocketService {
@@ -13,7 +12,7 @@ export class WebSocketService {
 
   public constructor() {
     const schema = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const endpoint = environment.production ? window.location.host + '/api' : environment.api.replace('http://', '');
+    const endpoint = window.location.host + '/api';
     this.api = schema + endpoint + '/websocket';
 
     this.connect();
