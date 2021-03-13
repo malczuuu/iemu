@@ -27,7 +27,7 @@ class LightModuleImplTests {
 
   @BeforeEach
   void beforeEach() {
-    doAnswer(i -> tasks.add(i.getArgumentAt(0, TimerTask.class)))
+    doAnswer(i -> tasks.add(i.getArgument(0, TimerTask.class)))
         .when(timer)
         .schedule(any(TimerTask.class), anyLong(), anyLong());
   }
