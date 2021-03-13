@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id "com.github.johnrengelman.shadow" version "4.0.3"
-    id "io.franzbecker.gradle-lombok" version "1.14"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id "io.franzbecker.gradle-lombok" version "4.0.0"
     id "com.github.sherter.google-java-format" version "0.9"
 }
 
@@ -50,7 +50,7 @@ shadowJar {
 build.dependsOn(shadowJar)
 
 lombok {
-    version = "1.18.4"
+    version = "1.18.18"
     sha256 = ""
 }
 
