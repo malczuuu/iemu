@@ -59,5 +59,5 @@ Technologies
 
 - [Javalin](https://javalin.io)
 - [Leshan](https://github.com/eclipse/leshan)
-- [Angular 7](https://angular.io)
+- [Angular 11](https://angular.io)
 - [Docker](https://www.docker.com/)
