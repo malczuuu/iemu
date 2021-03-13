@@ -1,17 +1,20 @@
 package io.github.malczuuu.iemu.http;
 
-import io.javalin.websocket.WsSession;
+import io.javalin.websocket.WsCloseContext;
+import io.javalin.websocket.WsConnectContext;
+import io.javalin.websocket.WsErrorContext;
+import io.javalin.websocket.WsMessageContext;
 import java.util.function.Consumer;
 
 public interface WebSocketService {
 
-  void onConnect(WsSession session);
+  void onConnect(WsConnectContext session);
 
-  void onMessage(WsSession session, String message);
+  void onMessage(WsMessageContext session);
 
-  void onClose(WsSession session, int statusCode, String reason);
+  void onClose(WsCloseContext session);
 
-  void onError(WsSession session, Throwable exception);
+  void onError(WsErrorContext session);
 
   void subscribe(Consumer<String> consumer);
 

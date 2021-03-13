@@ -3,8 +3,8 @@ package io.github.malczuuu.iemu.http;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.malczuuu.iemu.domain.FirmwareDTO;
 import io.github.malczuuu.iemu.domain.FirmwareService;
-import io.javalin.Context;
-import io.javalin.Handler;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
 
 public class FirmwareGetEndpointHandler implements Handler {

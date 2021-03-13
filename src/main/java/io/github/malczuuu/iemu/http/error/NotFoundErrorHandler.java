@@ -3,8 +3,8 @@ package io.github.malczuuu.iemu.http.error;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.malczuuu.problem4j.core.Problem;
-import io.javalin.Context;
-import io.javalin.ErrorHandler;
+import io.javalin.http.Context;
+import io.javalin.http.ErrorHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class NotFoundErrorHandler implements ErrorHandler {

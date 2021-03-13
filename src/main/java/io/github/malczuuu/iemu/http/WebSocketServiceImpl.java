@@ -1,6 +1,10 @@
 package io.github.malczuuu.iemu.http;
 
-import io.javalin.websocket.WsSession;
+import io.javalin.websocket.WsCloseContext;
+import io.javalin.websocket.WsConnectContext;
+import io.javalin.websocket.WsContext;
+import io.javalin.websocket.WsErrorContext;
+import io.javalin.websocket.WsMessageContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,44 +19,46 @@ class WebSocketServiceImpl implements WebSocketService {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-  private final Map<String, WsSession> sessions = new HashMap<>();
+  private final Map<String, WsContext> sessions = new HashMap<>();
   private final List<Consumer<String>> consumers = new ArrayList<>();
 
   @Override
-  public void onConnect(WsSession session) {
+  public void onConnect(WsConnectContext session) {
     executorService.submit(
         () -> {
-          log.debug("Connected session={}", session.getId());
-          sessions.put(session.getId(), session);
+          log.debug("Connected session={}", session.getSessionId());
+          sessions.put(session.getSessionId(), session);
         });
   }
 
   @Override
-  public void onMessage(WsSession session, String message) {
+  public void onMessage(WsMessageContext session) {
     executorService.submit(
-        () -> log.debug("Received message={} from session={}", message, session.getId()));
+        () ->
+            log.debug(
+                "Received message={} from session={}", session.message(), session.getSessionId()));
   }
 
   @Override
-  public void onClose(WsSession session, int statusCode, String reason) {
+  public void onClose(WsCloseContext session) {
     executorService.submit(
         () -> {
           log.debug(
               "Closed session={} with statusCode={}, reason={}",
-              session.getId(),
-              statusCode,
-              reason);
-          sessions.remove(session.getId());
+              session.getSessionId(),
+              session.status(),
+              session.reason());
+          sessions.remove(session.getSessionId());
         });
   }
 
   @Override
-  public void onError(WsSession session, Throwable exception) {
+  public void onError(WsErrorContext session) {
     executorService.submit(
         () -> {
-          log.error("An error occurred in session={}", session.getId(), exception);
-          sessions.remove(session.getId());
-          session.close();
+          log.error("An error occurred in session={}", session.getSessionId(), session.error());
+          sessions.remove(session.getSessionId());
+          session.session.close();
         });
   }
 

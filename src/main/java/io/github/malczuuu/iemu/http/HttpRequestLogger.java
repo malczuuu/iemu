@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.http;
 
-import io.javalin.Context;
-import io.javalin.RequestLogger;
+import io.javalin.http.Context;
+import io.javalin.http.RequestLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
