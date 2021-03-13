@@ -51,7 +51,7 @@ Application
 Application has just one view, displaying (refreshing automatically thanks to websocket connection) management UI for the device.
 
 <div align="center">
-  <img src="docs/front.png" />
+  <img src="docs/img/webapp.png" />
 </div>
 
 Technologies
