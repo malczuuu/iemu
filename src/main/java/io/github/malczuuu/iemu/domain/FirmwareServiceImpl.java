@@ -126,7 +126,7 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
           new Downloaded(
               firmware.getFile(),
               this.firmware.getPackageUri(),
-              this.firmware.getResult(),
+              FirmwareUpdateResult.NONE,
               this.firmware.getPackageVersion());
       fireOnAnythingChanged(previous);
       log.info("Updated firmware file to {}", stringifyFile(this.firmware.getFile()));
@@ -136,7 +136,7 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
           new Downloading(
               this.firmware.getFile(),
               firmware.getPackageUri(),
-              this.firmware.getResult(),
+              FirmwareUpdateResult.NONE,
               this.firmware.getPackageVersion());
       fireOnAnythingChanged(previous);
       log.info("Updated firmware package URI to {}", this.firmware.getPackageUri());
