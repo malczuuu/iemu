@@ -11,26 +11,19 @@ public class Idle implements FirmwareUpdateExecution {
 
   private final byte[] file;
   private final String packageUri;
-  private final FirmwareUpdateState state;
   private final FirmwareUpdateResult result;
   private final String packageVersion;
 
-  public Idle(
-      byte[] file,
-      String packageUri,
-      FirmwareUpdateState state,
-      FirmwareUpdateResult result,
-      String packageVersion) {
+  public Idle(byte[] file, String packageUri, FirmwareUpdateResult result, String packageVersion) {
     this.file = file;
     this.packageUri = packageUri;
-    this.state = state;
     this.result = result;
     this.packageVersion = packageVersion;
   }
 
   @Override
   public FirmwareUpdateExecution execute() {
-    log.error("Attempting to change state from 'Idle', returning 'Idle' as well");
+    log.error("Attempting to change state from idle state, returning idle as well");
     return this;
   }
 
@@ -51,7 +44,7 @@ public class Idle implements FirmwareUpdateExecution {
 
   @Override
   public FirmwareUpdateState getState() {
-    return state;
+    return FirmwareUpdateState.IDLE;
   }
 
   @Override

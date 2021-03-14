@@ -11,19 +11,13 @@ public class Downloaded implements FirmwareUpdateExecution {
 
   private final byte[] file;
   private final String packageUri;
-  private final FirmwareUpdateState state;
   private final FirmwareUpdateResult result;
   private final String packageVersion;
 
   public Downloaded(
-      byte[] file,
-      String packageUri,
-      FirmwareUpdateState state,
-      FirmwareUpdateResult result,
-      String packageVersion) {
+      byte[] file, String packageUri, FirmwareUpdateResult result, String packageVersion) {
     this.file = file;
     this.packageUri = packageUri;
-    this.state = state;
     this.result = result;
     this.packageVersion = packageVersion;
   }
@@ -46,7 +40,7 @@ public class Downloaded implements FirmwareUpdateExecution {
 
   @Override
   public FirmwareUpdateState getState() {
-    return state;
+    return FirmwareUpdateState.DOWNLOADED;
   }
 
   @Override

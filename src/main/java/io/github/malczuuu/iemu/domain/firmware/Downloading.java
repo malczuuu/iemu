@@ -18,7 +18,6 @@ public class Downloading implements FirmwareUpdateExecution {
 
   private final byte[] file;
   private final String packageUri;
-  private final FirmwareUpdateState state;
   private final FirmwareUpdateResult result;
   private final String packageVersion;
 
@@ -26,24 +25,18 @@ public class Downloading implements FirmwareUpdateExecution {
   private HttpClient client;
 
   public Downloading(
-      byte[] file,
-      String packageUri,
-      FirmwareUpdateState state,
-      FirmwareUpdateResult result,
-      String packageVersion) {
-    this(file, packageUri, state, result, packageVersion, null);
+      byte[] file, String packageUri, FirmwareUpdateResult result, String packageVersion) {
+    this(file, packageUri, result, packageVersion, null);
   }
 
   public Downloading(
       byte[] file,
       String packageUri,
-      FirmwareUpdateState state,
       FirmwareUpdateResult result,
       String packageVersion,
       HttpClient client) {
     this.file = file;
     this.packageUri = packageUri;
-    this.state = state;
     this.result = result;
     this.packageVersion = packageVersion;
 
@@ -56,11 +49,9 @@ public class Downloading implements FirmwareUpdateExecution {
     try {
       URI uri = new URI(this.packageUri);
       if (!uri.getScheme().matches("^(http|https)$")) {
-        FirmwareUpdateState state = FirmwareUpdateState.IDLE;
-        FirmwareUpdateResult result = FirmwareUpdateResult.INVALID_URI;
-        log.error(
-            "Schema doesn't match http|https, move into state={} with result={}", state, result);
-        return new Idle(file, packageUri, FirmwareUpdateState.IDLE, result, packageVersion);
+        FirmwareUpdateResult result = FirmwareUpdateResult.UNSUPPORTED_PROTOCOL;
+        log.error("Schema doesn't match http|https, move into idle state with result={}", result);
+        return new Idle(file, packageUri, result, packageVersion);
       }
 
       byte[] file = downloadFile(uri);
@@ -74,9 +65,9 @@ public class Downloading implements FirmwareUpdateExecution {
     } catch (URISyntaxException e) {
       return onURISyntaxException();
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
-      return onDownloadingBroke();
+      return onDownloadingBroke(e);
     } catch (Exception e) {
-      return onUnknownException();
+      return onUnknownException(e);
     }
   }
 
@@ -92,45 +83,46 @@ public class Downloading implements FirmwareUpdateExecution {
     if (managedClient) {
       client.stop();
     }
-
     return file;
   }
 
   private FirmwareUpdateExecution fileEmptyFailure(byte[] file) {
-    FirmwareUpdateState state = FirmwareUpdateState.IDLE;
-    FirmwareUpdateResult result = FirmwareUpdateResult.UNSUPPORTED_PACKAGE_TYPE;
-    log.error("Read file is empty, move into state={} with result={}", state, result);
-    return new Idle(file, packageUri, state, result, packageVersion);
+    FirmwareUpdateResult result = FirmwareUpdateResult.PACKAGE_INTEGRITY_CHECK_FAILURE;
+    log.error("Read file is empty, move into idle state with result={}", result);
+    return new Idle(file, packageUri, result, packageVersion);
   }
 
   private Downloaded successfulDownloading(byte[] file) {
-    FirmwareUpdateState state = FirmwareUpdateState.DOWNLOADED;
     FirmwareUpdateResult result = FirmwareUpdateResult.NONE;
-    log.info("Download complete, move into state={} with result={}", state, result);
-    return new Downloaded(file, packageUri, FirmwareUpdateState.DOWNLOADED, result, packageVersion);
+    log.info("Download complete, move into downloaded state with result={}", result);
+    return new Downloaded(file, packageUri, result, packageVersion);
   }
 
   private FirmwareUpdateExecution onURISyntaxException() {
-    FirmwareUpdateState state = FirmwareUpdateState.IDLE;
     FirmwareUpdateResult result = FirmwareUpdateResult.INVALID_URI;
-    log.error(
-        "PackageURI doesn't follow URI syntax, move into state={} with result={}", state, result);
-    return new Idle(file, packageUri, state, result, packageVersion);
+    log.error("PackageURI doesn't follow URI syntax, move into idle state with result={}", result);
+    return new Idle(file, packageUri, result, packageVersion);
   }
 
   /** It could at least attempt to retry a broken downloading a few times. */
-  private FirmwareUpdateExecution onDownloadingBroke() {
-    FirmwareUpdateState state = FirmwareUpdateState.DOWNLOADED;
+  private FirmwareUpdateExecution onDownloadingBroke(Exception e) {
     FirmwareUpdateResult result = FirmwareUpdateResult.NONE;
-    log.error("Downloading file broke, move into state={} with result={}", state, result);
-    return new Idle(file, packageUri, state, result, packageVersion);
+    if (log.isDebugEnabled()) {
+      log.error("Downloading file broke, move into idle state with result={}", result, e);
+    } else {
+      log.error("Downloading file broke, move into idle state with result={}", result);
+    }
+    return new Idle(file, packageUri, result, packageVersion);
   }
 
-  private FirmwareUpdateExecution onUnknownException() {
-    FirmwareUpdateState state = FirmwareUpdateState.IDLE;
+  private FirmwareUpdateExecution onUnknownException(Exception e) {
     FirmwareUpdateResult result = FirmwareUpdateResult.FIRMWARE_UPDATE_FAILED;
-    log.error("Downloading file broke, move into state={} with result={}", state, result);
-    return new Idle(file, packageUri, state, result, packageVersion);
+    if (log.isDebugEnabled()) {
+      log.error("Downloading file broke, move into idle state with result={}", result, e);
+    } else {
+      log.error("Downloading file broke, move into idle state with result={}", result);
+    }
+    return new Idle(file, packageUri, result, packageVersion);
   }
 
   @Override
@@ -145,7 +137,7 @@ public class Downloading implements FirmwareUpdateExecution {
 
   @Override
   public FirmwareUpdateState getState() {
-    return state;
+    return FirmwareUpdateState.DOWNLOADING;
   }
 
   @Override

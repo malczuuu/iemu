@@ -6,10 +6,6 @@ public enum FirmwareUpdateState {
   DOWNLOADED(2),
   UPDATING(3);
 
-  public static FirmwareUpdateState initial() {
-    return IDLE;
-  }
-
   public static FirmwareUpdateState fromValue(Integer value) {
     if (value == null) {
       return IDLE;

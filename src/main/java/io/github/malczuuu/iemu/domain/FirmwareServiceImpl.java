@@ -31,7 +31,6 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
       new Idle(
           "1.0.0-SNAPSHOT".getBytes(),
           "about:blank",
-          FirmwareUpdateState.initial(),
           FirmwareUpdateResult.initial(),
           "1.0.0-SNAPSHOT");
 
@@ -127,7 +126,6 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
           new Downloaded(
               firmware.getFile(),
               this.firmware.getPackageUri(),
-              FirmwareUpdateState.DOWNLOADED,
               this.firmware.getResult(),
               this.firmware.getPackageVersion());
       fireOnAnythingChanged(previous);
@@ -138,7 +136,6 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
           new Downloading(
               this.firmware.getFile(),
               firmware.getPackageUri(),
-              FirmwareUpdateState.DOWNLOADING,
               this.firmware.getResult(),
               this.firmware.getPackageVersion());
       fireOnAnythingChanged(previous);

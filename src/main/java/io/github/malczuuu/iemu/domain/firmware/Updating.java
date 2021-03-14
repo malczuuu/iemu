@@ -12,7 +12,6 @@ public class Updating implements FirmwareUpdateExecution {
 
   private final byte[] file;
   private final String packageUri;
-  private final FirmwareUpdateState state;
   private final FirmwareUpdateResult result;
   private final String packageVersion;
 
@@ -20,25 +19,19 @@ public class Updating implements FirmwareUpdateExecution {
   private final int progress;
 
   public Updating(
-      byte[] file,
-      String packageUri,
-      FirmwareUpdateState state,
-      FirmwareUpdateResult result,
-      String packageVersion) {
-    this(file, packageUri, state, result, packageVersion, new Random(), 0);
+      byte[] file, String packageUri, FirmwareUpdateResult result, String packageVersion) {
+    this(file, packageUri, result, packageVersion, new Random(), 0);
   }
 
   private Updating(
       byte[] file,
       String packageUri,
-      FirmwareUpdateState state,
       FirmwareUpdateResult result,
       String packageVersion,
       Random random,
       int progress) {
     this.file = file;
     this.packageUri = packageUri;
-    this.state = state;
     this.result = result;
     this.packageVersion = packageVersion;
     this.random = random;
@@ -49,7 +42,6 @@ public class Updating implements FirmwareUpdateExecution {
     this(
         firmware.getFile(),
         firmware.getPackageUri(),
-        FirmwareUpdateState.UPDATING,
         FirmwareUpdateResult.NONE,
         firmware.getPackageVersion());
   }
@@ -59,8 +51,8 @@ public class Updating implements FirmwareUpdateExecution {
     if (progress < 100) {
       int progress = this.progress + 10 + random.nextInt(20);
       progress = Math.min(100, progress);
-      log.info("Installation progress at {}%, keep 'Installing' state", progress);
-      return new Updating(file, packageUri, state, result, packageVersion, random, progress);
+      log.info("Installation progress={}%, keep state={}", progress, getState());
+      return new Updating(file, packageUri, result, packageVersion, random, progress);
     }
 
     String packageVersion = new String(file).split("\n")[0];
@@ -69,7 +61,7 @@ public class Updating implements FirmwareUpdateExecution {
         "Installation of package {} finished, move to 'Idle' state with {} result",
         packageVersion,
         result);
-    return new Idle(file, packageUri, FirmwareUpdateState.IDLE, result, packageVersion);
+    return new Idle(file, packageUri, result, packageVersion);
   }
 
   @Override
@@ -84,7 +76,7 @@ public class Updating implements FirmwareUpdateExecution {
 
   @Override
   public FirmwareUpdateState getState() {
-    return state;
+    return FirmwareUpdateState.UPDATING;
   }
 
   @Override
