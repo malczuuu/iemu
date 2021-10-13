@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.malczuuu.problem4j.core.Problem;
 import io.javalin.http.Context;
-import io.javalin.http.ErrorHandler;
+import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
 
-public class InternalServerErrorHandler implements ErrorHandler {
+public class InternalServerErrorHandler implements Handler {
 
   private final ObjectMapper mapper;
 

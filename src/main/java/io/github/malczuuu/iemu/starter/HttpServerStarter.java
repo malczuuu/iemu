@@ -19,6 +19,7 @@ import io.github.malczuuu.iemu.http.error.NotFoundErrorHandler;
 import io.github.malczuuu.iemu.http.error.ProblemExceptionHandler;
 import io.github.malczuuu.problem4j.core.ProblemException;
 import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,11 +46,14 @@ public class HttpServerStarter implements Runnable {
 
   @Override
   public void run() {
-    Javalin app = Javalin.create();
-    app.config.autogenerateEtags = true;
-    app.config.showJavalinBanner = false;
-    app.config.addStaticFiles("/static");
-    app.config.requestLogger(new HttpRequestLogger());
+    Javalin app =
+        Javalin.create(
+            config -> {
+              config.autogenerateEtags = true;
+              config.showJavalinBanner = false;
+              config.addStaticFiles("/static", Location.CLASSPATH);
+              config.requestLogger(new HttpRequestLogger());
+            });
 
     app.get("/api/state", new StateGetEndpointHandler(stateService, mapper));
     app.patch("/api/state", new StatePatchEndpointHandler(stateService, mapper));
