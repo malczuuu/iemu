@@ -131,12 +131,12 @@ tasks.withType<Jar>().configureEach {
             "Implementation-Title" to project.name,
             "Implementation-Version" to project.version,
             "Build-Jdk-Spec" to java.toolchain.languageVersion.get().toString(),
-            "Created-By" to "Gradle ${gradle.gradleVersion}"
+            "Created-By" to "Gradle ${gradle.gradleVersion}",
         )
     }
 
     from("LICENSE") {
         into("META-INF/")
-        rename { "LICENSE-iemu.txt" }
+        rename { "LICENSE.txt" }
     }
 }
