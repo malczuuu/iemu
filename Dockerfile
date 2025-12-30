@@ -5,25 +5,35 @@ COPY front/ ./
 RUN npm i && npm run build
 
 
-FROM gradle:6.8-jdk11 as builder
+FROM gradle:9.2.1-jdk25 as builder
 
 USER root
 COPY . .
 RUN rm -rf src/main/resources/static/*
 COPY --from=frontbuilder /home/node/dist/front/ src/main/resources/static/
-RUN gradle build -i && chmod +x docker-entrypoint.sh
+RUN gradle build -i
 
 
-FROM openjdk:11.0.10-slim
+FROM eclipse-temurin:25-alpine
 
 WORKDIR /
 
 EXPOSE 4500 5693/udp
 
 COPY --from=builder /home/gradle/build/libs/*.jar /app.jar
-COPY --from=builder /home/gradle/docker-entrypoint.sh /docker-entrypoint.sh
 COPY --from=builder /home/gradle/data/ /data/
 
 VOLUME /data
 
-ENTRYPOINT [ "/docker-entrypoint.sh" ]
+ENV JAVA_OPTS_DEFAULT="\
+-XX:+UseContainerSupport \
+-XX:MaxRAMPercentage=75.0 \
+-XX:+ExitOnOutOfMemoryError \
+-XX:+HeapDumpOnOutOfMemoryError \
+-XX:HeapDumpPath=/tmp"
+
+ENV JAVA_OPTS_EXTRA=""
+
+ENV APP_ARGS=""
+
+CMD ["/bin/sh", "-c", "java $JAVA_OPTS_DEFAULT $JAVA_OPTS_EXTRA -jar app.jar $APP_ARGS"]
