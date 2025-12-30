@@ -28,7 +28,7 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic:1.5.23")
 
     implementation("io.javalin:javalin:6.7.0")
-    implementation("org.eclipse.jetty:jetty-client:11.0.25")
+    implementation("org.eclipse.jetty:jetty-client:11.0.26")
 
     implementation("org.eclipse.leshan:leshan-client-cf:1.5.0")
     implementation("javax.xml.ws:jaxws-api:2.3.1")
