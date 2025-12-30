@@ -1,9 +1,9 @@
 package io.github.malczuuu.iemu.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateDeliveryMethod;
-import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateResult;
-import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateState;
+import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateDeliveryMethod;
+import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateResult;
+import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateState;
 
 public class FirmwareDTO {
 

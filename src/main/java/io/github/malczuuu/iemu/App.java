@@ -3,28 +3,28 @@ package io.github.malczuuu.iemu;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.malczuuu.iemu.common.ObjectMapperFactory;
-import io.github.malczuuu.iemu.common.config.Config;
-import io.github.malczuuu.iemu.common.config.ConfigReader;
-import io.github.malczuuu.iemu.common.config.ProfileSelector;
+import io.github.malczuuu.iemu.configuration.Config;
+import io.github.malczuuu.iemu.configuration.ConfigReader;
+import io.github.malczuuu.iemu.configuration.ProfileSelector;
 import io.github.malczuuu.iemu.domain.FirmwareService;
 import io.github.malczuuu.iemu.domain.FirmwareServiceFactory;
 import io.github.malczuuu.iemu.domain.StateService;
 import io.github.malczuuu.iemu.domain.StateServiceFactory;
-import io.github.malczuuu.iemu.http.WebSocketEvent;
-import io.github.malczuuu.iemu.http.WebSocketService;
-import io.github.malczuuu.iemu.http.WebSocketServiceFactory;
-import io.github.malczuuu.iemu.starter.HttpServerStarter;
-import io.github.malczuuu.iemu.starter.LwM2mClientStarter;
+import io.github.malczuuu.iemu.infrastructure.HttpServerLauncher;
+import io.github.malczuuu.iemu.infrastructure.LwM2mClientLauncher;
+import io.github.malczuuu.iemu.infrastructure.http.WebSocketEvent;
+import io.github.malczuuu.iemu.infrastructure.http.WebSocketService;
+import io.github.malczuuu.iemu.infrastructure.http.WebSocketServiceFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class App {
 
-  public static void main(String[] args) {
+  static void main(String[] args) {
     String profile = new ProfileSelector(args).getProfileName();
-    ConfigReader reader = new ConfigReader(new ObjectMapperFactory().getYamlObjectMapper());
+    ConfigReader reader = new ConfigReader();
     Config config = reader.readConfig(profile);
-    new App(config).run();
+    new App(config).start();
   }
 
   private final WebSocketService webSocketService = new WebSocketServiceFactory().create();
@@ -39,8 +39,8 @@ public class App {
         try {
           webSocketService.sendMessage(
               mapper.writeValueAsString(new WebSocketEvent("state", stateService.getState())));
-        } catch (JsonProcessingException e) {
-          // Ignored
+        } catch (JsonProcessingException ignored) {
+          // ignored
         }
       };
 
@@ -50,8 +50,8 @@ public class App {
           webSocketService.sendMessage(
               mapper.writeValueAsString(
                   new WebSocketEvent("firmware", firmwareService.getFirmware())));
-        } catch (JsonProcessingException e) {
-          // Ignored
+        } catch (JsonProcessingException ignored) {
+          // ignored
         }
       };
 
@@ -59,8 +59,8 @@ public class App {
     this.config = config;
   }
 
-  private void run() {
-    Runtime.getRuntime().addShutdownHook(new Thread(stateService::shutdown));
+  private void start() {
+    Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
     stateService.subscribeOnCurrentTimeChange(ignored -> statePublish.run());
     stateService.subscribeOnStateChange(ignored -> statePublish.run());
@@ -72,13 +72,17 @@ public class App {
     firmwareService.subscribeOnStateChange(ignored -> firmwarePublish.run());
     firmwareService.subscribeOnResultChange(ignored -> firmwarePublish.run());
     firmwareService.subscribeOnPackageVersionChange(ignored -> firmwarePublish.run());
-    firmwareService.subscribeOnProgressChange(ign -> firmwarePublish.run());
+    firmwareService.subscribeOnProgressChange(ignored -> firmwarePublish.run());
 
     if (config.getLwM2mConfig().isEnabled()) {
-      new LwM2mClientStarter(config.getLwM2mConfig(), stateService, firmwareService).run();
+      new LwM2mClientLauncher(config.getLwM2mConfig(), stateService, firmwareService).start();
     }
-    new HttpServerStarter(
+    new HttpServerLauncher(
             config.getHttpConfig(), webSocketService, stateService, firmwareService, mapper)
-        .run();
+        .start();
+  }
+
+  private void shutdown() {
+    stateService.shutdown();
   }
 }

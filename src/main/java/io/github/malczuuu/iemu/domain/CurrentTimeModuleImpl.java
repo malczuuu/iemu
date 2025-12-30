@@ -1,6 +1,6 @@
 package io.github.malczuuu.iemu.domain;
 
-import io.github.malczuuu.iemu.util.CancelAwareTimerTask;
+import io.github.malczuuu.iemu.common.CancelAwareTimerTask;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

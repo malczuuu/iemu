@@ -123,7 +123,7 @@ class LightModuleImplTests {
 
     assertTrue(canceled.value);
     assertTrue(purged.value);
-    assertTrue(tasks.size() > 0);
+    assertTrue(!tasks.isEmpty());
     tasks.forEach(TimerTaskMock::isCanceled);
   }
 

@@ -1,6 +1,6 @@
 package io.github.malczuuu.iemu.mock;
 
-import io.github.malczuuu.iemu.util.CancelAwareTimerTask;
+import io.github.malczuuu.iemu.common.CancelAwareTimerTask;
 import java.util.TimerTask;
 
 public class TimerTaskMock {

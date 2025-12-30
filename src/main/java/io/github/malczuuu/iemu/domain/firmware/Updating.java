@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.domain.firmware;
 
-import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateResult;
-import io.github.malczuuu.iemu.lwm2m.FirmwareUpdateState;
+import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateResult;
+import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateState;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

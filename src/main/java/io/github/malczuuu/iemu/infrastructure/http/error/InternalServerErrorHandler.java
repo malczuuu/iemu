@@ -1,0 +1,33 @@
+package io.github.malczuuu.iemu.infrastructure.http.error;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.problem4j.core.Problem;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
+import org.jetbrains.annotations.NotNull;
+
+public class InternalServerErrorHandler implements Handler {
+
+  private final ObjectMapper mapper;
+
+  public InternalServerErrorHandler(ObjectMapper mapper) {
+    this.mapper = mapper;
+  }
+
+  @Override
+  public void handle(@NotNull Context ctx) {
+    String contentType = ctx.contentType();
+    if (contentType != null && !contentType.equals(Problem.CONTENT_TYPE)) {
+      try {
+        ctx.status(500)
+            .contentType(Problem.CONTENT_TYPE)
+            .result(
+                mapper.writeValueAsString(
+                    Problem.builder().title("Internal Server Error").status(500).build()));
+      } catch (JsonProcessingException e) {
+        ctx.status(500).contentType("text/plain").result("Internal Server Error");
+      }
+    }
+  }
+}

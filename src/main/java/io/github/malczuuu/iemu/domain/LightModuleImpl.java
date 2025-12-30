@@ -1,6 +1,6 @@
 package io.github.malczuuu.iemu.domain;
 
-import io.github.malczuuu.iemu.util.CancelAwareTimerTask;
+import io.github.malczuuu.iemu.common.CancelAwareTimerTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
