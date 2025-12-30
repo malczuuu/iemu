@@ -19,10 +19,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.42")
-    annotationProcessor("org.projectlombok:lombok:1.18.42")
-    testCompileOnly("org.projectlombok:lombok:1.18.42")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+    lombok("org.projectlombok:lombok:1.18.42")
 
     implementation("org.slf4j:slf4j-api:2.0.17")
     runtimeOnly("ch.qos.logback:logback-classic:1.5.23")
@@ -31,7 +28,6 @@ dependencies {
     implementation("org.eclipse.jetty:jetty-client:11.0.26")
 
     implementation("org.eclipse.leshan:leshan-client-cf:1.5.0")
-    implementation("javax.xml.ws:jaxws-api:2.3.1")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.1")
@@ -43,11 +39,11 @@ dependencies {
     implementation("io.github.problem4j:problem4j-jackson2:1.3.0")
 
     testImplementation(platform("org.junit:junit-bom:5.14.1"))
-
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     testImplementation("org.mockito:mockito-core:3.8.0")
+    testImplementation("javax.xml.ws:jaxws-api:2.3.1")
 }
 
 application {
