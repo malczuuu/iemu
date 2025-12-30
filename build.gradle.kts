@@ -121,10 +121,24 @@ tasks.withType<Test>().configureEach {
 
 tasks.withType<Jar>().configureEach {
     dependsOn("cleanLibs")
+
+    // no need for plain jar
     if (name != "shadowJar") {
         enabled = false
     }
+
     manifest {
-        attributes("Main-Class" to "io.github.malczuuu.iemu.App")
+        attributes(
+            "Implementation-Title" to project.name,
+            "Implementation-Version" to project.version,
+            "Build-Jdk-Spec" to java.toolchain.languageVersion.get().toString(),
+            "Created-By" to "Gradle ${gradle.gradleVersion}",
+            "Main-Class" to "io.github.malczuuu.iemu.App",
+        )
+    }
+
+    from("LICENSE") {
+        into("META-INF/")
+        rename { "LICENSE.txt" }
     }
 }
