@@ -2,39 +2,85 @@
 
 Emulator application for an IoT device (with LwM2M).
 
+## Table of Contents
+
+- [Features](#features)
+- [Build & Run](#build--run)
+    - [Prerequisites](#prerequisites)
+    - [Run with IDE](#run-with-ide)
+    - [Run with Gradle `application` plugin](#run-with-gradle-application-plugin)
+    - [Build and run distribution](#build-and-run-distribution)
+- [Configuration Profiles](#configuration-profiles)
+- [Application](#application)
+- [Technologies](#technologies)
+
 ## Features
 
 1. LwM2M protocol support for objects:
-   * `LwM2M Server (1)`,
-   * `Device (3)`,
-   * `Firmware Update (5)`,
-   * `Light Control (3311)`.
+    * `LwM2M Server (1)`,
+    * `Device (3)`,
+    * `Firmware Update (5)`,
+    * `Light Control (3311)`.
 2. HTTP UI for device management (REST API and Angular UI).
 3. Docker build.
 
 ## Build & Run
 
-Project requires **Java 25**.
+Project requires **Java 25**. These instructions describe how to run using Gradle task.
 
-1. Use `build` task to compile project.
-   ```bash
-   ./gradlew build
-   ```
-2. Run LwM2M server (consider Leshan Demo Server from [official repository](https://github.com/eclipse/leshan) or check
-   [here](https://leshan.eclipseprojects.io) on how to use Leshan's playground).
-3. Set appropriate configuration in `data/config.yml` (see `data/config-demo.yml` if using Leshan's playground). See
+### Prerequisites
+
+1. Run LwM2M server (consider Leshan Demo Server from [official repository][leshan] or check [here][leshan-demo-server]
+   on how to use Leshan's playground).
+2. Set appropriate configuration in `data/config.yml` (see `data/config-demo.yml` if using Leshan's playground). See
    also chapter about [configuration profiles](#configuration-profiles).
-4. Run `jar` application.
-   ```bash
-   java -jar build/libs/iemu-*.jar 
-   ```
-   To run application with `demo` profile, use following command.
-   ```bash
-   java -jar build/libs/iemu-*.jar --demo 
-   ```
-5. Browse [client UI](http://localhost:4500/) or check in your LwM2M server if the client is connected.
 
-No need to compile Angular, as static dist files from [`webapp`](./webapp) are included as static resources in `jar`.  
+No need to compile Angular, as static dist files from [`webapp`](./webapp) are included as static resources in `jar`.
+
+### Run with IDE
+
+Simply locate `App` class and run it's `main` method.
+
+### Run with Gradle `application` plugin
+
+Project uses Gradle [`application`][application-plugin] plugin. To run
+application from Gradle, simply use `run` task.
+
+```bash
+./gradlew run
+```
+
+To run application with `demo` profile, use following command.
+
+```bash
+./gradlew run --args="--demo"
+```
+
+Then, browse [client UI](http://localhost:4500/) or check in your LwM2M server if the client is connected.
+
+### Build and run distribution
+
+Run `install` task to produce `build/install/` output. This project does not produce a fat jar, it relies on Gradle
+`application` plugin only.
+
+```bash
+./gradlew install
+```
+
+Then, simply call `iemu` executable script from `bin/` directory. It launches application using jars from `lib/`
+directory.
+
+```bash
+./build/install/iemu/bin/iemu
+```
+
+To run application with `demo` profile, use following command.
+
+```bash
+./build/install/iemu/bin/iemu --demo
+```
+
+For more info about see [Building the distribution][the-distribution] chapter.
 
 ## Configuration Profiles
 
@@ -52,10 +98,10 @@ data
 
 Then selecting profile name looks following:
 
-| config file       | java exec                                |
-|-------------------|------------------------------------------|
-| `config.yml`      | `java -jar build/libs/iemu-*.jar`        |
-| `config-demo.yml` | `java -jar build/libs/iemu-*.jar --demo` |
+| config file       | gradle run                      | dist run                               |
+|-------------------|---------------------------------|----------------------------------------|
+| `config.yml`      | `./gradlew run`                 | `./build/install/iemu/bin/iemu`        |
+| `config-demo.yml` | `./gradlew run --args="--demo"` | `./build/install/iemu/bin/iemu --demo` |
 
 ## Application
 
@@ -71,4 +117,12 @@ the device.
 - [Javalin](https://javalin.io)
 - [Leshan](https://github.com/eclipse/leshan)
 - [Angular](https://angular.io)
-- [Docker](https://www.docker.com/) (image is not yet being published)
+- [Docker](https://www.docker.com/) (image is not being published yet)
+
+[leshan]: https://github.com/eclipse/leshan
+
+[leshan-demo-server]: https://leshan.eclipseprojects.io
+
+[application-plugin]: https://docs.gradle.org/current/userguide/application_plugin.html
+
+[the-distribution]: https://docs.gradle.org/current/userguide/application_plugin.html#sec:the_distribution

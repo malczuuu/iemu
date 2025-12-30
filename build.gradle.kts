@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     id("java")
-    id("com.gradleup.shadow").version("9.3.0")
+    id("application")
     id("com.diffplug.spotless").version("8.1.0")
 }
 
@@ -48,6 +48,10 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     testImplementation("org.mockito:mockito-core:3.8.0")
+}
+
+application {
+    mainClass = "io.github.malczuuu.iemu.App"
 }
 
 spotless {
@@ -122,23 +126,17 @@ tasks.withType<Test>().configureEach {
 tasks.withType<Jar>().configureEach {
     dependsOn("cleanLibs")
 
-    // no need for plain jar
-    if (name != "shadowJar") {
-        enabled = false
-    }
-
     manifest {
         attributes(
             "Implementation-Title" to project.name,
             "Implementation-Version" to project.version,
             "Build-Jdk-Spec" to java.toolchain.languageVersion.get().toString(),
-            "Created-By" to "Gradle ${gradle.gradleVersion}",
-            "Main-Class" to "io.github.malczuuu.iemu.App",
+            "Created-By" to "Gradle ${gradle.gradleVersion}"
         )
     }
 
     from("LICENSE") {
         into("META-INF/")
-        rename { "LICENSE.txt" }
+        rename { "LICENSE-iemu.txt" }
     }
 }
