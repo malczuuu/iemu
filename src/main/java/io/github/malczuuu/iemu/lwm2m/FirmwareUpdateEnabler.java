@@ -2,7 +2,6 @@ package io.github.malczuuu.iemu.lwm2m;
 
 import io.github.malczuuu.iemu.domain.FirmwareDTO;
 import io.github.malczuuu.iemu.domain.FirmwareService;
-import java.util.Arrays;
 import java.util.List;
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler;
 import org.eclipse.leshan.client.servers.ServerIdentity;
@@ -43,7 +42,7 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
   private static final int MODE = 9;
 
   private static final List<Integer> SUPPORTED_RESOURCES =
-      Arrays.asList(FILE, PACKAGE_URI, UPDATE_ACTION, STATE, UPDATE_RESULT, PACKAGE_VERSION, MODE);
+      List.of(FILE, PACKAGE_URI, UPDATE_ACTION, STATE, UPDATE_RESULT, PACKAGE_VERSION, MODE);
 
   private final FirmwareService firmwareService;
 
@@ -55,23 +54,20 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
   public ReadResponse read(ServerIdentity identity, int resourceId) {
     log.debug(
         "Received read request to Firmware instanceId={} to resourceId={}", getId(), resourceId);
-    switch (resourceId) {
-      case PACKAGE_URI:
-        return ReadResponse.success(resourceId, firmwareService.getFirmware().getPackageUri());
-      case STATE:
-        return ReadResponse.success(
-            resourceId, firmwareService.getFirmware().getState().getValue());
-      case UPDATE_RESULT:
-        return ReadResponse.success(
-            resourceId, firmwareService.getFirmware().getResult().getValue());
-      case PACKAGE_VERSION:
-        return ReadResponse.success(resourceId, firmwareService.getFirmware().getPkgVersion());
-      case MODE:
-        return ReadResponse.success(
-            resourceId, firmwareService.getFirmware().getDeliveryMethod().getValue());
-      default:
-        return super.read(identity, resourceId);
-    }
+    return switch (resourceId) {
+      case PACKAGE_URI ->
+          ReadResponse.success(resourceId, firmwareService.getFirmware().getPackageUri());
+      case STATE ->
+          ReadResponse.success(resourceId, firmwareService.getFirmware().getState().getValue());
+      case UPDATE_RESULT ->
+          ReadResponse.success(resourceId, firmwareService.getFirmware().getResult().getValue());
+      case PACKAGE_VERSION ->
+          ReadResponse.success(resourceId, firmwareService.getFirmware().getPkgVersion());
+      case MODE ->
+          ReadResponse.success(
+              resourceId, firmwareService.getFirmware().getDeliveryMethod().getValue());
+      default -> super.read(identity, resourceId);
+    };
   }
 
   @Override
@@ -95,18 +91,19 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
         getId(),
         resourceId,
         value);
-    switch (resourceId) {
-      case FILE:
+    return switch (resourceId) {
+      case FILE -> {
         firmwareService.changeFirmware(
             new FirmwareDTO((byte[]) value.getValue(), null, null, null, null, null, null, null));
-        return WriteResponse.success();
-      case PACKAGE_URI:
+        yield WriteResponse.success();
+      }
+      case PACKAGE_URI -> {
         firmwareService.changeFirmware(
             new FirmwareDTO(null, null, (String) value.getValue(), null, null, null, null, null));
-        return WriteResponse.success();
-      default:
-        return super.write(identity, resourceId, value);
-    }
+        yield WriteResponse.success();
+      }
+      default -> super.write(identity, resourceId, value);
+    };
   }
 
   @Override

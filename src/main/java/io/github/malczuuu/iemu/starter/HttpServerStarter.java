@@ -49,10 +49,10 @@ public class HttpServerStarter implements Runnable {
     Javalin app =
         Javalin.create(
             config -> {
-              config.autogenerateEtags = true;
+              config.http.generateEtags = true;
               config.showJavalinBanner = false;
-              config.addStaticFiles("/static", Location.CLASSPATH);
-              config.requestLogger(new HttpRequestLogger());
+              config.staticFiles.add("/static", Location.CLASSPATH);
+              config.requestLogger.http(new HttpRequestLogger());
             });
 
     app.get("/api/state", new StateGetEndpointHandler(stateService, mapper));

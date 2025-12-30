@@ -26,8 +26,8 @@ class WebSocketServiceImpl implements WebSocketService {
   public void onConnect(WsConnectContext session) {
     executorService.submit(
         () -> {
-          log.debug("Connected session={}", session.getSessionId());
-          sessions.put(session.getSessionId(), session);
+          log.debug("Connected session={}", session.sessionId());
+          sessions.put(session.sessionId(), session);
         });
   }
 
@@ -36,7 +36,7 @@ class WebSocketServiceImpl implements WebSocketService {
     executorService.submit(
         () ->
             log.debug(
-                "Received message={} from session={}", session.message(), session.getSessionId()));
+                "Received message={} from session={}", session.message(), session.sessionId()));
   }
 
   @Override
@@ -45,10 +45,10 @@ class WebSocketServiceImpl implements WebSocketService {
         () -> {
           log.debug(
               "Closed session={} with statusCode={}, reason={}",
-              session.getSessionId(),
+              session.sessionId(),
               session.status(),
               session.reason());
-          sessions.remove(session.getSessionId());
+          sessions.remove(session.sessionId());
         });
   }
 
@@ -56,8 +56,8 @@ class WebSocketServiceImpl implements WebSocketService {
   public void onError(WsErrorContext session) {
     executorService.submit(
         () -> {
-          log.error("An error occurred in session={}", session.getSessionId(), session.error());
-          sessions.remove(session.getSessionId());
+          log.error("An error occurred in session={}", session.sessionId(), session.error());
+          sessions.remove(session.sessionId());
           session.session.close();
         });
   }

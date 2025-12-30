@@ -1,5 +1,6 @@
 package io.github.malczuuu.iemu.domain;
 
+import io.github.malczuuu.iemu.util.CancelAwareTimerTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -66,13 +67,7 @@ class LightModuleImpl implements LightModule {
       if (timerTask != null) {
         throw new IllegalStateException("timerTask must be null to schedule");
       }
-      timerTask =
-          new TimerTask() {
-            @Override
-            public void run() {
-              incOnTime();
-            }
-          };
+      timerTask = new CancelAwareTimerTask(() -> incOnTime());
       timer.schedule(timerTask, 1000, 1000);
     } else {
       if (timerTask == null) {

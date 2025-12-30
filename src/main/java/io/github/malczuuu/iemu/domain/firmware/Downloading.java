@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +72,7 @@ public class Downloading implements FirmwareUpdateExecution {
 
   private byte[] downloadFile(URI uri) throws Exception {
     if (managedClient) {
-      client = new HttpClient(new SslContextFactory.Client());
+      client = new HttpClient();
       client.start();
     }
     ContentResponse response = client.GET(uri);

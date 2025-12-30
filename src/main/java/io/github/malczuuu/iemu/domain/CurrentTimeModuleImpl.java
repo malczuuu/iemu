@@ -1,5 +1,6 @@
 package io.github.malczuuu.iemu.domain;
 
+import io.github.malczuuu.iemu.util.CancelAwareTimerTask;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -8,7 +9,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.function.Consumer;
 
 class CurrentTimeModuleImpl implements CurrentTimeModule {
@@ -24,13 +24,11 @@ class CurrentTimeModuleImpl implements CurrentTimeModule {
   CurrentTimeModuleImpl(Timer timer) {
     this.timer = timer;
     timer.schedule(
-        new TimerTask() {
-          @Override
-          public void run() {
-            Instant now = getCurrentTime();
-            new ArrayList<>(onCurrentTimeChange).forEach(c -> c.accept(now));
-          }
-        },
+        new CancelAwareTimerTask(
+            () -> {
+              Instant now = getCurrentTime();
+              new ArrayList<>(onCurrentTimeChange).forEach(c -> c.accept(now));
+            }),
         1000 - Instant.now().toEpochMilli() % 1000,
         1000);
   }

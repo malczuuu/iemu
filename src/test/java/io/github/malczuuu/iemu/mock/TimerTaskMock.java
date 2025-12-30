@@ -1,6 +1,6 @@
 package io.github.malczuuu.iemu.mock;
 
-import java.lang.reflect.Field;
+import io.github.malczuuu.iemu.util.CancelAwareTimerTask;
 import java.util.TimerTask;
 
 public class TimerTaskMock {
@@ -12,16 +12,6 @@ public class TimerTaskMock {
   }
 
   public static boolean isCanceled(TimerTask task) {
-    try {
-      Field state = TimerTask.class.getDeclaredField("state");
-      Field cancelled = TimerTask.class.getDeclaredField("CANCELLED");
-      state.setAccessible(true);
-      cancelled.setAccessible(true);
-      int stateValue = (int) state.get(task);
-      int cancelledValue = (int) cancelled.get(task);
-      return stateValue == cancelledValue;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return task instanceof CancelAwareTimerTask c && c.isCancelled();
   }
 }
