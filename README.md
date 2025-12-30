@@ -12,6 +12,7 @@ Emulator application for an IoT device (with LwM2M).
     - [Run with IDE](#run-with-ide)
     - [Run with Gradle `application` plugin](#run-with-gradle-application-plugin)
     - [Build and run distribution](#build-and-run-distribution)
+    - [Run with Docker](#run-with-docker)
 - [Technologies](#technologies)
 
 ## Features
@@ -111,6 +112,27 @@ To run application with `demo` profile, use following command.
 ```
 
 For more info about see [Building the distribution][the-distribution] chapter.
+
+### Run with Docker
+
+Docker images are not being published yet. You may build Docker image using `Dockerfile` (it contains all necessary
+build stages and proper base image versions).
+
+```bash
+docker build -t iemu .
+```
+
+Run that image with following command.
+
+```bash
+docker run -p 127.0.0.1:4500:4500 iemu
+```
+
+Use `APP_ARGS` environment variable to set application profile.
+
+```bash
+docker run -p 127.0.0.1:4500:4500 --env APP_ARGS=--demo iemu
+```
 
 ## Technologies
 

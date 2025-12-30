@@ -1,11 +1,11 @@
-FROM node:15.11.0-slim AS WebAppBuilder
+FROM node:15.11.0-slim AS webappbuilder
 
 WORKDIR /home/node
 COPY webapp/ ./
 RUN npm i && npm run build
 
 
-FROM gradle:9.2.1-jdk25 AS AppBuilder
+FROM gradle:9.2.1-jdk25 AS builder
 
 USER root
 WORKDIR /home/gradle/app
@@ -13,7 +13,7 @@ WORKDIR /home/gradle/app
 COPY . .
 
 RUN rm -rf src/main/resources/static/*
-COPY --from=WebAppBuilder /home/node/dist/front/ src/main/resources/static/
+COPY --from=webappbuilder /home/node/dist/front/ src/main/resources/static/
 
 RUN gradle install --no-daemon
 
@@ -24,8 +24,8 @@ WORKDIR /iemu
 
 EXPOSE 4500 5693/udp
 
-COPY --from=AppBuilder /home/gradle/app/build/install/iemu/ /iemu/
-COPY --from=AppBuilder /home/gradle/app/data/ /iemu/data/
+COPY --from=builder /home/gradle/app/build/install/iemu/ /iemu/
+COPY --from=builder /home/gradle/app/data/ /iemu/data/
 
 VOLUME /data
 
