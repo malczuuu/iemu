@@ -10,35 +10,35 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/front/dist
-/front/tmp
-/front/out-tsc
+/webapp/dist
+/webapp/tmp
+/webapp/out-tsc
 
 # dependencies
-/front/node_modules
+/webapp/node_modules
 
 # IDEs and editors
-/front/.idea
-/front/.project
-/front/.classpath
-/front/.c9/
+/webapp/.idea
+/webapp/.project
+/webapp/.classpath
+/webapp/.c9/
 /front/*.launch
-/front/.settings/
+/webapp/.settings/
 /front/*.sublime-workspace
 
 # IDE - VSCode
-/front/.vscode/*
+/webapp/.vscode/*
 
 # misc
-/front/.sass-cache
-/front/connect.lock
-/front/coverage
-/front/libpeerconnection.log
-/front/npm-debug.log
-/front/yarn-error.log
-/front/testem.log
-/front/typings
+/webapp/.sass-cache
+/webapp/connect.lock
+/webapp/coverage
+/webapp/libpeerconnection.log
+/webapp/npm-debug.log
+/webapp/yarn-error.log
+/webapp/testem.log
+/webapp/typings
 
 # System Files
-/front/.DS_Store
-/front/Thumbs.db
+/webapp/.DS_Store
+/webapp/Thumbs.db

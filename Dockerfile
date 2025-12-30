@@ -1,16 +1,16 @@
-FROM node:15.11.0-slim as frontbuilder
+FROM node:15.11.0-slim AS WebAppBuilder
 
 WORKDIR /home/node
-COPY front/ ./
+COPY webapp/ ./
 RUN npm i && npm run build
 
 
-FROM gradle:9.2.1-jdk25 as builder
+FROM gradle:9.2.1-jdk25 AS JarBuilder
 
 USER root
 COPY . .
 RUN rm -rf src/main/resources/static/*
-COPY --from=frontbuilder /home/node/dist/front/ src/main/resources/static/
+COPY --from=WebAppBuilder /home/node/dist/front/ src/main/resources/static/
 RUN gradle build -i
 
 
@@ -20,8 +20,8 @@ WORKDIR /
 
 EXPOSE 4500 5693/udp
 
-COPY --from=builder /home/gradle/build/libs/*.jar /app.jar
-COPY --from=builder /home/gradle/data/ /data/
+COPY --from=JarBuilder /home/gradle/build/libs/*.jar /app.jar
+COPY --from=JarBuilder /home/gradle/data/ /data/
 
 VOLUME /data
 
