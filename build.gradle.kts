@@ -42,7 +42,7 @@ dependencies {
     implementation("io.github.problem4j:problem4j-core:1.3.0")
     implementation("io.github.problem4j:problem4j-jackson2:1.3.0")
 
-    testImplementation(platform("org.junit:junit-bom:5.7.1"))
+    testImplementation(platform("org.junit:junit-bom:5.14.1"))
 
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
