@@ -3,7 +3,7 @@ package io.github.malczuuu.iemu.http.error;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.malczuuu.problem4j.core.Problem;
+import io.github.problem4j.core.Problem;
 import io.javalin.http.Context;
 import io.javalin.http.ExceptionHandler;
 import org.jetbrains.annotations.NotNull;

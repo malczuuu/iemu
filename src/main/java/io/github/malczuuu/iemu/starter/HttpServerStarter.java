@@ -17,7 +17,7 @@ import io.github.malczuuu.iemu.http.error.JsonParseExceptionHandler;
 import io.github.malczuuu.iemu.http.error.JsonProcessingExceptionHandler;
 import io.github.malczuuu.iemu.http.error.NotFoundErrorHandler;
 import io.github.malczuuu.iemu.http.error.ProblemExceptionHandler;
-import io.github.malczuuu.problem4j.core.ProblemException;
+import io.github.problem4j.core.ProblemException;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import lombok.extern.slf4j.Slf4j;

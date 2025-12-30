@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import io.github.malczuuu.problem4j.jackson.ProblemModule;
+import io.github.problem4j.jackson2.ProblemModule;
 
 public class ObjectMapperFactory {
 
