@@ -12,14 +12,10 @@ Emulator application for an IoT device (with LwM2M).
 - [Features](#features)
 - [Application](#application)
 - [Configuration Profiles](#configuration-profiles)
-- [Build & Run](#build--run)
-    - [Prerequisites](#prerequisites)
-    - [Run with IDE](#run-with-ide)
-    - [Run with Gradle `application` plugin](#run-with-gradle-application-plugin)
-    - [Build and run distribution](#build-and-run-distribution)
-    - [Run with Docker](#run-with-docker)
+- [Run with Docker](#run-with-docker)
 - [Technologies](#technologies)
 - [Repository](#repository)
+- [Build from source](#build-from-source)
 
 ## Features
 
@@ -56,16 +52,12 @@ data
 
 Then selecting profile name looks following:
 
-| config file       | gradle run                      | dist run                               |
-|-------------------|---------------------------------|----------------------------------------|
-| `config.yml`      | `./gradlew run`                 | `./build/install/iemu/bin/iemu`        |
-| `config-demo.yml` | `./gradlew run --args="--demo"` | `./build/install/iemu/bin/iemu --demo` |
+| config file       | profile    |
+|-------------------|------------|
+| `config.yml`      |            |
+| `config-demo.yml` | `--demo`   |
 
-## Build & Run
-
-Project uses **Java 17**, mainly for compatibility reasons. You can change Java version in `build.gradle.kts` - project
-uses **Foojay** plugin to automatically resolve and download JDKs (see `settings.gradle.kts`). Minimal version for
-**Gradle 9+** is also **Java 17**.
+## Run with Docker
 
 ### Prerequisites
 
@@ -76,10 +68,51 @@ uses **Foojay** plugin to automatically resolve and download JDKs (see `settings
 
 No need to compile Angular, as static dist files from [`webapp`](./webapp) are included as static resources in `jar`.
 
+### Start the container
+
+You can use pre-built Docker image - [`malczuuu/iemu`](https://hub.docker.com/r/malczuuu/iemu). Consider checking for
+most recent image tags.
+
+```
+docker run --rm -p 4500:4500 malczuuu/iemu
+```
+
+To run application with `demo` profile, use following command:
+
+```
+docker run --rm --env APP_ARGS=--demo -p 4500:4500 malczuuu/iemu
+```
+
+To mount your own profiles, use `/data` volume. Predefined profiles are available in [`data/`](./data) directory for
+reference.
+
+## Technologies
+
+- [Javalin](https://javalin.io)
+- [Leshan](https://github.com/eclipse/leshan)
+- [Angular](https://angular.io)
+- [Docker](https://www.docker.com/)
+
+## Repository
+
+The repository is a monorepo:
+
+- root project is a Java backend (Gradle project),
+- `webapp/` contains Angular frontend.
+
+## Build from source
+
+<details>
+<summary><b>Expand...</b></summary>
+
+Project uses **Java 17**, mainly for compatibility reasons. You can change Java version in `build.gradle.kts` - project
+uses **Foojay** plugin to automatically resolve and download JDKs (see `settings.gradle.kts`). Minimal version for
+**Gradle 9+** is also **Java 17**.
+
 ### Run with IDE
 
-Simply locate [`App`][app.java] class and run it's `main` method. Setting profile parameter depends on your IDE, but it should
-be somewhere named "Program Arguments" (not "JVM Options").
+Simply locate [`App`][app.java] class and run it's `main` method. Setting profile parameter depends on your IDE, but it
+should be somewhere named "Program Arguments" (not "JVM Options").
 
 ### Run with Gradle `application` plugin
 
@@ -121,40 +154,7 @@ To run application with `demo` profile, use following command.
 
 For more info about see [Building the distribution][the-distribution] chapter.
 
-### Run with Docker
-
-Docker images are not being published yet. You may build Docker image using `Dockerfile` (it contains all necessary
-build stages and proper base image versions).
-
-```bash
-docker build -t iemu .
-```
-
-Run that image with following command.
-
-```bash
-docker run -p 127.0.0.1:4500:4500 iemu
-```
-
-Use `APP_ARGS` environment variable to set application profile.
-
-```bash
-docker run -p 127.0.0.1:4500:4500 --env APP_ARGS=--demo iemu
-```
-
-## Technologies
-
-- [Javalin](https://javalin.io)
-- [Leshan](https://github.com/eclipse/leshan)
-- [Angular](https://angular.io)
-- [Docker](https://www.docker.com/) (image is not being published yet)
-
-## Repository
-
-The repository is a monorepo:
-
-- root project is a Java backend (Gradle project),
-- `webapp/` contains Angular frontend.
+</details>
 
 [app.java]: ./src/main/java/io/github/malczuuu/iemu/App.java
 
