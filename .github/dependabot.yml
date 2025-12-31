@@ -3,14 +3,14 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
     target-branch: main
     open-pull-requests-limit: 10
 
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "quarterly"
     target-branch: main
     open-pull-requests-limit: 10
     allow:
@@ -19,3 +19,23 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+
+  - package-ecosystem: "npm"
+    directory: "/webapp"
+    schedule:
+      interval: "quarterly"
+    target-branch: main
+    open-pull-requests-limit: 10
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    groups:
+      framework:
+        patterns:
+          - "@angular/*"
+          - "@types/*"
+          - "rxjs"
+          - "tslib"
