@@ -1,5 +1,8 @@
 # iEmu - IoT Device Emulator
 
+[![Gradle Build](https://github.com/malczuuu/iemu/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/malczuuu/iemu/actions/workflows/gradle-build.yml)
+[![WebApp Build](https://github.com/malczuuu/iemu/actions/workflows/webapp-build.yml/badge.svg)](https://github.com/malczuuu/iemu/actions/workflows/webapp-build.yml)
+
 Emulator application for an IoT device (with LwM2M).
 
 ## Table of Contents
