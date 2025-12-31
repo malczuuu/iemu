@@ -57,7 +57,9 @@ Then selecting profile name looks following:
 
 ## Build & Run
 
-Project requires **Java 25**. These instructions describe how to run using Gradle task.
+Project uses **Java 25**, but thanks to the **Foojay** plugin, Gradle toolchains will resolve Java version regardless on
+Java that runs Gradle (see `settings.gradle.kts`). The minimal Java version is **17** (due to min requirements form
+Gradle 9+).
 
 ### Prerequisites
 
@@ -74,8 +76,7 @@ Simply locate `App` class and run it's `main` method.
 
 ### Run with Gradle `application` plugin
 
-Project uses Gradle [`application`][application-plugin] plugin. To run
-application from Gradle, simply use `run` task.
+Project uses Gradle [`application`][application-plugin] plugin. To run application from Gradle, simply use `run` task.
 
 ```bash
 ./gradlew run
