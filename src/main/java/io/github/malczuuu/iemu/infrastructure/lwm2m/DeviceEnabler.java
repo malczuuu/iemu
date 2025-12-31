@@ -14,8 +14,8 @@
  */
 package io.github.malczuuu.iemu.infrastructure.lwm2m;
 
-import io.github.malczuuu.iemu.domain.ErrorDTO;
-import io.github.malczuuu.iemu.domain.StateDTO;
+import io.github.malczuuu.iemu.domain.ErrorDto;
+import io.github.malczuuu.iemu.domain.StateDto;
 import io.github.malczuuu.iemu.domain.StateService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -116,7 +116,7 @@ public class DeviceEnabler extends BaseInstanceEnabler {
         return ReadResponse.success(resourceId, Runtime.getRuntime().freeMemory() / 1000);
       case ERROR_CODE:
         Map<Integer, Long> errorCodes = new HashMap<>();
-        List<ErrorDTO> errors = state.getState().getErrors();
+        List<ErrorDto> errors = state.getState().getErrors();
         for (int i = 0; i < errors.size(); ++i) {
           errorCodes.put(i, errors.get(i).getCode().longValue());
         }
@@ -148,7 +148,7 @@ public class DeviceEnabler extends BaseInstanceEnabler {
   public WriteResponse write(ServerIdentity identity, int resourceId, LwM2mResource value) {
     if (resourceId == CURRENT_TIME) {
       state.changeState(
-          StateDTO.changeCurrentTime(
+          StateDto.changeCurrentTime(
               ((Date) value.getValue()).toInstant().truncatedTo(ChronoUnit.SECONDS).toString()));
       return WriteResponse.success();
     }

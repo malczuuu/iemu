@@ -25,8 +25,8 @@ public class StateServiceImpl implements StateService {
   private final LightModule light = new LightModuleFactory().getLightModule();
 
   @Override
-  public StateDTO getState() {
-    return new StateDTO(
+  public StateDto getState() {
+    return new StateDto(
         "lwm2m_emulator",
         currentTime.getCurrentTime().toString(),
         currentTime.getTimeZone(),
@@ -38,7 +38,7 @@ public class StateServiceImpl implements StateService {
   }
 
   @Override
-  public void changeState(StateDTO state) {
+  public void changeState(StateDto state) {
     if (state.getCurrentTime() != null) {
       currentTime.setCurrentTime(Instant.parse(state.getCurrentTime()));
     }

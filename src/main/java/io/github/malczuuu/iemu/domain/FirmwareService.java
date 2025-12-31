@@ -21,9 +21,9 @@ import java.util.function.IntConsumer;
 
 public interface FirmwareService {
 
-  FirmwareDTO getFirmware();
+  FirmwareDto getFirmware();
 
-  void changeFirmware(FirmwareDTO firmware);
+  void changeFirmware(FirmwareDto firmware);
 
   void executeFirmwareUpdate();
 

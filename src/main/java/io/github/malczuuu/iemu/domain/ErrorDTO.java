@@ -19,13 +19,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ErrorDTO {
+public class ErrorDto {
 
   private final Integer code;
   private final String message;
 
   @JsonCreator
-  public ErrorDTO(@JsonProperty("code") Integer code, @JsonProperty("message") String message) {
+  public ErrorDto(@JsonProperty("code") Integer code, @JsonProperty("message") String message) {
     this.code = code;
     this.message = message;
   }

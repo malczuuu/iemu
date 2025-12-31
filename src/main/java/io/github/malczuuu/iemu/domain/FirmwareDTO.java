@@ -19,7 +19,7 @@ import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateDeliveryMethod
 import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateResult;
 import io.github.malczuuu.iemu.infrastructure.lwm2m.FirmwareUpdateState;
 
-public class FirmwareDTO {
+public class FirmwareDto {
 
   private final byte[] file;
   private final String fileChecksum;
@@ -30,7 +30,7 @@ public class FirmwareDTO {
   private final FirmwareUpdateDeliveryMethod deliveryMethod;
   private final Integer progress;
 
-  public FirmwareDTO(
+  public FirmwareDto(
       byte[] file,
       String fileChecksum,
       String packageUri,

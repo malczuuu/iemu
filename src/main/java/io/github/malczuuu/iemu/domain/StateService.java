@@ -19,9 +19,9 @@ import java.util.function.Consumer;
 
 public interface StateService {
 
-  StateDTO getState();
+  StateDto getState();
 
-  void changeState(StateDTO state);
+  void changeState(StateDto state);
 
   void subscribeOnCurrentTimeChange(Consumer<Instant> consumer);
 

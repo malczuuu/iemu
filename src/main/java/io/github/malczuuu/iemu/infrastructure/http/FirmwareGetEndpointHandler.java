@@ -15,7 +15,7 @@
 package io.github.malczuuu.iemu.infrastructure.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.malczuuu.iemu.domain.FirmwareDTO;
+import io.github.malczuuu.iemu.domain.FirmwareDto;
 import io.github.malczuuu.iemu.domain.FirmwareService;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -33,7 +33,7 @@ public class FirmwareGetEndpointHandler implements Handler {
 
   @Override
   public void handle(@NotNull Context ctx) throws Exception {
-    FirmwareDTO firmware = firmwareService.getFirmware();
+    FirmwareDto firmware = firmwareService.getFirmware();
     ctx.status(200).contentType("application/json").result(mapper.writeValueAsString(firmware));
   }
 }

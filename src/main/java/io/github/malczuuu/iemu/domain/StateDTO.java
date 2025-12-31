@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-public class StateDTO {
+public class StateDto {
 
   private final String deviceType;
 
@@ -26,19 +26,19 @@ public class StateDTO {
   private final String timeZone;
   private final String utcOffset;
 
-  private final List<ErrorDTO> errors;
+  private final List<ErrorDto> errors;
 
   private final Boolean on;
   private final Long onTime;
   private final Integer dimmer;
 
   @JsonCreator
-  public StateDTO(
+  public StateDto(
       @JsonProperty("deviceType") String deviceType,
       @JsonProperty("currentTime") String currentTime,
       @JsonProperty("timeZone") String timeZone,
       @JsonProperty("utcOffset") String utcOffset,
-      @JsonProperty("errors") List<ErrorDTO> errors,
+      @JsonProperty("errors") List<ErrorDto> errors,
       @JsonProperty("on") Boolean on,
       @JsonProperty("onTime") Long onTime,
       @JsonProperty("dimmer") Integer dimmer) {
@@ -52,20 +52,20 @@ public class StateDTO {
     this.dimmer = dimmer;
   }
 
-  public static StateDTO changeCurrentTime(String currentTime) {
-    return new StateDTO(null, currentTime, null, null, null, null, null, null);
+  public static StateDto changeCurrentTime(String currentTime) {
+    return new StateDto(null, currentTime, null, null, null, null, null, null);
   }
 
-  public static StateDTO changeOn(Boolean on) {
-    return new StateDTO(null, null, null, null, null, on, null, null);
+  public static StateDto changeOn(Boolean on) {
+    return new StateDto(null, null, null, null, null, on, null, null);
   }
 
-  public static StateDTO changeDimmer(int dimmer) {
-    return new StateDTO(null, null, null, null, null, null, null, dimmer);
+  public static StateDto changeDimmer(int dimmer) {
+    return new StateDto(null, null, null, null, null, null, null, dimmer);
   }
 
-  public static StateDTO changeOnTime(long onTime) {
-    return new StateDTO(null, null, null, null, null, null, onTime, null);
+  public static StateDto changeOnTime(long onTime) {
+    return new StateDto(null, null, null, null, null, null, onTime, null);
   }
 
   @JsonProperty("deviceType")
@@ -89,7 +89,7 @@ public class StateDTO {
   }
 
   @JsonProperty("errors")
-  public List<ErrorDTO> getErrors() {
+  public List<ErrorDto> getErrors() {
     return errors;
   }
 

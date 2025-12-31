@@ -14,7 +14,7 @@
  */
 package io.github.malczuuu.iemu.infrastructure.lwm2m;
 
-import io.github.malczuuu.iemu.domain.FirmwareDTO;
+import io.github.malczuuu.iemu.domain.FirmwareDto;
 import io.github.malczuuu.iemu.domain.FirmwareService;
 import java.util.List;
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler;
@@ -87,7 +87,7 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
   @Override
   public ReadResponse read(ServerIdentity identity) {
     log.debug("Received read request to Firmware instanceId={}", getId());
-    FirmwareDTO firmware = firmwareService.getFirmware();
+    FirmwareDto firmware = firmwareService.getFirmware();
     return ReadResponse.success(
         new LwM2mObjectInstance(
             getId(),
@@ -108,12 +108,12 @@ public class FirmwareUpdateEnabler extends BaseInstanceEnabler {
     return switch (resourceId) {
       case FILE -> {
         firmwareService.changeFirmware(
-            new FirmwareDTO((byte[]) value.getValue(), null, null, null, null, null, null, null));
+            new FirmwareDto((byte[]) value.getValue(), null, null, null, null, null, null, null));
         yield WriteResponse.success();
       }
       case PACKAGE_URI -> {
         firmwareService.changeFirmware(
-            new FirmwareDTO(null, null, (String) value.getValue(), null, null, null, null, null));
+            new FirmwareDto(null, null, (String) value.getValue(), null, null, null, null, null));
         yield WriteResponse.success();
       }
       default -> super.write(identity, resourceId, value);

@@ -14,7 +14,7 @@
  */
 package io.github.malczuuu.iemu.infrastructure.lwm2m;
 
-import io.github.malczuuu.iemu.domain.StateDTO;
+import io.github.malczuuu.iemu.domain.StateDto;
 import io.github.malczuuu.iemu.domain.StateService;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,13 +79,13 @@ public class LightControlEnabler extends BaseInstanceEnabler {
   public WriteResponse write(ServerIdentity identity, int resourceId, LwM2mResource value) {
     switch (resourceId) {
       case ON_OFF:
-        state.changeState(StateDTO.changeOn((Boolean) value.getValue()));
+        state.changeState(StateDto.changeOn((Boolean) value.getValue()));
         break;
       case DIMMER:
-        state.changeState(StateDTO.changeDimmer(((Long) value.getValue()).intValue()));
+        state.changeState(StateDto.changeDimmer(((Long) value.getValue()).intValue()));
         break;
       case ON_TIME:
-        state.changeState(StateDTO.changeOnTime(((Long) value.getValue()).intValue()));
+        state.changeState(StateDto.changeOnTime(((Long) value.getValue()).intValue()));
         break;
       default:
         return super.write(identity, resourceId, value);

@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class App {
 
-  static void main(String[] args) {
+  public static void main(String[] args) {
     String profile = new ProfileSelector(args).getProfileName();
     ConfigReader reader = new ConfigReader();
     Config config = reader.readConfig(profile);

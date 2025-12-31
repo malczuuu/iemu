@@ -104,8 +104,8 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
   }
 
   @Override
-  public FirmwareDTO getFirmware() {
-    return new FirmwareDTO(
+  public FirmwareDto getFirmware() {
+    return new FirmwareDto(
         firmware.getFile(),
         firmware.getFile() != null
             ? "sha256:" + Hex.encodeHexString(digest.digest(firmware.getFile()))
@@ -133,7 +133,7 @@ public class FirmwareServiceImpl implements FirmwareService, Initializing {
   }
 
   @Override
-  public void changeFirmware(FirmwareDTO firmware) {
+  public void changeFirmware(FirmwareDto firmware) {
     FirmwareUpdateExecution previous = this.firmware;
     if (firmware.getFile() != null) {
       this.firmware =

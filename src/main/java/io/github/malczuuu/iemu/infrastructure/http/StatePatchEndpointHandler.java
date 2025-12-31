@@ -15,7 +15,7 @@
 package io.github.malczuuu.iemu.infrastructure.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.malczuuu.iemu.domain.StateDTO;
+import io.github.malczuuu.iemu.domain.StateDto;
 import io.github.malczuuu.iemu.domain.StateService;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -33,7 +33,7 @@ public class StatePatchEndpointHandler implements Handler {
 
   @Override
   public void handle(@NotNull Context ctx) throws Exception {
-    StateDTO state = mapper.readValue(ctx.bodyAsBytes(), StateDTO.class);
+    StateDto state = mapper.readValue(ctx.bodyAsBytes(), StateDto.class);
     stateService.changeState(state);
     ctx.status(204);
   }
