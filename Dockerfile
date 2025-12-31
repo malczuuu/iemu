@@ -13,7 +13,7 @@ WORKDIR /home/gradle/app
 COPY . .
 
 RUN rm -rf src/main/resources/static/*
-COPY --from=webappbuilder /home/node/dist/front/ src/main/resources/static/
+COPY --from=webappbuilder /home/node/dist/iemu-webapp/ src/main/resources/static/
 
 RUN gradle install --no-daemon
 

@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "frontapp": {
+    "iemu-webapp": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -38,8 +38,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -47,6 +47,8 @@
                   "maximumError": "8kB"
                 }
               ],
+              "optimization": true,
+              "sourceMap": false,
               "outputHashing": "all"
             },
             "development": {
@@ -61,10 +63,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontapp:build:production"
+              "buildTarget": "iemu-webapp:build:production"
             },
             "development": {
-              "buildTarget": "frontapp:build:development"
+              "buildTarget": "iemu-webapp:build:development"
             }
           },
           "defaultConfiguration": "development",
