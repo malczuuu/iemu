@@ -1,0 +1,56 @@
+name: Build & Push Docker Images
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"    # pattern for v1.2.3
+      - "v[0-9]*.[0-9]*.[0-9]*-*"  # pattern for v1.2.3-suffix
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Determine Version
+        id: tag_info
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "Tag: $TAG"
+
+          if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+            FULL_VERSION="${BASH_REMATCH[1]}"
+          else
+            echo "::error::unrecognized tag format $TAG"
+            exit 1
+          fi
+
+          if [[ "$FULL_VERSION" =~ ^([0-9]+\.[0-9]+) ]]; then
+            SHORT_VERSION="${BASH_REMATCH[1]}"
+          else
+            echo "::error::failed to extract short version (major.minor) from $FULL_VERSION"
+            exit 1
+          fi
+
+          echo "::notice::evaluated version $FULL_VERSION ($SHORT_VERSION)"
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+          echo "short_version=$SHORT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        if: startsWith(github.ref, 'refs/tags/') # Only login when we intend to push (i.e. tag builds)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ startsWith(github.ref, 'refs/tags/') }} # true on tag, false on branch
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/iemu:${{ steps.tag_info.outputs.full_version }}
+            ${{ secrets.DOCKER_USERNAME }}/iemu:${{ steps.tag_info.outputs.short_version }}
+            ${{ secrets.DOCKER_USERNAME }}/iemu:latest

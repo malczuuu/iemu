@@ -1,0 +1,103 @@
+# Refreshing each MINOR version on latest PATCH version to update internal dependencies of base
+# Docker images. Operates based on supported versions listed in .github/utils/supported_versions.
+name: Refresh Docker Images
+
+on:
+  schedule:
+    - cron: "0 3 1 1,4,7,10 *"  # at 03:00 UTC on Jan 1, Apr 1, Jul 1, and Oct 1
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout all tags
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Get GitHub tags
+        id: get_tags
+        run: |
+          TAGS=$(git tag --list)
+          SEMVER_TAGS=()
+          for t in $TAGS; do
+            if [[ "$t" =~ ^v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+              SEMVER_TAGS+=("${BASH_REMATCH[1]}")
+            fi
+          done
+          echo "semver_tags=${SEMVER_TAGS[*]}" >> $GITHUB_OUTPUT
+
+      - name: Determine tags to rebuild
+        id: plan
+        run: |
+          TAGS=(${{ steps.get_tags.outputs.semver_tags }})
+          declare -A latest_patch
+          HIGHEST="0.0.0"
+
+          mapfile -t SUPPORTED < ./.github/utils/supported_versions
+
+          # Taking for rebuilding all MINOR versions on the highest PATCH
+          for t in "${TAGS[@]}"; do
+            if [[ "$t" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+              minor="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+              patch="${BASH_REMATCH[3]}"
+
+              # Skip if minor version is not in supported list
+              if ! [[ " ${SUPPORTED[*]} " =~ " $minor " ]]; then
+                continue
+              fi
+
+              # Take latest PATCH per MINOR version
+              if [[ -z "${latest_patch[$minor]}" ]] || (( patch > latest_patch[$minor] )); then
+                latest_patch[$minor]=$patch
+              fi
+
+              # Evaluate highest version overall that will be marked 'latest'
+              if [[ "$t" > "$HIGHEST" ]]; then
+                HIGHEST="$t"
+              fi
+            fi
+          done
+
+          REBUILD_TAGS=()
+          for minor in "${!latest_patch[@]}"; do
+            full="${minor}.${latest_patch[$minor]}"
+            REBUILD_TAGS+=("$full")
+          done
+
+          SORTED_TAGS=$(printf "%s\n" "${REBUILD_TAGS[@]}" | sort -V | xargs)
+
+          echo "rebuild_tags=${SORTED_TAGS[*]}" >> $GITHUB_OUTPUT
+          echo "latest_tag=${HIGHEST}" >> $GITHUB_OUTPUT
+
+      - name: Build and push images from GitHub tags
+        run: |
+          for TAG in ${{ steps.plan.outputs.rebuild_tags }}; do
+            echo "::notice::checking out tag v$TAG"
+            git checkout "v$TAG"
+            IMAGE_ID=$(docker build -q -f Dockerfile --build-arg IEMU_VERSION=$TAG -t ${{ secrets.DOCKER_USERNAME }}/iemu:$TAG .)
+            docker push ${{ secrets.DOCKER_USERNAME }}/iemu:$TAG
+
+            if [[ "$TAG" =~ ^([0-9]+\.[0-9]+) ]]; then
+              SHORT_TAG="${BASH_REMATCH[1]}"
+              docker tag $IMAGE_ID ${{ secrets.DOCKER_USERNAME }}/iemu:$SHORT_TAG
+            docker push ${{ secrets.DOCKER_USERNAME }}/iemu:$SHORT_TAG
+            else
+              echo "::error::failed to extract short version (major.minor) from $FULL_VERSION"
+            fi
+
+            # If this is the overall latest patch, tag and push as latest
+            if [[ "$TAG" == "${{ steps.plan.outputs.latest_tag }}" ]]; then
+              docker tag $IMAGE_ID ${{ secrets.DOCKER_USERNAME }}/iemu:latest
+              docker push ${{ secrets.DOCKER_USERNAME }}/iemu:latest
+            fi
+
+            docker rmi -f $IMAGE_ID
+          done
