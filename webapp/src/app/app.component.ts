@@ -55,8 +55,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscriptions = [];
   }
 
-  public isStateReady(): Signal<boolean> {
-    return computed(() => !!this.state() && !!this.firmware());
+  public isStateReady(): boolean {
+    return !!this.state() && !!this.firmware();
   }
 
   public onOffToggle(): void {
