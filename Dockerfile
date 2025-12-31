@@ -1,4 +1,4 @@
-FROM node:15.11.0-slim AS webappbuilder
+FROM node:24.12.0-slim AS webappbuilder
 
 WORKDIR /home/node
 COPY webapp/ ./
