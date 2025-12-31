@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public constructor(
     private stateService: StateService,
     private firmwareService: FirmwareService,
-    private webSocketService: WebSocketService
+    private webSocketService: WebSocketService,
   ) {}
 
   public ngOnInit(): void {
@@ -46,7 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
           case 'firmware':
             this.firmware.set(event.body);
         }
-      })
+      }),
     );
   }
 

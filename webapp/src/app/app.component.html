@@ -13,17 +13,17 @@
   </div>
   <div class="columns is-multiline">
     @if (isStateReady()) {
-    <div
-      class="column is-12-mobile is-10-desktop is-offset-1-desktop is-8-widescreen is-offset-2-widescreen"
-    >
-      <app-state-display
-        [state]="state()!"
-        [firmware]="firmware()!"
-        (onOffToggle)="onOffToggle()"
-        (dimmerSave)="onDimmerChanged($event)"
-        (onTimeReset)="onOnTimeReset()"
-      ></app-state-display>
-    </div>
+      <div
+        class="column is-12-mobile is-10-desktop is-offset-1-desktop is-8-widescreen is-offset-2-widescreen"
+      >
+        <app-state-display
+          [state]="state()!"
+          [firmware]="firmware()!"
+          (onOffToggle)="onOffToggle()"
+          (dimmerSave)="onDimmerChanged($event)"
+          (onTimeReset)="onOnTimeReset()"
+        ></app-state-display>
+      </div>
     }
   </div>
 </div>
