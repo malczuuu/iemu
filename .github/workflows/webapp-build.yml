@@ -7,13 +7,12 @@ on:
       - "main"
       - "release-*"
     paths:
+      - ".github/workflows/webapp-build.yml"
       - "webapp/**"
   pull_request:
     branches:
       - "main"
       - "release-*"
-    paths:
-      - "webapp/**"
   schedule:
     - cron: "0 3 * * 0"  # Weekly on Sundays at 3 AM UTC
 
