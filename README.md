@@ -14,6 +14,7 @@ Emulator application for an IoT device (with LwM2M).
     - [Build and run distribution](#build-and-run-distribution)
     - [Run with Docker](#run-with-docker)
 - [Technologies](#technologies)
+- [Repository](#repository)
 
 ## Features
 
@@ -141,6 +142,13 @@ docker run -p 127.0.0.1:4500:4500 --env APP_ARGS=--demo iemu
 - [Leshan](https://github.com/eclipse/leshan)
 - [Angular](https://angular.io)
 - [Docker](https://www.docker.com/) (image is not being published yet)
+
+## Repository
+
+The repository is a monorepo:
+
+- root project is a Java backend (Gradle project),
+- `webapp/` contains Angular frontend.
 
 [leshan]: https://github.com/eclipse/leshan
 
