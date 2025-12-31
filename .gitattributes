@@ -1,6 +1,9 @@
 # --- Default: Normalize all text files to LF ---
 * text=auto eol=lf
 
+# --- Ignore static resouces from language statistics ---
+src/main/resources/static/** linguist-vendored
+
 # --- Java source files ---
 *.java           text diff=java
 *.class          binary
