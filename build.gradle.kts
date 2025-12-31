@@ -4,11 +4,11 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 plugins {
     id("java")
     id("application")
-    id("com.diffplug.spotless").version("8.1.0")
+    alias(libs.plugins.spotless)
 }
 
 group = "io.github.malczuuu"
-version = "1.1.0-SNAPSHOT"
+version = "1.1.1-SNAPSHOT"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -19,31 +19,31 @@ repositories {
 }
 
 dependencies {
-    lombok("org.projectlombok:lombok:1.18.42")
+    lombok(libs.lombok)
 
-    implementation("org.slf4j:slf4j-api:2.0.17")
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.23")
+    implementation(libs.slf4j.api)
+    runtimeOnly(libs.logback.classic)
 
-    implementation("io.javalin:javalin:6.7.0")
-    implementation("org.eclipse.jetty:jetty-client:11.0.26")
+    implementation(libs.javalin)
+    implementation(libs.jetty.client)
 
-    implementation("org.eclipse.leshan:leshan-client-cf:1.5.0")
+    implementation(libs.leshan.client.cf)
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-parameter-names:2.20.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.20.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.dataformat.yaml)
+    implementation(libs.jackson.module.parameter.names)
+    implementation(libs.jackson.datatype.jdk8)
+    implementation(libs.jackson.datatype.jsr310)
 
-    implementation("io.github.problem4j:problem4j-core:1.3.0")
-    implementation("io.github.problem4j:problem4j-jackson2:1.3.0")
+    implementation(libs.problem4j.core)
+    implementation(libs.problem4j.jackson2)
 
-    testImplementation(platform("org.junit:junit-bom:5.14.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
-    testImplementation("org.mockito:mockito-core:3.12.4")
-    testImplementation("javax.xml.ws:jaxws-api:2.3.1")
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.jaxws.api)
 }
 
 application {
