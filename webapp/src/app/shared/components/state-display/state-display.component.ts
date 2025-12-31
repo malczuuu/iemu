@@ -6,6 +6,7 @@ import { FirmwareDTO } from '../../../core/firmware.model';
   selector: 'app-state-display',
   templateUrl: './state-display.component.html',
   styleUrls: ['./state-display.component.scss'],
+  standalone: false,
 })
 export class StateDisplayComponent implements OnInit {
   @Input()
