@@ -15,6 +15,12 @@ COPY . .
 RUN rm -rf src/main/resources/static/*
 COPY --from=webappbuilder /home/node/dist/iemu-webapp/browser src/main/resources/static/
 
+ENV GRADLE_OPTS="\
+-Dorg.gradle.configuration-cache=false \
+-Dorg.gradle.daemon=false \
+-Dorg.gradle.parallel=false \
+-Dorg.gradle.workers.max=1"
+
 RUN gradle install --no-daemon
 
 
