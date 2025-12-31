@@ -11,7 +11,7 @@ group = "io.github.malczuuu"
 version = "1.1.0-SNAPSHOT"
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
 repositories {

@@ -58,9 +58,9 @@ Then selecting profile name looks following:
 
 ## Build & Run
 
-Project uses **Java 25**, but thanks to the **Foojay** plugin, Gradle toolchains will resolve Java version regardless on
-Java that runs Gradle (see `settings.gradle.kts`). The minimal Java version is **17** (due to min requirements form
-Gradle 9+).
+Project uses **Java 17**, mainly for compatibility reasons. You can change Java version in `build.gradle.kts` - project
+uses **Foojay** plugin to automatically resolve and download JDKs (see `settings.gradle.kts`). Minimal version for
+**Gradle 9+** is also **Java 17**.
 
 ### Prerequisites
 
@@ -73,7 +73,8 @@ No need to compile Angular, as static dist files from [`webapp`](./webapp) are i
 
 ### Run with IDE
 
-Simply locate `App` class and run it's `main` method.
+Simply locate [`App`][app.java] class and run it's `main` method. Setting profile parameter depends on your IDE, but it should
+be somewhere named "Program Arguments" (not "JVM Options").
 
 ### Run with Gradle `application` plugin
 
@@ -149,6 +150,8 @@ The repository is a monorepo:
 
 - root project is a Java backend (Gradle project),
 - `webapp/` contains Angular frontend.
+
+[app.java]: ./src/main/java/io/github/malczuuu/iemu/App.java
 
 [leshan]: https://github.com/eclipse/leshan
 
