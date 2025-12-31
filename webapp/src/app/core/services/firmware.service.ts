@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { FirmwareDTO } from './firmware.model';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { FirmwareDTO } from '../../state/models/firmware.model';
 
 @Injectable({
   providedIn: 'root',

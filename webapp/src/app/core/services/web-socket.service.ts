@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class WebSocketService {
   private readonly api;
 
   private messages: Subject<any> = new Subject<any>();
 
-  private socket: WebSocket;
+  private socket: WebSocket | null = null;
 
   public constructor() {
     const schema = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
@@ -28,7 +30,7 @@ export class WebSocketService {
     this.socket.onopen = (event) => null;
     this.socket.onmessage = (event) => this.messages.next(event.data);
     this.socket.onclose = (event) => (this.socket = null);
-    this.socket.onerror = (event) => this.socket.close();
+    this.socket.onerror = (event) => this.socket?.close();
   }
 
   public onMessage(): Observable<any> {

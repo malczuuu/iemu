@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StateDTO, StatePatchDTO } from './state.model';
+import { StateDTO, StatePatchDTO } from '../../state/models/state.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class StateService {
   private readonly api = '/api/state';
 

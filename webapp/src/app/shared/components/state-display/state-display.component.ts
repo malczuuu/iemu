@@ -1,19 +1,18 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { StateDTO } from '../../../core/state.model';
-import { FirmwareDTO } from '../../../core/firmware.model';
+import { StateDTO } from '../../../state/models/state.model';
+import { FirmwareDTO } from '../../../state/models/firmware.model';
 
 @Component({
   selector: 'app-state-display',
   templateUrl: './state-display.component.html',
   styleUrls: ['./state-display.component.scss'],
-  standalone: false,
 })
 export class StateDisplayComponent implements OnInit {
   @Input()
-  public state: StateDTO;
+  public state!: StateDTO;
 
   @Input()
-  public firmware: FirmwareDTO;
+  public firmware!: FirmwareDTO;
 
   @Output()
   public onOffToggle: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -34,10 +33,14 @@ export class StateDisplayComponent implements OnInit {
 
   trimmedUri(): string {
     let packageUri = this.firmware.packageUri;
-    if (packageUri.length > 32) {
+    if (packageUri && packageUri.length > 32) {
       const trimm = packageUri.length - 32;
       packageUri = '...' + packageUri.substring(trimm);
     }
     return packageUri;
+  }
+
+  onDimmerSave(value: string) {
+    this.dimmerSave.emit(Number(value));
   }
 }

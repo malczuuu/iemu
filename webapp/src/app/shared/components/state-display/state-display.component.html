@@ -64,7 +64,7 @@
               />
             </td>
             <td class="has-text-right">
-              <button class="button is-small" (click)="dimmerSave.emit(dimmerInput.value)">
+              <button class="button is-small" (click)="onDimmerSave(dimmerInput.value)">
                 Save
               </button>
             </td>
@@ -129,7 +129,9 @@
             <td>Delivery Method</td>
             <td><code>/5/0/9</code></td>
             <td>
-              <code>{{ firmware.deliveryMethod + ' (' + firmware.deliveryMethodValue + ')' }}</code>
+              <code>
+                {{ firmware.deliveryMethod + ' (' + firmware.deliveryMethodValue + ')' }}
+              </code>
             </td>
             <td></td>
           </tr>
