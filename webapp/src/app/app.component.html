@@ -12,8 +12,8 @@
     </div>
   </div>
   <div class="columns is-multiline">
+    @if (state && firmware) {
     <div
-      *ngIf="state && firmware"
       class="column is-12-mobile is-10-desktop is-offset-1-desktop is-8-widescreen is-offset-2-widescreen"
     >
       <app-state-display
@@ -24,5 +24,6 @@
         (onTimeReset)="onOnTimeReset()"
       ></app-state-display>
     </div>
+    }
   </div>
 </div>

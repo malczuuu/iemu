@@ -40,8 +40,11 @@
             <td>On / off</td>
             <td><code>/3311/0/5850</code></td>
             <td>
-              <span *ngIf="state.on" class="tag is-primary">On</span>
-              <span *ngIf="!state.on" class="tag is-danger">Off</span>
+              @if (state.on) {
+              <span class="tag is-primary">On</span>
+              } @if (!state.on) {
+              <span class="tag is-danger">Off</span>
+              }
             </td>
             <td class="has-text-right">
               <button class="button is-small" (click)="onOffToggle.emit(true)">Toggle</button>
