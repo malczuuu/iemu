@@ -2,6 +2,8 @@
 
 [![Gradle Build](https://github.com/malczuuu/iemu/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/malczuuu/iemu/actions/workflows/gradle-build.yml)
 [![WebApp Build](https://github.com/malczuuu/iemu/actions/workflows/webapp-build.yml/badge.svg)](https://github.com/malczuuu/iemu/actions/workflows/webapp-build.yml)
+[![DockerHub](https://img.shields.io/docker/v/malczuuu/iemu?logo=docker&label=DockerHub)](https://hub.docker.com/r/malczuuu/iemu)
+[![License](https://img.shields.io/github/license/malczuuu/iemu)](https://github.com/malczuuu/iemu/blob/main/LICENSE)
 
 Emulator application for an IoT device (with LwM2M).
 
