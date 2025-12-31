@@ -5,7 +5,7 @@ COPY webapp/ ./
 RUN npm i && npm run build
 
 
-FROM gradle:9.2.1-jdk25 AS builder
+FROM gradle:9.2.1-jdk17 AS builder
 
 USER root
 WORKDIR /home/gradle/app
@@ -18,7 +18,7 @@ COPY --from=webappbuilder /home/node/dist/front/ src/main/resources/static/
 RUN gradle install --no-daemon
 
 
-FROM eclipse-temurin:25-alpine
+FROM eclipse-temurin:17-alpine
 
 WORKDIR /iemu
 
