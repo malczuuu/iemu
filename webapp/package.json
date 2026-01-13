@@ -27,7 +27,7 @@
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.6",
     "prettier": "^3.7.4",
-    "sass": "^1.97.1",
+    "sass": "^1.97.2",
     "typescript": "~5.9.3",
     "vitest": "^4.0.8"
   }
