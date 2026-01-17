@@ -5,7 +5,7 @@ COPY webapp/ ./
 RUN npm i && npm run build
 
 
-FROM gradle:9.2.1-jdk17 AS builder
+FROM gradle:9.3.0-jdk17 AS builder
 
 USER root
 WORKDIR /home/gradle/app
