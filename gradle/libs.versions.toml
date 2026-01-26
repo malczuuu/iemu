@@ -1,6 +1,6 @@
 [versions]
 jackson-databind = "2.21.0"
-jackson-dataformat-yaml = "2.20.1"
+jackson-dataformat-yaml = "2.21.0"
 jackson-datatype-jdk8 = "2.21.0"
 jackson-datatype-jsr310 = "2.21.0"
 jackson-module-parameter = "2.21.0"
