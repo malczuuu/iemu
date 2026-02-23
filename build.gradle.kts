@@ -79,6 +79,7 @@ spotless {
 
     format("yaml") {
         target("**/*.yml", "**/*.yaml")
+        targetExclude("webapp/**")
 
         trimTrailingWhitespace()
         leadingTabsToSpaces(2)
