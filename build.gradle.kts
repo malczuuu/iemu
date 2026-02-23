@@ -9,9 +9,6 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
-group = "io.github.malczuuu"
-version = "1.1.1-SNAPSHOT"
-
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
