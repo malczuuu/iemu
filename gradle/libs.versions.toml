@@ -1,21 +1,18 @@
 [versions]
-jackson-databind = "2.21.0"
-jackson-dataformat-yaml = "2.21.0"
-jackson-datatype-jdk8 = "2.21.0"
-jackson-datatype-jsr310 = "2.21.0"
-jackson-module-parameter = "2.21.0"
+jackson-databind = "3.0.4"
+jackson-dataformat-yaml = "3.0.4"
 javalin = "7.0.0"
 jetty-client = "11.0.26"
-junit-bom = "5.14.2"
+junit-bom = "6.0.3"
 jaxws = "2.3.1"
 leshan = "1.5.0"
 logback = "1.5.27"
 lombok = "1.18.42"
-mockito = "3.12.4"
+mockito = "5.21.0"
 slf4j = "2.0.17"
 spotless = "8.2.1"
 problem4j-core = "1.4.1"
-problem4j-jackson = "1.4.1"
+problem4j-jackson3 = "1.4.1"
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
@@ -25,11 +22,8 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit-bom" }
 
 # direct versions
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson-databind" }
-jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson-dataformat-yaml" }
-jackson-module-parameter-names = { module = "com.fasterxml.jackson.module:jackson-module-parameter-names", version.ref = "jackson-module-parameter" }
-jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "jackson-datatype-jdk8" }
-jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson-datatype-jsr310" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson-databind" }
+jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson-dataformat-yaml" }
 javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
 jetty-client = { module = "org.eclipse.jetty:jetty-client", version.ref = "jetty-client" }
 jaxws-api = { module = "javax.xml.ws:jaxws-api", version.ref = "jaxws" }
@@ -38,7 +32,7 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 problem4j-core = { module = "io.github.problem4j:problem4j-core", version.ref = "problem4j-core" }
-problem4j-jackson2 = { module = "io.github.problem4j:problem4j-jackson2", version.ref = "problem4j-jackson" }
+problem4j-jackson3 = { module = "io.github.problem4j:problem4j-jackson3", version.ref = "problem4j-jackson3" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # versions managed by junit-bom

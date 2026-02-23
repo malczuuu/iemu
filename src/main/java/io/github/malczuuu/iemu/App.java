@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Damian Malczewski
+ * Copyright (c) 2025-2026 Damian Malczewski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,13 +10,18 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * SPDX-License-Identifier: MIT
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
+
 package io.github.malczuuu.iemu;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.malczuuu.iemu.common.ObjectMapperFactory;
+import io.github.malczuuu.iemu.common.JacksonFactory;
 import io.github.malczuuu.iemu.configuration.Config;
 import io.github.malczuuu.iemu.configuration.ConfigReader;
 import io.github.malczuuu.iemu.configuration.ProfileSelector;
@@ -30,6 +35,7 @@ import io.github.malczuuu.iemu.infrastructure.http.WebSocketEvent;
 import io.github.malczuuu.iemu.infrastructure.http.WebSocketService;
 import io.github.malczuuu.iemu.infrastructure.http.WebSocketServiceFactory;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.json.JsonMapper;
 
 @Slf4j
 public class App {
@@ -45,29 +51,19 @@ public class App {
   private final StateService stateService = new StateServiceFactory().getStateService();
   private final FirmwareService firmwareService = new FirmwareServiceFactory().getFirmwareService();
 
-  private final ObjectMapper mapper = new ObjectMapperFactory().getJsonObjectMapper();
+  private final JsonMapper mapper = new JacksonFactory().getJsonMapper();
   private final Config config;
 
   private final Runnable statePublish =
-      () -> {
-        try {
+      () ->
           webSocketService.sendMessage(
               mapper.writeValueAsString(new WebSocketEvent("state", stateService.getState())));
-        } catch (JsonProcessingException ignored) {
-          // ignored
-        }
-      };
 
   private final Runnable firmwarePublish =
-      () -> {
-        try {
+      () ->
           webSocketService.sendMessage(
               mapper.writeValueAsString(
                   new WebSocketEvent("firmware", firmwareService.getFirmware())));
-        } catch (JsonProcessingException ignored) {
-          // ignored
-        }
-      };
 
   private App(Config config) {
     this.config = config;

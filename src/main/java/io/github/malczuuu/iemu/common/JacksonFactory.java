@@ -19,9 +19,18 @@
  * SOFTWARE.
  */
 
-package io.github.malczuuu.iemu.domain;
+package io.github.malczuuu.iemu.common;
 
-public interface Initializing {
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
-  void initialize();
+public class JacksonFactory {
+
+  public JsonMapper getJsonMapper() {
+    return JsonMapper.builder().findAndAddModules().build();
+  }
+
+  public YAMLMapper getYamlMapper() {
+    return YAMLMapper.builder().findAndAddModules().build();
+  }
 }

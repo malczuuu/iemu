@@ -19,9 +19,27 @@
  * SOFTWARE.
  */
 
-package io.github.malczuuu.iemu.domain;
+package io.github.malczuuu.iemu.infrastructure.http.error;
 
-public interface Initializing {
+import io.github.problem4j.core.Problem;
+import io.javalin.http.Context;
+import io.javalin.http.ExceptionHandler;
+import org.jetbrains.annotations.NotNull;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
-  void initialize();
+public class JacksonExceptionHandler implements ExceptionHandler<JacksonException> {
+
+  private final JsonMapper mapper;
+
+  public JacksonExceptionHandler(JsonMapper mapper) {
+    this.mapper = mapper;
+  }
+
+  @Override
+  public void handle(@NotNull JacksonException exception, @NotNull Context ctx) {
+    ctx.status(400)
+        .contentType(Problem.CONTENT_TYPE)
+        .result(mapper.writeValueAsString(Problem.of(400, "Failed to parse JSON object")));
+  }
 }

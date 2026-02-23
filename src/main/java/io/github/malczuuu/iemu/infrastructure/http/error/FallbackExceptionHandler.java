@@ -19,9 +19,27 @@
  * SOFTWARE.
  */
 
-package io.github.malczuuu.iemu.domain;
+package io.github.malczuuu.iemu.infrastructure.http.error;
 
-public interface Initializing {
+import io.github.problem4j.core.Problem;
+import io.javalin.http.Context;
+import io.javalin.http.ExceptionHandler;
+import org.jetbrains.annotations.NotNull;
+import tools.jackson.databind.json.JsonMapper;
 
-  void initialize();
+public class FallbackExceptionHandler implements ExceptionHandler<Exception> {
+
+  private final JsonMapper mapper;
+
+  public FallbackExceptionHandler(JsonMapper mapper) {
+    this.mapper = mapper;
+  }
+
+  @Override
+  public void handle(@NotNull Exception exception, @NotNull Context ctx) {
+    Problem problem = Problem.of(500, exception.getMessage());
+    ctx.status(problem.getStatus())
+        .contentType(Problem.CONTENT_TYPE)
+        .result(mapper.writeValueAsString(problem));
+  }
 }

@@ -1,5 +1,7 @@
 import com.diffplug.spotless.LineEnding
+import internal.lombok
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     id("java")
@@ -11,7 +13,7 @@ group = "io.github.malczuuu"
 version = "1.1.1-SNAPSHOT"
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 repositories {
@@ -31,12 +33,9 @@ dependencies {
 
     implementation(libs.jackson.databind)
     implementation(libs.jackson.dataformat.yaml)
-    implementation(libs.jackson.module.parameter.names)
-    implementation(libs.jackson.datatype.jdk8)
-    implementation(libs.jackson.datatype.jsr310)
 
     implementation(libs.problem4j.core)
-    implementation(libs.problem4j.jackson2)
+    implementation(libs.problem4j.jackson3)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
@@ -51,8 +50,11 @@ application {
 }
 
 spotless {
+    val licenseHeader = "${rootProject.rootDir}/gradle/license-header.java"
+
     java {
-        target("**/src/**/*.java")
+        target("src/**/*.java")
+        licenseHeaderFile(licenseHeader)
 
         // NOTE: decided not to upgrade Google Java Format, as versions 1.29+ require running it on Java 21
         googleJavaFormat("1.28.0")
@@ -62,7 +64,7 @@ spotless {
     }
 
     kotlin {
-        target("**/src/**/*.kt")
+        target("buildSrc/src/**/*.kt")
 
         ktfmt("0.60").metaStyle()
         endWithNewline()
@@ -89,6 +91,7 @@ spotless {
 
     format("misc") {
         target("**/.gitattributes", "**/.gitignore")
+        targetExclude("webapp/node_modules/**")
 
         trimTrailingWhitespace()
         leadingTabsToSpaces(4)
@@ -97,43 +100,40 @@ spotless {
     }
 }
 
-// Utility to clean up old jars as they can clutter due to versioning by Git commit hashes.
-// Usage:
-//   ./gradlew cleanLibs
-tasks.register<Delete>("cleanLibs") {
-    description = "Deletes build/libs directory."
-    group = "build"
-
-    delete(layout.buildDirectory.dir("libs"))
+tasks.named<JavaCompile>("compileJava") {
+    options.encoding = "UTF-8"
+    options.release = 17
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 
     testLogging {
-        events("passed", "skipped", "failed", "standardOut", "standardError")
+        events(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
         exceptionFormat = TestExceptionFormat.SHORT
         showStandardStreams = true
     }
+
+    // For resolving warnings from mockito.
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 
     systemProperty("user.language", "en")
     systemProperty("user.country", "US")
 }
 
 tasks.withType<Jar>().configureEach {
-    dependsOn("cleanLibs")
-
     manifest {
         attributes(
             "Implementation-Title" to project.name,
             "Implementation-Version" to project.version,
-            "Build-Jdk-Spec" to java.toolchain.languageVersion.get().toString(),
             "Created-By" to "Gradle ${gradle.gradleVersion}",
         )
     }
 
-    from("LICENSE") {
+    from("${rootProject.rootDir}/LICENSE") {
         into("META-INF/")
         rename { "LICENSE.txt" }
     }
 }
+
+defaultTasks("spotlessApply", "build")

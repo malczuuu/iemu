@@ -1,3 +1,5 @@
+package internal
+
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
 /**
