@@ -64,42 +64,38 @@ public class HttpServerLauncher implements Launcher {
         Javalin.create(
             config -> {
               config.http.generateEtags = true;
-              config.showJavalinBanner = false;
+              config.startup.showJavalinBanner = false;
               config.staticFiles.add("/static", Location.CLASSPATH);
               config.requestLogger.http(new HttpRequestLogger());
+
+              config.routes.get("/api/state", new StateGetEndpointHandler(stateService, mapper));
+              config.routes.patch(
+                  "/api/state", new StatePatchEndpointHandler(stateService, mapper));
+              config.routes.get(
+                  "/api/firmware", new FirmwareGetEndpointHandler(firmwareService, mapper));
+
+              config.routes.ws(
+                  "/api/websocket",
+                  ws -> {
+                    ws.onConnect(webSocketService::onConnect);
+                    ws.onMessage(webSocketService::onMessage);
+                    ws.onClose(webSocketService::onClose);
+                    ws.onError(webSocketService::onError);
+                  });
+
+              config.routes.exception(
+                  JsonParseException.class, new JsonParseExceptionHandler(mapper));
+              config.routes.exception(
+                  JsonProcessingException.class, new JsonProcessingExceptionHandler(mapper));
+              config.routes.exception(ProblemException.class, new ProblemExceptionHandler(mapper));
+              config.routes.exception(Exception.class, new BaseExceptionHandler(mapper));
+
+              config.routes.error(404, new NotFoundErrorHandler(mapper));
+              config.routes.error(500, new InternalServerErrorHandler(mapper));
             });
-
-    app.get("/api/state", new StateGetEndpointHandler(stateService, mapper));
-    app.patch("/api/state", new StatePatchEndpointHandler(stateService, mapper));
-    app.get("/api/firmware", new FirmwareGetEndpointHandler(firmwareService, mapper));
-
-    initExceptionHandling(app);
-
-    initWebSocket(app);
 
     Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
 
     app.start(config.getPort());
-  }
-
-  private void initWebSocket(Javalin app) {
-    app.ws(
-        "/api/websocket",
-        ws -> {
-          ws.onConnect(webSocketService::onConnect);
-          ws.onMessage(webSocketService::onMessage);
-          ws.onClose(webSocketService::onClose);
-          ws.onError(webSocketService::onError);
-        });
-  }
-
-  private void initExceptionHandling(Javalin app) {
-    app.exception(JsonParseException.class, new JsonParseExceptionHandler(mapper));
-    app.exception(JsonProcessingException.class, new JsonProcessingExceptionHandler(mapper));
-    app.exception(ProblemException.class, new ProblemExceptionHandler(mapper));
-    app.exception(Exception.class, new BaseExceptionHandler(mapper));
-
-    app.error(404, new NotFoundErrorHandler(mapper));
-    app.error(500, new InternalServerErrorHandler(mapper));
   }
 }
