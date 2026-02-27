@@ -1,5 +1,5 @@
 [versions]
-jackson-databind = "3.0.4"
+jackson-databind = "3.1.0"
 jackson-dataformat-yaml = "3.1.0"
 javalin = "7.0.0"
 jetty-client = "11.0.26"
