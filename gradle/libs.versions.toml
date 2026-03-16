@@ -1,7 +1,7 @@
 [versions]
 jackson-databind = "3.1.0"
 jackson-dataformat-yaml = "3.1.0"
-javalin = "7.0.0"
+javalin = "7.1.0"
 jetty-client = "11.0.26"
 junit-bom = "6.0.3"
 jaxws = "2.3.1"
