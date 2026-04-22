@@ -29,7 +29,7 @@ class LightModuleTests {
   }
 
   @Test
-  fun shouldOnTimeBeUpdatedAfterOnWasSetToTrue() {
+  fun `onTime should be incremented on each tick after isOn is set to true`() {
     lightModule.isOn = true
     tasks.forEach(TimerTaskMock::run)
 
@@ -38,7 +38,7 @@ class LightModuleTests {
   }
 
   @Test
-  fun shouldOnTimeNotBeUpdatedAfterOnWasSetToFalse() {
+  fun `onTime should stop incrementing once isOn is set back to false`() {
     lightModule.isOn = true
     tasks.forEach(TimerTaskMock::run)
     tasks.forEach(TimerTaskMock::run)
@@ -52,7 +52,7 @@ class LightModuleTests {
   }
 
   @Test
-  fun shouldBeNotifiedAfterOnWasChanged() {
+  fun `state change subscribers should be notified when isOn is updated`() {
     var value = false
     lightModule.subscribeOnStateChange { value = it }
 
@@ -62,7 +62,7 @@ class LightModuleTests {
   }
 
   @Test
-  fun shouldBeNotifiedAfterOnTimeChanged() {
+  fun `onTime subscribers should be notified when the counter advances`() {
     var value = -1L
     lightModule.subscribeOnTimeCounterChange { value = it }
 
@@ -73,7 +73,7 @@ class LightModuleTests {
   }
 
   @Test
-  fun shouldBeNotifiedAfterDimmerChanged() {
+  fun `dimmer subscribers should be notified when the dimmer is updated`() {
     var value = -1
     lightModule.subscribeOnDimmerChange { value = it }
 
@@ -83,21 +83,21 @@ class LightModuleTests {
   }
 
   @Test
-  fun shouldDimmerBeSetToZeroIfNegativeUsed() {
+  fun `dimmer should be clamped to zero when a negative value is assigned`() {
     lightModule.dimmer = -1
 
     assertEquals(0, lightModule.dimmer)
   }
 
   @Test
-  fun shouldDimmerBeSetTo100IfBiggerThan100Used() {
+  fun `dimmer should be clamped to one hundred when a value above one hundred is assigned`() {
     lightModule.dimmer = 101
 
     assertEquals(100, lightModule.dimmer)
   }
 
   @Test
-  fun shouldTimerBeCanceledAndPurgedOnShutdown() {
+  fun `shutdown() should cancel and purge the underlying timer`() {
     var canceled = false
     var purged = false
     doAnswer {
