@@ -11,7 +11,7 @@ on:
       - ".github/workflows/gradle-build.yml"
       - "buildSrc/**"
       - "gradle/**"
-      - "**/src/**"
+      - "src/**"
       - "**/*.gradle.kts"
       - "gradle.properties"
       - "gradlew"
