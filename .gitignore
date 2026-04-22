@@ -1,9 +1,9 @@
+.kotlin
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-/buildSrc/.kotlin
 
 ### STS ###
 .apt_generated
@@ -19,6 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 .idea
+.run
 *.iws
 *.iml
 *.ipr
@@ -35,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Claude ###
+.claude/settings.local.json

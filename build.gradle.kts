@@ -1,25 +1,26 @@
 import com.diffplug.spotless.LineEnding
-import internal.lombok
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("java")
     id("application")
+    id("internal.common-convention")
+    id("internal.idea-convention")
+    id("internal.jacoco-convention")
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.spotless)
 }
 
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
-}
-
-repositories {
-    mavenCentral()
+kotlin {
+    jvmToolchain(25)
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
 }
 
 dependencies {
-    lombok(libs.lombok)
-
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
@@ -30,6 +31,7 @@ dependencies {
 
     implementation(libs.jackson.databind)
     implementation(libs.jackson.dataformat.yaml)
+    implementation(libs.jackson.module.kotlin)
 
     implementation(libs.problem4j.core)
     implementation(libs.problem4j.jackson3)
@@ -39,31 +41,17 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 
     testImplementation(libs.mockito.core)
-    testImplementation(libs.jaxws.api)
 }
 
 application {
-    mainClass = "io.github.malczuuu.iemu.App"
+    mainClass = "io.github.malczuuu.iemu.AppKt"
 }
 
 spotless {
-    val licenseHeader = "${rootProject.rootDir}/gradle/license-header.java"
-
-    java {
-        target("src/**/*.java")
-        licenseHeaderFile(licenseHeader)
-
-        // NOTE: decided not to upgrade Google Java Format, as versions 1.29+ require running it on Java 21
-        googleJavaFormat("1.28.0")
-        forbidWildcardImports()
-        endWithNewline()
-        lineEndings = LineEnding.UNIX
-    }
-
     kotlin {
-        target("buildSrc/src/**/*.kt")
+        target("src/**/*.kt", "buildSrc/src/**/*.kt")
 
-        ktfmt("0.60").metaStyle()
+        ktfmt("0.62").metaStyle()
         endWithNewline()
         lineEndings = LineEnding.UNIX
     }
@@ -95,11 +83,6 @@ spotless {
         endWithNewline()
         lineEndings = LineEnding.UNIX
     }
-}
-
-tasks.named<JavaCompile>("compileJava") {
-    options.encoding = "UTF-8"
-    options.release = 17
 }
 
 tasks.withType<Test>().configureEach {
