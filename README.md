@@ -105,13 +105,12 @@ The repository is a monorepo:
 <details>
 <summary><b>Expand...</b></summary>
 
-Project uses **Java 17**, mainly for compatibility reasons. You can change Java version in `build.gradle.kts` - project
-uses **Foojay** plugin to automatically resolve and download JDKs (see `settings.gradle.kts`). Minimal version for
-**Gradle 9+** is also **Java 17**.
+Project uses Java toolchains and `foojay-resolver-convention` plugin to automatically pick up Java 25 regardless of Java
+version Gradle itself runs. It may be compiled on any Java 17+.
 
 ### Run with IDE
 
-Simply locate [`App`][app.java] class and run it's `main` method. Setting profile parameter depends on your IDE, but it
+Simply locate [`App`][app.kt] file and run it's `main` method. Setting profile parameter depends on your IDE, but it
 should be somewhere named "Program Arguments" (not "JVM Options").
 
 ### Run with Gradle `application` plugin
@@ -156,7 +155,7 @@ For more info about see [Building the distribution][the-distribution] chapter.
 
 </details>
 
-[app.java]: ./src/main/java/io/github/malczuuu/iemu/App.java
+[app.kt]: ./src/main/kotlin/io/github/malczuuu/iemu/App.kt
 
 [leshan]: https://github.com/eclipse/leshan
 
