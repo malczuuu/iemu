@@ -15,3 +15,16 @@
 .hero.welcome .subtitle {
   color: hsl(192, 17%, 99%);
 }
+
+.hero-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.theme-toggle {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}

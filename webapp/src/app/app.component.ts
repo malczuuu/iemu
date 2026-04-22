@@ -3,6 +3,7 @@ import { Component, computed, OnDestroy, OnInit, Signal, signal } from '@angular
 import { forkJoin, Subscription } from 'rxjs';
 import { FirmwareService } from './core/services/firmware.service';
 import { StateService } from './core/services/state.service';
+import { Theme, ThemeService } from './core/services/theme.service';
 import { WebSocketService } from './core/services/web-socket.service';
 import { StateDisplayComponent } from './shared/components/state-display/state-display.component';
 import { FirmwareDTO } from './state/models/firmware.model';
@@ -20,12 +21,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public state = signal<StateDTO | null>(null);
   public firmware = signal<FirmwareDTO | null>(null);
+  public theme: Signal<Theme>;
 
   public constructor(
     private stateService: StateService,
     private firmwareService: FirmwareService,
     private webSocketService: WebSocketService,
-  ) {}
+    private themeService: ThemeService,
+  ) {
+    this.theme = this.themeService.theme();
+  }
 
   public ngOnInit(): void {
     forkJoin({
@@ -72,5 +77,9 @@ export class AppComponent implements OnInit, OnDestroy {
   public onOnTimeReset(): void {
     const patch: StatePatchDTO = { onTime: 0 };
     this.stateService.patchState(patch).subscribe(() => null);
+  }
+
+  public toggleTheme(): void {
+    this.themeService.toggle();
   }
 }
