@@ -12,6 +12,10 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
 kotlin {
     jvmToolchain(25)
     compilerOptions {
@@ -83,6 +87,12 @@ spotless {
         endWithNewline()
         lineEndings = LineEnding.UNIX
     }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-parameters")
+    options.encoding = "UTF-8"
+    options.release.set(17)
 }
 
 tasks.withType<Test>().configureEach {
