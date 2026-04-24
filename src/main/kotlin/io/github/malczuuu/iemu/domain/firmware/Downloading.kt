@@ -9,17 +9,20 @@ import java.util.concurrent.TimeoutException
 import org.eclipse.jetty.client.HttpClient
 import org.slf4j.LoggerFactory
 
-class Downloading
-@JvmOverloads
-constructor(
+class Downloading(
     override val file: ByteArray,
     override val packageUri: String?,
     override val result: FirmwareUpdateResult,
     override val packageVersion: String?,
-    private var client: HttpClient? = null,
+    private val downloader: FirmwareDownloader = FirmwareDownloader { uri ->
+      val client = HttpClient().also { it.start() }
+      try {
+        client.GET(uri).content
+      } finally {
+        client.stop()
+      }
+    },
 ) : FirmwareUpdateExecution {
-
-  private val managedClient: Boolean = client == null
 
   override val state: FirmwareUpdateState = FirmwareUpdateState.DOWNLOADING
 
@@ -36,7 +39,7 @@ constructor(
           )
           Idle(file, packageUri, unsupported, packageVersion)
         } else {
-          val downloaded = downloadFile(uri)
+          val downloaded = downloader.download(uri)
           if (downloaded.isEmpty()) fileEmptyFailure(downloaded)
           else successfulDownloading(downloaded)
         }
@@ -51,18 +54,6 @@ constructor(
       } catch (e: Exception) {
         onUnknownException(e)
       }
-
-  private fun downloadFile(uri: URI): ByteArray {
-    if (managedClient) {
-      client = HttpClient().also { it.start() }
-    }
-    val response = client!!.GET(uri)
-    val downloaded = response.content
-    if (managedClient) {
-      client!!.stop()
-    }
-    return downloaded
-  }
 
   private fun fileEmptyFailure(downloaded: ByteArray): FirmwareUpdateExecution {
     val failure = FirmwareUpdateResult.PACKAGE_INTEGRITY_CHECK_FAILURE

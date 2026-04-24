@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.domain.FirmwareDto
 import io.github.malczuuu.iemu.domain.FirmwareService
+import io.github.malczuuu.iemu.domain.FirmwareUpdate
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler
 import org.eclipse.leshan.client.servers.ServerIdentity
 import org.eclipse.leshan.core.model.ObjectModel
@@ -29,32 +29,28 @@ class FirmwareUpdateEnabler(private val firmware: FirmwareService) : BaseInstanc
         id,
         resourceId,
     )
+    val fw = firmware.getFirmware()
     return when (resourceId) {
-      PACKAGE_URI -> ReadResponse.success(resourceId, firmware.getFirmware().packageUri)
-      STATE -> ReadResponse.success(resourceId, firmware.getFirmware().stateValue!!.toLong())
-      UPDATE_RESULT ->
-          ReadResponse.success(resourceId, firmware.getFirmware().resultValue!!.toLong())
-      PACKAGE_VERSION -> ReadResponse.success(resourceId, firmware.getFirmware().pkgVersion)
-      MODE ->
-          ReadResponse.success(
-              resourceId,
-              firmware.getFirmware().deliveryMethodValue!!.toLong(),
-          )
+      PACKAGE_URI -> ReadResponse.success(resourceId, fw.packageUri)
+      STATE -> ReadResponse.success(resourceId, fw.state.value.toLong())
+      UPDATE_RESULT -> ReadResponse.success(resourceId, fw.result.value.toLong())
+      PACKAGE_VERSION -> ReadResponse.success(resourceId, fw.packageVersion)
+      MODE -> ReadResponse.success(resourceId, fw.deliveryMethod.value.toLong())
       else -> super.read(identity, resourceId)
     }
   }
 
   override fun read(identity: ServerIdentity): ReadResponse {
     log.debug("Received read request to Firmware instanceId={}", id)
-    val firmware = firmware.getFirmware()
+    val fw = firmware.getFirmware()
     return ReadResponse.success(
         LwM2mObjectInstance(
             id,
-            LwM2mSingleResource.newStringResource(PACKAGE_URI, firmware.packageUri),
-            LwM2mSingleResource.newIntegerResource(STATE, firmware.stateValue!!.toLong()),
-            LwM2mSingleResource.newIntegerResource(UPDATE_RESULT, firmware.resultValue!!.toLong()),
-            LwM2mSingleResource.newStringResource(PACKAGE_VERSION, firmware.pkgVersion),
-            LwM2mSingleResource.newIntegerResource(MODE, firmware.deliveryMethodValue!!.toLong()),
+            LwM2mSingleResource.newStringResource(PACKAGE_URI, fw.packageUri),
+            LwM2mSingleResource.newIntegerResource(STATE, fw.state.value.toLong()),
+            LwM2mSingleResource.newIntegerResource(UPDATE_RESULT, fw.result.value.toLong()),
+            LwM2mSingleResource.newStringResource(PACKAGE_VERSION, fw.packageVersion),
+            LwM2mSingleResource.newIntegerResource(MODE, fw.deliveryMethod.value.toLong()),
         )
     )
   }
@@ -72,33 +68,11 @@ class FirmwareUpdateEnabler(private val firmware: FirmwareService) : BaseInstanc
     )
     return when (resourceId) {
       FILE -> {
-        firmware.changeFirmware(
-            FirmwareDto(
-                file = value.value as ByteArray,
-                fileChecksum = null,
-                packageUri = null,
-                state = null,
-                result = null,
-                pkgVersion = null,
-                deliveryMethod = null,
-                progress = null,
-            )
-        )
+        firmware.changeFirmware(FirmwareUpdate(file = value.value as ByteArray))
         WriteResponse.success()
       }
       PACKAGE_URI -> {
-        firmware.changeFirmware(
-            FirmwareDto(
-                file = null,
-                fileChecksum = null,
-                packageUri = value.value as String,
-                state = null,
-                result = null,
-                pkgVersion = null,
-                deliveryMethod = null,
-                progress = null,
-            )
-        )
+        firmware.changeFirmware(FirmwareUpdate(packageUri = value.value as String))
         WriteResponse.success()
       }
       else -> super.write(identity, resourceId, value)

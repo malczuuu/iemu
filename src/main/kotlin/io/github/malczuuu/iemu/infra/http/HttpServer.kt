@@ -2,7 +2,6 @@ package io.github.malczuuu.iemu.infra.http
 
 import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.FirmwareService
-import io.github.malczuuu.iemu.domain.StateDto
 import io.github.malczuuu.iemu.domain.StateService
 import io.github.problem4j.core.Problem
 import io.github.problem4j.core.ProblemException
@@ -22,6 +21,9 @@ class HttpServer(
 ) {
 
   fun start() {
+    val state = StateEndpoint(stateService, mapper)
+    val firmware = FirmwareEndpoint(firmwareService, mapper)
+
     val app = Javalin.create { config ->
       config.http.generateEtags = true
       config.startup.showJavalinBanner = false
@@ -38,25 +40,9 @@ class HttpServer(
         )
       }
 
-      config.routes.get("/api/state") { ctx ->
-        val state = stateService.getState()
-        ctx.status(HttpStatus.OK)
-            .contentType("application/json")
-            .result(mapper.writeValueAsString(state))
-      }
-
-      config.routes.patch("/api/state") { ctx ->
-        val state = mapper.readValue(ctx.bodyAsBytes(), StateDto::class.java)
-        stateService.changeState(state)
-        ctx.status(HttpStatus.NO_CONTENT)
-      }
-
-      config.routes.get("/api/firmware") { ctx ->
-        val firmware = firmwareService.getFirmware()
-        ctx.status(HttpStatus.OK)
-            .contentType("application/json")
-            .result(mapper.writeValueAsString(firmware))
-      }
+      config.routes.get("/api/state", state::get)
+      config.routes.patch("/api/state", state::patch)
+      config.routes.get("/api/firmware", firmware::get)
 
       config.routes.ws("/api/websocket") { ws ->
         ws.onConnect(webSocketService::onConnect)

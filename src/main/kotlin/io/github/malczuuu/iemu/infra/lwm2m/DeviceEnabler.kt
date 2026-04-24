@@ -1,8 +1,7 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.domain.StateDto
 import io.github.malczuuu.iemu.domain.StateService
-import java.time.Instant
+import io.github.malczuuu.iemu.domain.StateUpdate
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler
@@ -29,12 +28,11 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
         BATTERY_LEVEL -> ReadResponse.success(resourceId, 100L)
         MEMORY_FREE -> ReadResponse.success(resourceId, Runtime.getRuntime().freeMemory() / 1000)
         ERROR_CODE -> {
-          val errors = state.getState().errors ?: emptyList()
-          val errorCodes = errors.withIndex().associate { (i, e) -> i to (e.code ?: 0).toLong() }
+          val errors = state.getState().errors
+          val errorCodes = errors.withIndex().associate { (i, e) -> i to e.code.toLong() }
           ReadResponse.success(resourceId, errorCodes, ResourceModel.Type.INTEGER)
         }
-        CURRENT_TIME ->
-            ReadResponse.success(resourceId, Date.from(Instant.parse(state.getState().currentTime)))
+        CURRENT_TIME -> ReadResponse.success(resourceId, Date.from(state.getState().currentTime))
         UTC_OFFSET -> ReadResponse.success(resourceId, state.getState().utcOffset)
         TIMEZONE -> ReadResponse.success(resourceId, state.getState().timeZone)
         SUPPORTED_BINDINGS_AND_MODES -> ReadResponse.success(resourceId, "U")
@@ -53,9 +51,8 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
   ): WriteResponse =
       if (resourceId == CURRENT_TIME) {
         state.changeState(
-            StateDto(
-                currentTime =
-                    (value.value as Date).toInstant().truncatedTo(ChronoUnit.SECONDS).toString()
+            StateUpdate(
+                currentTime = (value.value as Date).toInstant().truncatedTo(ChronoUnit.SECONDS)
             )
         )
         WriteResponse.success()
@@ -126,10 +123,6 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
             MEMORY_TOTAL,
         )
 
-    fun create(deviceService: StateService): DeviceEnabler {
-      val device = DeviceEnabler(deviceService)
-      deviceService.subscribeOnCurrentTimeChange { device.fireResourcesChange(CURRENT_TIME) }
-      return device
-    }
+    fun create(deviceService: StateService): DeviceEnabler = DeviceEnabler(deviceService)
   }
 }

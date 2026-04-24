@@ -45,6 +45,7 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 
     testImplementation(libs.mockito.core)
+    testImplementation(libs.mockk)
 }
 
 application {

@@ -1,6 +1,12 @@
 package io.github.malczuuu.iemu.domain
 
 import io.github.malczuuu.iemu.mock.TimerTaskMock
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import java.util.Timer
 import java.util.TimerTask
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -8,24 +14,21 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 
-class LightModuleTests {
+class DefaultLightModuleTests {
 
   private val tasks: MutableList<TimerTask> = mutableListOf()
-  private val timer: Timer = mock(Timer::class.java)
+  private val timer: Timer = mockk(relaxed = true)
 
-  private val lightModule = LightModule(false, timer)
+  private val lightModule = DefaultLightModule(false, timer)
 
   @BeforeEach
   fun beforeEach() {
-    doAnswer { tasks.add(it.getArgument(0, TimerTask::class.java)) }
-        .`when`(timer)
-        .schedule(any(TimerTask::class.java), anyLong(), anyLong())
+    val slot = slot<TimerTask>()
+    every { timer.schedule(capture(slot), any<Long>(), any<Long>()) } answers
+        {
+          tasks.add(slot.captured)
+        }
   }
 
   @Test
@@ -98,18 +101,9 @@ class LightModuleTests {
 
   @Test
   fun `shutdown() should cancel and purge the underlying timer`() {
-    var canceled = false
-    var purged = false
-    doAnswer {
-          canceled = true
-          null
-        }
-        .`when`(timer)
-        .cancel()
-    `when`(timer.purge()).thenAnswer {
-      purged = true
-      tasks.size
-    }
+    every { timer.cancel() } just Runs
+    every { timer.purge() } returns 0
+
     lightModule.isOn = true
     tasks.forEach(TimerTaskMock::run)
     tasks.forEach(TimerTaskMock::run)
@@ -120,8 +114,8 @@ class LightModuleTests {
 
     lightModule.shutdown()
 
-    assertTrue(canceled)
-    assertTrue(purged)
+    verify { timer.cancel() }
+    verify { timer.purge() }
     assertTrue(tasks.isNotEmpty())
     tasks.forEach(TimerTaskMock::isCanceled)
   }

@@ -2,14 +2,10 @@ package io.github.malczuuu.iemu.domain.firmware
 
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateResult
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateState
-import org.eclipse.jetty.client.HttpClient
-import org.eclipse.jetty.client.api.ContentResponse
+import java.util.concurrent.ExecutionException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 
 class DownloadingTests {
 
@@ -53,19 +49,14 @@ class DownloadingTests {
   }
 
   @Test
-  fun `execute() should transition to Downloaded when the HTTP client returns non-empty content`() {
-    val client = mock(HttpClient::class.java)
-    val response = mock(ContentResponse::class.java)
-    `when`(client.GET(any(java.net.URI::class.java))).thenReturn(response)
-    `when`(response.content).thenReturn("firmware-bytes".toByteArray())
-
+  fun `execute() should transition to Downloaded when the downloader returns non-empty content`() {
     val d =
         Downloading(
             file = "old".toByteArray(),
             packageUri = "http://example/fw",
             result = FirmwareUpdateResult.NONE,
             packageVersion = "1.0",
-            client = client,
+            downloader = { "firmware-bytes".toByteArray() },
         )
 
     val next = d.execute()
@@ -76,24 +67,70 @@ class DownloadingTests {
   }
 
   @Test
-  fun `execute() should fall back to Idle with PACKAGE_INTEGRITY_CHECK_FAILURE when response content is empty`() {
-    val client = mock(HttpClient::class.java)
-    val response = mock(ContentResponse::class.java)
-    `when`(client.GET(any(java.net.URI::class.java))).thenReturn(response)
-    `when`(response.content).thenReturn(ByteArray(0))
-
+  fun `execute() should fall back to Idle with PACKAGE_INTEGRITY_CHECK_FAILURE when downloader returns empty content`() {
     val d =
         Downloading(
             file = "old".toByteArray(),
             packageUri = "http://example/fw",
             result = FirmwareUpdateResult.NONE,
             packageVersion = "1.0",
-            client = client,
+            downloader = { ByteArray(0) },
         )
 
     val next = d.execute()
 
     assertTrue(next is Idle)
     assertEquals(FirmwareUpdateResult.PACKAGE_INTEGRITY_CHECK_FAILURE, next.result)
+  }
+
+  @Test
+  fun `execute() should fall back to Idle with FIRMWARE_UPDATE_FAILED when the downloader throws a generic exception`() {
+    val d =
+        Downloading(
+            file = "old".toByteArray(),
+            packageUri = "http://example/fw",
+            result = FirmwareUpdateResult.NONE,
+            packageVersion = "1.0",
+            downloader = { throw IllegalStateException("unexpected") },
+        )
+
+    val next = d.execute()
+
+    assertTrue(next is Idle)
+    assertEquals(FirmwareUpdateResult.FIRMWARE_UPDATE_FAILED, next.result)
+  }
+
+  @Test
+  fun `execute() should fall back to Idle with NONE when the downloader throws InterruptedException`() {
+    val d =
+        Downloading(
+            file = "old".toByteArray(),
+            packageUri = "http://example/fw",
+            result = FirmwareUpdateResult.NONE,
+            packageVersion = "1.0",
+            downloader = { throw InterruptedException("stopped") },
+        )
+
+    val next = d.execute()
+
+    assertTrue(next is Idle)
+    assertEquals(FirmwareUpdateResult.NONE, next.result)
+  }
+
+  @Test
+  fun `execute() should fall back to Idle with NONE when the downloader throws ExecutionException`() {
+    val d =
+        Downloading(
+            file = "old".toByteArray(),
+            packageUri = "http://example/fw",
+            result = FirmwareUpdateResult.NONE,
+            packageVersion = "1.0",
+            downloader = { throw ExecutionException("exec", RuntimeException()) },
+        )
+
+    val next = d.execute()
+
+    assertTrue(next is Idle)
+    assertEquals(FirmwareUpdateResult.NONE, next.result)
   }
 }

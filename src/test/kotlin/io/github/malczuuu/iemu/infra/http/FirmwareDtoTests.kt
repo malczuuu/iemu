@@ -1,4 +1,4 @@
-package io.github.malczuuu.iemu.domain
+package io.github.malczuuu.iemu.infra.http
 
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateDeliveryMethod
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateResult
@@ -10,9 +10,8 @@ import org.junit.jupiter.api.Test
 
 class FirmwareDtoTests {
 
-  private fun sample(file: ByteArray? = byteArrayOf(1, 2, 3)) =
+  private fun sample() =
       FirmwareDto(
-          file = file,
           fileChecksum = "sha256:abc",
           packageUri = "http://x",
           state = FirmwareUpdateState.DOWNLOADED,
@@ -35,7 +34,6 @@ class FirmwareDtoTests {
   fun `derived value fields should be null when the underlying enums are null`() {
     val dto =
         FirmwareDto(
-            file = null,
             fileChecksum = null,
             packageUri = null,
             state = null,
@@ -52,17 +50,17 @@ class FirmwareDtoTests {
 
   @Test
   fun `two DTOs with identical content should be equal and share a hash code`() {
-    val a = sample(byteArrayOf(1, 2, 3))
-    val b = sample(byteArrayOf(1, 2, 3))
+    val a = sample()
+    val b = sample()
 
     assertEquals(a, b)
     assertEquals(a.hashCode(), b.hashCode())
   }
 
   @Test
-  fun `two DTOs with different file bytes should not be equal`() {
-    val a = sample(byteArrayOf(1, 2, 3))
-    val b = sample(byteArrayOf(9, 9, 9))
+  fun `two DTOs with different packageUri should not be equal`() {
+    val a = sample()
+    val b = a.copy(packageUri = "http://other")
 
     assertNotEquals(a, b)
   }

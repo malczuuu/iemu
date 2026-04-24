@@ -2,31 +2,32 @@ package io.github.malczuuu.iemu.common
 
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.system.exitProcess
 import org.slf4j.LoggerFactory
 import tools.jackson.core.JacksonException
 import tools.jackson.dataformat.yaml.YAMLMapper
 
-class ConfigReader(private val mapper: YAMLMapper = JacksonFactory.getYamlMapper()) {
+class ConfigReader(
+    private val mapper: YAMLMapper = JacksonFactory.getYamlMapper(),
+    private val fileReader: (Path) -> ByteArray = { Files.readAllBytes(it) },
+) {
 
   fun readConfig(profile: String): Config {
-    val filename = configFilename(profile)
+    val path = configPath(profile)
     return try {
-      val config = mapper.readValue(Files.readAllBytes(Paths.get(filename)), Config::class.java)
-      log.info("Loaded config from config {} file", filename)
+      val config = mapper.readValue(fileReader(path), Config::class.java)
+      log.info("Loaded config from config {} file", path)
       config
     } catch (e: JacksonException) {
-      log.error("Unable to read config from {} file", filename, e)
-      exitProcess(1)
+      throw ConfigLoadException("Unable to read config from $path file", e)
     } catch (e: IOException) {
-      log.error("Unable to read config from {} file", filename, e)
-      exitProcess(1)
+      throw ConfigLoadException("Unable to read config from $path file", e)
     }
   }
 
-  private fun configFilename(profile: String): String =
-      if (profile.isNotEmpty()) "data/config-$profile.yml" else "data/config.yml"
+  private fun configPath(profile: String): Path =
+      Paths.get(if (profile.isNotEmpty()) "data/config-$profile.yml" else "data/config.yml")
 
   companion object {
     private val log = LoggerFactory.getLogger(ConfigReader::class.java)

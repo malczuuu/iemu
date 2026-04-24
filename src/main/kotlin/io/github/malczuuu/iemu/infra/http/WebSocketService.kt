@@ -5,30 +5,31 @@ import io.javalin.websocket.WsConnectContext
 import io.javalin.websocket.WsContext
 import io.javalin.websocket.WsErrorContext
 import io.javalin.websocket.WsMessageContext
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import org.slf4j.LoggerFactory
 
-class WebSocketService {
-
-  private val executorService = Executors.newSingleThreadExecutor()
+class WebSocketService(
+    private val executor: Executor = Executors.newSingleThreadExecutor(),
+) {
 
   private val sessions: MutableMap<String, WsContext> = mutableMapOf()
 
   fun onConnect(session: WsConnectContext) {
-    executorService.submit {
+    executor.execute {
       log.debug("Connected session={}", session.sessionId())
       sessions[session.sessionId()] = session
     }
   }
 
   fun onMessage(session: WsMessageContext) {
-    executorService.submit {
+    executor.execute {
       log.debug("Received message={} from session={}", session.message(), session.sessionId())
     }
   }
 
   fun onClose(session: WsCloseContext) {
-    executorService.submit {
+    executor.execute {
       log.debug(
           "Closed session={} with statusCode={}, reason={}",
           session.sessionId(),
@@ -40,7 +41,7 @@ class WebSocketService {
   }
 
   fun onError(session: WsErrorContext) {
-    executorService.submit {
+    executor.execute {
       log.error("An error occurred in session={}", session.sessionId(), session.error())
       sessions.remove(session.sessionId())
       session.session.close()
@@ -48,7 +49,7 @@ class WebSocketService {
   }
 
   fun sendMessage(message: String) {
-    executorService.submit {
+    executor.execute {
       sessions.forEach { (key, value) ->
         try {
           value.send(message)
