@@ -19,6 +19,7 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "gradle-wrapper"
 
   - package-ecosystem: "npm"
     directory: "/webapp"
