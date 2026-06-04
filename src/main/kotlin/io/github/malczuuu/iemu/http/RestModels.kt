@@ -71,7 +71,7 @@ data class ErrorDto(
 fun DeviceError.toDto(): ErrorDto = ErrorDto(code = code, message = message)
 
 data class FirmwareDto(
-    @JsonProperty("fileChecksum") val fileChecksum: String?,
+    @JsonProperty("color") val color: String = "#000000",
     @JsonProperty("packageUri") val packageUri: String?,
     @JsonProperty("state") val state: FirmwareUpdateState?,
     @JsonProperty("result") val result: FirmwareUpdateResult?,
@@ -93,9 +93,11 @@ data class FirmwareDto(
     get() = deliveryMethod?.value
 }
 
+data class FeaturesDto(@JsonProperty("firmwareUpdate") val firmwareUpdate: Boolean)
+
 fun FirmwareState.toDto(): FirmwareDto =
     FirmwareDto(
-        fileChecksum = fileChecksum,
+        color = color,
         packageUri = packageUri,
         state = state,
         result = result,

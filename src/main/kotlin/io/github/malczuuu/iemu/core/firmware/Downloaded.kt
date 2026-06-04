@@ -5,7 +5,6 @@ import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateState
 import org.slf4j.LoggerFactory
 
 class Downloaded(
-    override val file: ByteArray,
     override val packageUri: String?,
     override val result: FirmwareUpdateResult,
     override val packageVersion: String?,

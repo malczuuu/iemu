@@ -8,47 +8,40 @@ import org.slf4j.LoggerFactory
 
 class Updating
 private constructor(
-    override val file: ByteArray,
     override val packageUri: String?,
     override val result: FirmwareUpdateResult,
     override val packageVersion: String?,
     private val random: Random,
     override val progress: Int,
+    private val ticksPerStep: Int,
+    private val ticksUntilNext: Int,
 ) : FirmwareUpdateExecution {
 
   constructor(
-      file: ByteArray,
-      packageUri: String?,
-      result: FirmwareUpdateResult,
-      packageVersion: String?,
-  ) : this(file, packageUri, result, packageVersion, Random(), 0)
-
-  constructor(
       firmware: FirmwareUpdateExecution,
-  ) : this(firmware.file, firmware.packageUri, FirmwareUpdateResult.NONE, firmware.packageVersion)
+      ticksPerStep: Int = TICKS_PER_STEP,
+  ) : this(firmware.packageUri, FirmwareUpdateResult.NONE, firmware.packageVersion, Random(), 0, ticksPerStep, ticksPerStep)
 
   override val state: FirmwareUpdateState = FirmwareUpdateState.UPDATING
 
   override fun execute(): FirmwareUpdateExecution {
-    if (progress < 100) {
-      val next = min(100, progress + 10 + random.nextInt(20))
-      log.info("Installation progress={}%, keep state={}", next, state)
-      return Updating(file, packageUri, result, packageVersion, random, next)
+    if (ticksUntilNext > 1) {
+      return Updating(packageUri, result, packageVersion, random, progress, ticksPerStep, ticksUntilNext - 1)
     }
-
-    val extractedVersion = String(file).split("\n")[0]
-    val finalResult = FirmwareUpdateResult.SUCCESSFUL
-    log.info(
-        "Installation of package {} finished, move to 'Idle' state with {} result",
-        extractedVersion,
-        finalResult,
-    )
-    return Idle(file, packageUri, finalResult, extractedVersion)
+    if (progress >= 100) {
+      val finalResult = FirmwareUpdateResult.SUCCESSFUL
+      log.info("Installation finished, move to 'Idle' state with {} result", finalResult)
+      return Idle(packageUri, finalResult, packageVersion)
+    }
+    val next = min(100, progress + 5 + random.nextInt(16))
+    log.info("Installation progress={}%, keep state={}", next, state)
+    return Updating(packageUri, result, packageVersion, random, next, ticksPerStep, ticksPerStep)
   }
 
   override fun hasNext(): Boolean = true
 
   companion object {
+    const val TICKS_PER_STEP = 5
     private val log = LoggerFactory.getLogger(Updating::class.java)
   }
 }

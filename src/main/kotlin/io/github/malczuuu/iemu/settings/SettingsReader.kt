@@ -43,6 +43,8 @@ class SettingsReader(
     val httpMap = map["http"] as? Map<*, *> ?: emptyMap<Any, Any>()
     val lwm2mMap = map["lwm2m"] as? Map<*, *> ?: emptyMap<Any, Any>()
     val securityMap = lwm2mMap["security"] as? Map<*, *> ?: emptyMap<Any, Any>()
+    val featuresMap = map["features"] as? Map<*, *> ?: emptyMap<Any, Any>()
+    val fwFeatureMap = featuresMap["firmware-update"] as? Map<*, *> ?: emptyMap<Any, Any>()
 
     return Settings(
         http = Settings.Http(port = (httpMap["port"] as? Int) ?: 4500),
@@ -57,6 +59,13 @@ class SettingsReader(
                     Settings.LwM2m.Security(
                         identity = securityMap["identity"] as? String,
                         psk = securityMap["psk"] as? String,
+                    ),
+            ),
+        features =
+            Settings.Features(
+                firmwareUpdate =
+                    Settings.Features.FirmwareUpdate(
+                        enabled = (fwFeatureMap["enabled"] as? Boolean) ?: false,
                     ),
             ),
     )

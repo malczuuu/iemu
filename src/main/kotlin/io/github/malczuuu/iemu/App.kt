@@ -3,6 +3,7 @@ package io.github.malczuuu.iemu
 import io.github.malczuuu.iemu.common.JacksonFactory
 import io.github.malczuuu.iemu.core.DeviceStateService
 import io.github.malczuuu.iemu.core.firmware.FirmwareService
+import io.github.malczuuu.iemu.storage.FileFirmwareProvider
 import io.github.malczuuu.iemu.http.HttpServer
 import io.github.malczuuu.iemu.http.WebSocketEvent
 import io.github.malczuuu.iemu.http.WebSocketHandler
@@ -41,7 +42,7 @@ fun main(args: Array<String>) {
 
   val scheduler = Executors.newScheduledThreadPool(10)
   val deviceStateService = DeviceStateService(scheduler)
-  val firmwareService = FirmwareService(scheduler).apply { start() }
+  val firmwareService = FirmwareService(scheduler, persistence = FileFirmwareProvider()).apply { start() }
 
   val statePublish = Runnable {
     webSocketHandler.sendMessage(
@@ -77,7 +78,6 @@ fun main(args: Array<String>) {
   deviceStateService.onTimeCounterChange { statePublish.run() }
   deviceStateService.onDimmerChange { statePublish.run() }
 
-  firmwareService.onFileChange { firmwarePublish.run() }
   firmwareService.onPackageUriChange { firmwarePublish.run() }
   firmwareService.onStateChange { firmwarePublish.run() }
   firmwareService.onResultChange { firmwarePublish.run() }
@@ -94,6 +94,7 @@ fun main(args: Array<String>) {
           deviceStateService,
           firmwareService,
           lwM2mManager,
+          settings.features,
       )
   httpServer.start()
 }

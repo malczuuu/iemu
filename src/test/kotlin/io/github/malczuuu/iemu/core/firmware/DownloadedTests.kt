@@ -9,13 +9,11 @@ import org.junit.jupiter.api.Test
 
 class DownloadedTests {
 
-  private val downloaded =
-      Downloaded(
-          file = "payload".toByteArray(),
-          packageUri = "http://example/fw.bin",
-          result = FirmwareUpdateResult.NONE,
-          packageVersion = "2.0.0",
-      )
+  private val downloaded = Downloaded(
+      packageUri = "http://example/fw.bin",
+      result = FirmwareUpdateResult.NONE,
+      packageVersion = "2.0.0",
+  )
 
   @Test
   fun `state should be DOWNLOADED`() {

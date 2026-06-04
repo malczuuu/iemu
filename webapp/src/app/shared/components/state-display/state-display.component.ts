@@ -21,7 +21,7 @@ import { TimeSettingsCardComponent } from '../time-settings-card/time-settings-c
 })
 export class StateDisplayComponent {
   @Input() public state!: StateDTO;
-  @Input() public firmware!: FirmwareDTO;
+  @Input() public firmware?: FirmwareDTO;
   @Input() public connection!: ConnectionDTO;
 
   @Output() public onOffToggle: EventEmitter<boolean> = new EventEmitter<boolean>();

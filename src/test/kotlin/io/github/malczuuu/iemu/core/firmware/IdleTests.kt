@@ -9,13 +9,11 @@ import org.junit.jupiter.api.Test
 
 class IdleTests {
 
-  private val idle =
-      Idle(
-          file = "1.0.0".toByteArray(),
-          packageUri = "about:blank",
-          result = FirmwareUpdateResult.NONE,
-          packageVersion = "1.0.0",
-      )
+  private val idle = Idle(
+      packageUri = "about:blank",
+      result = FirmwareUpdateResult.NONE,
+      packageVersion = "1.0.0",
+  )
 
   @Test
   fun `state should be IDLE`() {

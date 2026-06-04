@@ -102,7 +102,7 @@ class FirmwareUpdateEnablerTests {
 
   @Test
   fun `execute() UPDATE_ACTION should trigger the firmware update`() {
-    every { firmware.executeFirmwareUpdate() } just Runs
+    every { firmware.executeFirmwareUpdate() } returns true
 
     val response = enabler().execute(identity, 2, "")
 

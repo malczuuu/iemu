@@ -1,4 +1,5 @@
 export interface FirmwareDTO {
+  color: string;
   fileChecksum: string;
   packageUri: string;
   state: string;

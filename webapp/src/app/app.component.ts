@@ -7,14 +7,16 @@ import {
   signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { forkJoin, Subscription } from 'rxjs';
+import { catchError, forkJoin, of, Subscription, switchMap } from 'rxjs';
 import { LwM2mClientService } from './core/services/lwm2m-client.service';
+import { FeaturesService } from './core/services/features.service';
 import { FirmwareService } from './core/services/firmware.service';
 import { StateService } from './core/services/state.service';
 import { Theme, ThemeService } from './core/services/theme.service';
 import { WebSocketService } from './core/services/web-socket.service';
 import { StateDisplayComponent } from './shared/components/state-display/state-display.component';
 import { ConnectionDTO } from './state/models/connection.model';
+import { FeaturesDTO } from './state/models/features.model';
 import { FirmwareDTO } from './state/models/firmware.model';
 import { StateDTO, StatePatchDTO } from './state/models/state.model';
 
@@ -24,7 +26,6 @@ import { StateDTO, StatePatchDTO } from './state/models/state.model';
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./app.component.scss'],
-  // providers: [provideHttpClient(withInterceptorsFromDi())],
 })
 export class AppComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
@@ -32,11 +33,13 @@ export class AppComponent implements OnInit, OnDestroy {
   public state = signal<StateDTO | null>(null);
   public firmware = signal<FirmwareDTO | null>(null);
   public connection = signal<ConnectionDTO | null>(null);
+  public features = signal<FeaturesDTO | null>(null);
   public theme: Signal<Theme>;
 
   public constructor(
     private stateService: StateService,
     private firmwareService: FirmwareService,
+    private featuresService: FeaturesService,
     private lwM2mClientService: LwM2mClientService,
     private webSocketService: WebSocketService,
     private themeService: ThemeService,
@@ -47,13 +50,23 @@ export class AppComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     forkJoin({
       initialState: this.stateService.getState(),
-      initialFirmware: this.firmwareService.getFirmware(),
       initialConnection: this.lwM2mClientService.getConnection(),
-    }).subscribe(({ initialState, initialFirmware, initialConnection }) => {
-      this.state.set(initialState);
-      this.firmware.set(initialFirmware);
-      this.connection.set(initialConnection);
-    });
+      initialFeatures: this.featuresService.getFeatures(),
+    })
+      .pipe(
+        switchMap(({ initialState, initialConnection, initialFeatures }) => {
+          this.state.set(initialState);
+          this.connection.set(initialConnection);
+          this.features.set(initialFeatures);
+          const firmware$ = initialFeatures.firmwareUpdate
+            ? this.firmwareService.getFirmware().pipe(catchError(() => of(null)))
+            : of(null);
+          return firmware$;
+        }),
+      )
+      .subscribe((firmware) => {
+        this.firmware.set(firmware);
+      });
 
     this.subscriptions.push(
       this.webSocketService.onMessage().subscribe((message) => {
@@ -63,7 +76,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.state.set(event.body);
             break;
           case 'firmware':
-            this.firmware.set(event.body);
+            if (this.features()?.firmwareUpdate) {
+              this.firmware.set(event.body);
+            }
+            break;
         }
       }),
     );
@@ -75,7 +91,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public isStateReady(): boolean {
-    return !!this.state() && !!this.firmware() && !!this.connection();
+    return !!this.state() && !!this.connection() && this.features() !== null;
   }
 
   public onOffToggle(): void {

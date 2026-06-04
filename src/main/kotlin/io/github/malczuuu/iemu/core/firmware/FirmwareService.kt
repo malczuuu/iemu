@@ -5,30 +5,37 @@ import io.github.malczuuu.iemu.core.FirmwareUpdate
 import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateDeliveryMethod
 import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateResult
 import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateState
-import java.security.MessageDigest
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import org.eclipse.leshan.core.util.Hex
+import org.eclipse.jetty.client.HttpClient
 import org.slf4j.LoggerFactory
 
 class FirmwareService(
     private val scheduler: ScheduledExecutorService,
-    private val digest: MessageDigest = MessageDigest.getInstance("SHA-256"),
-    initial: FirmwareUpdateExecution =
-        Idle(
-            "1.0.0-SNAPSHOT".toByteArray(),
-            "about:blank",
-            FirmwareUpdateResult.initial(),
-            "1.0.0-SNAPSHOT",
-        ),
+    private val persistence: FirmwareProvider,
+    private val downloader: FirmwareDownloader = FirmwareDownloader { uri ->
+      val client = HttpClient().also { it.start() }
+      try {
+        client.GET(uri).content
+      } finally {
+        client.stop()
+      }
+    },
+    private val ticksPerStep: Int = Updating.TICKS_PER_STEP,
 ) {
 
-  private var firmware: FirmwareUpdateExecution = initial
+  private val snapshot = persistence.load()
+  private var firmware: FirmwareUpdateExecution =
+      if (snapshot.stagedColor != null)
+          Downloaded(snapshot.packageUri, FirmwareUpdateResult.NONE, snapshot.version)
+      else
+          Idle(snapshot.packageUri, FirmwareUpdateResult.initial(), snapshot.version)
+  private var installedColor: String = snapshot.color
+  private var stagedColor: String? = snapshot.stagedColor
 
   private val deliveryMethod: FirmwareUpdateDeliveryMethod = FirmwareUpdateDeliveryMethod.initial()
 
-  private val onFileChange: MutableList<(ByteArray) -> Unit> = mutableListOf()
   private val onUrlChange: MutableList<(String?) -> Unit> = mutableListOf()
   private val onStateChange: MutableList<(FirmwareUpdateState) -> Unit> = mutableListOf()
   private val onResultChange: MutableList<(FirmwareUpdateResult) -> Unit> = mutableListOf()
@@ -56,33 +63,36 @@ class FirmwareService(
   }
 
   private fun fireOnAnythingChanged(previousFirmware: FirmwareUpdateExecution) {
-    if (firmware == previousFirmware) {
-      return
+    if (firmware == previousFirmware) return
+
+    // URI download path: file was already saved by the onFetched callback in Downloading.fetch()
+    // Here we just persist state transition DOWNLOADING → DOWNLOADED for non-restart awareness
+    if (firmware.state == FirmwareUpdateState.DOWNLOADED
+        && previousFirmware.state == FirmwareUpdateState.DOWNLOADING) {
+      val staged = stagedColor
+      if (staged != null) {
+        persistence.save(FirmwareSnapshot(installedColor, firmware.packageVersion ?: DEFAULT_VERSION, staged))
+      }
     }
-    if (firmware.file !== previousFirmware.file) {
-      onFileChange.forEach { it(firmware.file) }
+
+    if (firmware.result == FirmwareUpdateResult.SUCCESSFUL
+        && previousFirmware.result != FirmwareUpdateResult.SUCCESSFUL) {
+      val color = stagedColor ?: installedColor
+      installedColor = color
+      stagedColor = null
+      persistence.save(FirmwareSnapshot(color, firmware.packageVersion ?: DEFAULT_VERSION))
     }
-    if (firmware.packageUri != previousFirmware.packageUri) {
-      onUrlChange.forEach { it(firmware.packageUri) }
-    }
-    if (firmware.state != previousFirmware.state) {
-      onStateChange.forEach { it(firmware.state) }
-    }
-    if (firmware.result != previousFirmware.result) {
-      onResultChange.forEach { it(firmware.result) }
-    }
-    if (firmware.packageVersion != previousFirmware.packageVersion) {
-      onPackageVersionChange.forEach { it(firmware.packageVersion) }
-    }
-    if (firmware.progress != previousFirmware.progress) {
-      onProgressChange.forEach { it(firmware.progress) }
-    }
+
+    if (firmware.packageUri != previousFirmware.packageUri) onUrlChange.forEach { it(firmware.packageUri) }
+    if (firmware.state != previousFirmware.state) onStateChange.forEach { it(firmware.state) }
+    if (firmware.result != previousFirmware.result) onResultChange.forEach { it(firmware.result) }
+    if (firmware.packageVersion != previousFirmware.packageVersion) onPackageVersionChange.forEach { it(firmware.packageVersion) }
+    if (firmware.progress != previousFirmware.progress) onProgressChange.forEach { it(firmware.progress) }
   }
 
   fun getFirmware(): FirmwareState =
       FirmwareState(
-          file = firmware.file,
-          fileChecksum = "sha256:" + Hex.encodeHexString(digest.digest(firmware.file)),
+          color = installedColor,
           packageUri = firmware.packageUri,
           state = firmware.state,
           result = firmware.result,
@@ -91,47 +101,55 @@ class FirmwareService(
           progress = firmware.progress,
       )
 
-  private fun stringifyFile(file: ByteArray): String {
-    val trimmed = cut(cut(file, 20), 10)
-    return String(trimmed).split("\n")[0]
-  }
-
-  private fun cut(file: ByteArray, maxLength: Int): ByteArray =
-      if (file.size <= maxLength) file.copyOf() else file.copyOf(maxLength)
-
   fun changeFirmware(update: FirmwareUpdate) {
-    val previous = this.firmware
-    update.file?.let { file ->
-      this.firmware =
-          Downloaded(
-              file,
-              this.firmware.packageUri,
-              FirmwareUpdateResult.NONE,
-              this.firmware.packageVersion,
-          )
-      fireOnAnythingChanged(previous)
-      log.info("Updated firmware file to {}", stringifyFile(this.firmware.file))
-    }
+    update.file?.let { stageFile(it) }
     update.packageUri?.let { uri ->
-      this.firmware =
-          Downloading(
-              this.firmware.file,
-              uri,
-              FirmwareUpdateResult.NONE,
-              this.firmware.packageVersion,
-          )
+      val previous = firmware
+      firmware = Downloading(
+          packageUri = uri,
+          result = FirmwareUpdateResult.NONE,
+          packageVersion = firmware.packageVersion,
+          ticksPerStep = ticksPerStep,
+          downloader = downloader,
+          onFetched = { color ->
+            stagedColor = color
+            persistence.save(FirmwareSnapshot(installedColor, firmware.packageVersion ?: DEFAULT_VERSION, color))
+          },
+      )
       fireOnAnythingChanged(previous)
-      log.info("Updated firmware package URI to {}", this.firmware.packageUri)
+      log.info("Updated firmware package URI to {}", uri)
     }
   }
 
-  fun executeFirmwareUpdate() {
+  fun stageFile(bytes: ByteArray): Boolean {
+    val color = String(bytes).trim()
+    if (!color.matches(HEX_COLOR_REGEX)) {
+      log.error("Firmware staging rejected: not a valid hex color")
+      val previous = firmware
+      firmware = Idle(firmware.packageUri, FirmwareUpdateResult.FIRMWARE_UPDATE_FAILED, firmware.packageVersion)
+      fireOnAnythingChanged(previous)
+      return false
+    }
+    // Save to disk BEFORE transitioning to DOWNLOADED
+    persistence.save(FirmwareSnapshot(installedColor, firmware.packageVersion ?: DEFAULT_VERSION, color))
+    stagedColor = color
     val previous = firmware
-    firmware = Updating(firmware)
+    firmware = Downloaded(firmware.packageUri, FirmwareUpdateResult.NONE, firmware.packageVersion)
     fireOnAnythingChanged(previous)
+    log.info("Staged firmware color={}", color)
+    return true
   }
 
-  fun onFileChange(consumer: (ByteArray) -> Unit) = onFileChange.add(consumer)
+  fun executeFirmwareUpdate(): Boolean {
+    if (firmware.state != FirmwareUpdateState.DOWNLOADED) {
+      log.warn("Execute rejected: state is {} not DOWNLOADED", firmware.state)
+      return false
+    }
+    val previous = firmware
+    firmware = Updating(firmware, ticksPerStep = ticksPerStep)
+    fireOnAnythingChanged(previous)
+    return true
+  }
 
   fun onPackageUriChange(consumer: (String?) -> Unit) = onUrlChange.add(consumer)
 
@@ -144,6 +162,7 @@ class FirmwareService(
   fun onProgressChange(consumer: (Int) -> Unit) = onProgressChange.add(consumer)
 
   companion object {
+    const val DEFAULT_VERSION = "0.1"
     private val log = LoggerFactory.getLogger(FirmwareService::class.java)
   }
 }

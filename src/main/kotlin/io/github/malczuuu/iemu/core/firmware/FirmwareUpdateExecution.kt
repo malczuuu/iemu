@@ -5,8 +5,6 @@ import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateState
 
 interface FirmwareUpdateExecution {
 
-  val file: ByteArray
-
   val packageUri: String?
 
   val packageVersion: String?

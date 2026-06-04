@@ -11,3 +11,7 @@ lwm2m:
   security:
     identity: null
     psk: null
+
+features:
+  firmware-update:
+    enabled: true

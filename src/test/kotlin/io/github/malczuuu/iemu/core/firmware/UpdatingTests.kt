@@ -11,10 +11,12 @@ class UpdatingTests {
 
   private fun newUpdating() =
       Updating(
-          file = "2.0.0\nextra".toByteArray(),
-          packageUri = "http://example/fw.bin",
-          result = FirmwareUpdateResult.NONE,
-          packageVersion = "1.0.0",
+          firmware = Downloaded(
+              packageUri = "http://example/fw.bin",
+              result = FirmwareUpdateResult.NONE,
+              packageVersion = "1.0.0",
+          ),
+          ticksPerStep = 1,
       )
 
   @Test
@@ -41,28 +43,25 @@ class UpdatingTests {
   }
 
   @Test
-  fun `execute() should eventually transition to Idle with SUCCESSFUL result and extracted version`() {
+  fun `execute() should eventually transition to Idle with SUCCESSFUL result and unchanged version`() {
     var current: FirmwareUpdateExecution = newUpdating()
-    // progress increments by 10..29 per step, so 20 iterations guarantee reaching 100
     repeat(20) { current = current.execute() }
 
     assertTrue(current is Idle)
     assertEquals(FirmwareUpdateResult.SUCCESSFUL, current.result)
-    assertEquals("2.0.0", current.packageVersion)
+    assertEquals("1.0.0", current.packageVersion)
     assertFalse(current.hasNext())
   }
 
   @Test
   fun `secondary constructor should copy fields from a previous FirmwareUpdateExecution`() {
-    val idle =
-        Idle(
-            file = "payload".toByteArray(),
-            packageUri = "http://example",
-            result = FirmwareUpdateResult.NONE,
-            packageVersion = "0.9",
-        )
+    val downloaded = Downloaded(
+        packageUri = "http://example",
+        result = FirmwareUpdateResult.NONE,
+        packageVersion = "0.9",
+    )
 
-    val updating = Updating(idle)
+    val updating = Updating(downloaded)
 
     assertEquals(FirmwareUpdateState.UPDATING, updating.state)
     assertEquals("http://example", updating.packageUri)

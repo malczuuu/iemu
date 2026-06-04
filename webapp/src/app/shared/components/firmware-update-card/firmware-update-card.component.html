@@ -1,105 +1,88 @@
 <div class="card mb-4">
   <div class="card-header">
-    <p class="card-header-title">Firmware Update</p>
+    <p class="card-header-title">Firmware</p>
   </div>
   <div class="card-content">
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">Package</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <span class="tag is-light is-family-code mr-2">/5/0/0</span>
-            <code [title]="firmware.fileChecksum">{{ trimmedChecksum() }}</code>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">Package URI</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <span class="tag is-light is-family-code mr-2">/5/0/1</span>
-            <code [title]="firmware.packageUri">{{ trimmedUri() }}</code>
-          </div>
-        </div>
-      </div>
-    </div>
+    @if (firmware.stateValue === 0) {
+      <div class="color-block mb-4" [style.background-color]="firmware.color"></div>
 
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">State</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <span class="tag is-light is-family-code mr-2">/5/0/3</span>
-            <code>{{ firmware.state + ' (' + firmware.stateValue + ')' }}</code>
+      <div class="field is-horizontal">
+        <div class="field-label is-small">
+          <label class="label">Color</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <code>{{ firmware.color }}</code>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">Update Result</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <span class="tag is-light is-family-code mr-2">/5/0/5</span>
-            <code>{{ firmware.result + ' (' + firmware.resultValue + ')' }}</code>
+      <div class="field is-horizontal">
+        <div class="field-label is-small">
+          <label class="label">Version</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <code>{{ firmware.pkgVersion }}</code>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">Package Version</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <span class="tag is-light is-family-code mr-2">/5/0/7</span>
-            <code>{{ firmware.pkgVersion }}</code>
-          </div>
-        </div>
-      </div>
-    </div>
+      @if (firmware.resultValue === 1) {
+        <p class="help is-success mb-3">Update successful</p>
+      } @else if (firmware.resultValue !== 0) {
+        <p class="help is-danger mb-3">Update failed: {{ firmware.result }}</p>
+      }
 
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">Delivery Method</label>
+      <div class="file">
+        <label class="file-label">
+          <input
+            class="file-input"
+            type="file"
+            accept="text/plain,.txt"
+            [disabled]="isStaging()"
+            (change)="onFileSelected($event)"
+          />
+          <span class="file-cta">
+            <span class="file-label">
+              {{ isStaging() ? 'Staging…' : 'Stage firmware file' }}
+            </span>
+          </span>
+        </label>
       </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <span class="tag is-light is-family-code mr-2">/5/0/9</span>
-            <code>{{ firmware.deliveryMethod + ' (' + firmware.deliveryMethodValue + ')' }}</code>
-          </div>
-        </div>
-      </div>
-    </div>
+      @if (stageError()) {
+        <p class="help is-danger">{{ stageError() }}</p>
+      }
 
-    <div class="field is-horizontal">
-      <div class="field-label is-small">
-        <label class="label">Progress</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control is-expanded">
-            <progress class="progress is-primary" [value]="firmware.progress" max="100">
-              {{ firmware.progress }}%
-            </progress>
-          </div>
-        </div>
-      </div>
-    </div>
+    } @else if (firmware.stateValue === 1) {
+      <p class="mb-3">Downloading firmware…</p>
+      <progress
+        class="progress is-info mb-2"
+        [value]="firmware.progress"
+        max="100"
+      ></progress>
+      <p class="help has-text-centered">{{ firmware.progress }}%</p>
+
+    } @else if (firmware.stateValue === 2) {
+      <div class="color-block mb-4" [style.background-color]="firmware.color"></div>
+      <p class="mb-2 has-text-weight-semibold">Firmware staged</p>
+      <p class="help mb-4">Color: <code>{{ firmware.color }}</code></p>
+      <button class="button is-primary" (click)="onExecute()">Execute update</button>
+
+    } @else if (firmware.stateValue === 3) {
+      <p class="mb-3">Installing firmware…</p>
+      <progress
+        class="progress is-warning mb-2"
+        [value]="firmware.progress"
+        max="100"
+      ></progress>
+      <p class="help has-text-centered">{{ firmware.progress }}%</p>
+    }
+
   </div>
 </div>

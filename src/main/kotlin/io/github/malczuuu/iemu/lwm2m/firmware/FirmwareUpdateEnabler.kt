@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory
 class FirmwareUpdateEnabler(private val firmware: FirmwareService) : BaseInstanceEnabler() {
 
   init {
-    firmware.onFileChange { fireResourcesChange(FILE) }
     firmware.onPackageUriChange { fireResourcesChange(PACKAGE_URI) }
     firmware.onStateChange { fireResourcesChange(STATE) }
     firmware.onResultChange { fireResourcesChange(UPDATE_RESULT) }
@@ -83,8 +82,8 @@ class FirmwareUpdateEnabler(private val firmware: FirmwareService) : BaseInstanc
 
   override fun execute(identity: ServerIdentity, resourceId: Int, params: String): ExecuteResponse =
       if (resourceId == UPDATE_ACTION) {
-        firmware.executeFirmwareUpdate()
-        ExecuteResponse.success()
+        val success = firmware.executeFirmwareUpdate()
+        if (success) ExecuteResponse.success() else ExecuteResponse.internalServerError("firmware update failed")
       } else {
         super.execute(identity, resourceId, params)
       }

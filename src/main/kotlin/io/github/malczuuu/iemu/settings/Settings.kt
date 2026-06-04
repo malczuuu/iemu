@@ -3,9 +3,14 @@ package io.github.malczuuu.iemu.settings
 data class Settings(
     val http: Http = Http(),
     val lwM2m: LwM2m = LwM2m(),
+    val features: Features = Features(),
 ) {
 
   data class Http(val port: Int = 4500)
+
+  data class Features(val firmwareUpdate: FirmwareUpdate = FirmwareUpdate()) {
+    data class FirmwareUpdate(val enabled: Boolean = false)
+  }
 
   data class LwM2m(
       val isEnabled: Boolean = false,

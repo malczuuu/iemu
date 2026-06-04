@@ -1,4 +1,5 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
+import { FirmwareService } from '../../../core/services/firmware.service';
 import { FirmwareDTO } from '../../../state/models/firmware.model';
 
 @Component({
@@ -10,16 +11,35 @@ import { FirmwareDTO } from '../../../state/models/firmware.model';
 export class FirmwareUpdateCardComponent {
   @Input() public firmware!: FirmwareDTO;
 
-  trimmedChecksum(): string {
-    return this.firmware.fileChecksum.substring(0, 32) + '...';
+  public stageError = signal<string | null>(null);
+  public isStaging = signal(false);
+
+  constructor(private firmwareService: FirmwareService) {}
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.stageError.set(null);
+    this.isStaging.set(true);
+
+    this.firmwareService.stageFirmware(file).subscribe({
+      next: () => {
+        this.isStaging.set(false);
+        input.value = '';
+      },
+      error: (err) => {
+        this.isStaging.set(false);
+        this.stageError.set(
+          err.error?.detail ?? 'File must contain a single hex color (#RRGGBB)',
+        );
+        input.value = '';
+      },
+    });
   }
 
-  trimmedUri(): string {
-    let packageUri = this.firmware.packageUri;
-    if (packageUri && packageUri.length > 32) {
-      const trimm = packageUri.length - 32;
-      packageUri = '...' + packageUri.substring(trimm);
-    }
-    return packageUri;
+  onExecute(): void {
+    this.firmwareService.executeFirmwareUpdate().subscribe();
   }
 }

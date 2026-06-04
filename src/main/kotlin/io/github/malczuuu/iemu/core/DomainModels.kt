@@ -37,8 +37,7 @@ class DeviceStateUpdate(
 )
 
 class FirmwareState(
-    val file: ByteArray,
-    val fileChecksum: String,
+    val color: String = "#000000",
     val packageUri: String?,
     val state: FirmwareUpdateState,
     val result: FirmwareUpdateResult,

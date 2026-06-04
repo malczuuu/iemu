@@ -21,6 +21,7 @@ class HttpServer(
     private val deviceStateService: DeviceStateService,
     private val firmwareService: FirmwareService,
     private val lwM2mManager: LwM2mLifecycle,
+    private val features: Settings.Features = Settings.Features(),
 ) {
 
   fun start() {
@@ -50,7 +51,14 @@ class HttpServer(
       config.routes.delete("/api/lwm2m-client", connection::disconnect)
       config.routes.get("/api/state", state::get)
       config.routes.patch("/api/state", state::patch)
-      config.routes.get("/api/firmware", firmware::get)
+      config.routes.get("/api/features") { ctx ->
+        ctx.status(HttpStatus.OK).json(FeaturesDto(features.firmwareUpdate.enabled))
+      }
+      if (features.firmwareUpdate.enabled) {
+        config.routes.get("/api/firmware", firmware::get)
+        config.routes.post("/api/firmware", firmware::stage)
+        config.routes.post("/api/firmware/execute", firmware::execute)
+      }
 
       config.routes.ws("/api/websocket") { ws ->
         ws.onConnect(webSocket::onConnect)
