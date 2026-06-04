@@ -1,0 +1,107 @@
+<div class="card mb-4">
+  <div class="card-header">
+    <p class="card-header-title">Firmware Update</p>
+  </div>
+  <div class="card-content">
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Package</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/5/0/0</span>
+            <code [title]="firmware.fileChecksum">{{ trimmedChecksum() }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Package URI</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/5/0/1</span>
+            <code [title]="firmware.packageUri">{{ trimmedUri() }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">State</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/5/0/3</span>
+            <code>{{ firmware.state + ' (' + firmware.stateValue + ')' }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Update Result</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/5/0/5</span>
+            <code>{{ firmware.result + ' (' + firmware.resultValue + ')' }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Package Version</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/5/0/7</span>
+            <code>{{ firmware.pkgVersion }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Delivery Method</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/5/0/9</span>
+            <code>{{ firmware.deliveryMethod + ' (' + firmware.deliveryMethodValue + ')' }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Progress</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control is-expanded">
+            <progress class="progress is-primary" [value]="firmware.progress" max="100">
+              {{ firmware.progress }}%
+            </progress>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

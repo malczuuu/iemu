@@ -1,0 +1,85 @@
+<div class="card mb-4">
+  <div class="card-header">
+    <p class="card-header-title">Light Control</p>
+  </div>
+  <div class="card-content">
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">On / off</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <div class="level is-mobile">
+              <div class="level-left">
+                <span class="tag is-light is-family-code mr-2">/3311/0/5850</span>
+                @if (state.on) {
+                  <span class="tag is-primary">On</span>
+                }
+                @if (!state.on) {
+                  <span class="tag is-danger">Off</span>
+                }
+              </div>
+              <div class="level-right">
+                <button class="button is-small" (click)="onOffToggle.emit(true)">Toggle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label" for="dimmerInput">Dimmer</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <div class="level is-mobile">
+              <div class="level-left">
+                <span class="tag is-light is-family-code mr-2">/3311/0/5851</span>
+                <input
+                  #dimmerInput
+                  id="dimmerInput"
+                  type="number"
+                  class="input is-small"
+                  style="max-width: 8rem"
+                  [value]="state.dimmer"
+                />
+              </div>
+              <div class="level-right">
+                <button class="button is-small" (click)="onDimmerSave(dimmerInput.value)">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">On time</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <div class="level is-mobile">
+              <div class="level-left">
+                <span class="tag is-light is-family-code mr-2">/3311/0/5852</span>
+                <code>{{ state.onTime }} s</code>
+              </div>
+              <div class="level-right">
+                <button class="button is-small" (click)="onTimeReset.emit(0)">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

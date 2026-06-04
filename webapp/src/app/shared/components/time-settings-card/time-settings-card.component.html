@@ -1,0 +1,50 @@
+<div class="card mb-4">
+  <div class="card-header">
+    <p class="card-header-title">Time Settings</p>
+  </div>
+  <div class="card-content">
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Current time</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/3/0/13</span>
+            <code>{{ state.currentTime }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">Time zone</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/3/0/15</span>
+            <code>{{ state.timeZone }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-small">
+        <label class="label">UTC offset</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <span class="tag is-light is-family-code mr-2">/3/0/14</span>
+            <code>{{ state.utcOffset }}</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
