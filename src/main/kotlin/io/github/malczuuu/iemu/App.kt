@@ -3,11 +3,11 @@ package io.github.malczuuu.iemu
 import io.github.malczuuu.iemu.common.JacksonFactory
 import io.github.malczuuu.iemu.core.DeviceStateService
 import io.github.malczuuu.iemu.core.firmware.FirmwareService
-import io.github.malczuuu.iemu.infra.http.HttpServer
-import io.github.malczuuu.iemu.infra.http.WebSocketEvent
-import io.github.malczuuu.iemu.infra.http.WebSocketHandler
-import io.github.malczuuu.iemu.infra.http.toDto
-import io.github.malczuuu.iemu.infra.lwm2m.LwM2mManager
+import io.github.malczuuu.iemu.http.HttpServer
+import io.github.malczuuu.iemu.http.WebSocketEvent
+import io.github.malczuuu.iemu.http.WebSocketHandler
+import io.github.malczuuu.iemu.http.toDto
+import io.github.malczuuu.iemu.lwm2m.LwM2mManager
 import io.github.malczuuu.iemu.settings.CommandLine
 import io.github.malczuuu.iemu.settings.SettingsException
 import io.github.malczuuu.iemu.settings.SettingsReader

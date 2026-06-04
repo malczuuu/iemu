@@ -2,9 +2,9 @@ package io.github.malczuuu.iemu.core.firmware
 
 import io.github.malczuuu.iemu.core.FirmwareState
 import io.github.malczuuu.iemu.core.FirmwareUpdate
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateDeliveryMethod
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateResult
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateState
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateDeliveryMethod
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateResult
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateState
 import java.security.MessageDigest
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture

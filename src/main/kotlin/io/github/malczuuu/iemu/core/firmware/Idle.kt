@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.core.firmware
 
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateResult
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateState
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateResult
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateState
 import org.slf4j.LoggerFactory
 
 class Idle(

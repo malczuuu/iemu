@@ -1,8 +1,8 @@
 package io.github.malczuuu.iemu.core
 
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateDeliveryMethod
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateResult
-import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateState
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateDeliveryMethod
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateResult
+import io.github.malczuuu.iemu.lwm2m.firmware.FirmwareUpdateState
 import java.time.Instant
 
 class ConnectionState(
