@@ -9,7 +9,7 @@ import org.apache.commons.cli.help.HelpFormatter
 
 class CommandLine(private val args: Array<String>) {
 
-  var profile: String = ""
+  var profile: String = "default"
     private set
 
   fun init() {
@@ -33,7 +33,7 @@ class CommandLine(private val args: Array<String>) {
         HelpFormatter.builder().get().printHelp("iemu [options]", "", options, "", false)
         exitProcess(0)
       }
-      profile = cmd.getOptionValue("profile") ?: ""
+      profile = cmd.getOptionValue("profile") ?: "default"
     } catch (e: ParseException) {
       throw SettingsException(e.message ?: "Invalid program arguments", e)
     }

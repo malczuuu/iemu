@@ -38,7 +38,7 @@ the device.
 
 ## Configuration Profiles
 
-It's possible to define multiple `.yml` files within `data/` directory and control profile name with `--profile <name>`
+It's possible to define multiple `.yaml` files within `data/` directory and control profile name with `--profile <name>`
 (or `-p <name>`) program argument.
 
 Consider following configuration files:
@@ -46,16 +46,16 @@ Consider following configuration files:
 ```bash
 $ tree data/
 data
-├── config.yml
-└── config-demo.yml
+├── config.yaml
+└── config-demo.yaml
 ```
 
 Then selecting profile name looks following:
 
-| config file       | profile             |
-|-------------------|---------------------|
-| `config.yml`      |                     |
-| `config-demo.yml` | `--profile demo`    |
+| config file        | profile             |
+|--------------------|---------------------|
+| `config.yaml`      |                     |
+| `config-demo.yaml` | `--profile demo`    |
 
 ## Run with Docker
 
@@ -63,7 +63,7 @@ Then selecting profile name looks following:
 
 1. Run LwM2M server (consider Leshan Demo Server from [official repository][leshan] or check [here][leshan-demo-server]
    on how to use Leshan's playground).
-2. Set appropriate configuration in `data/config.yml` (see `data/config-demo.yml` if using Leshan's playground). See
+2. Set appropriate configuration in `data/config.yaml` (see `data/config-demo.yaml` if using Leshan's playground). See
    also chapter about [configuration profiles](#configuration-profiles).
 
 No need to compile Angular, as static dist files from [`webapp`](./webapp) are included as static resources in `jar`.

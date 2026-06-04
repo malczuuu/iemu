@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test
 class CommandLineTests {
 
   @Test
-  fun `profile should default to empty string before init is called`() {
-    assertEquals("", CommandLine(emptyArray()).profile)
+  fun `profile should default to 'default' before init is called`() {
+    assertEquals("default", CommandLine(emptyArray()).profile)
   }
 
   @Test
-  fun `init() should set profile to empty string when no arguments are provided`() {
+  fun `init() should set profile to 'default' when no arguments are provided`() {
     val cmd = CommandLine(emptyArray())
     cmd.init()
-    assertEquals("", cmd.profile)
+    assertEquals("default", cmd.profile)
   }
 
   @Test

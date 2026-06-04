@@ -13,21 +13,31 @@ class SettingsReader(
 ) {
 
   fun readSettings(profile: String): Settings {
-    val path = settingsPath(profile)
-    return try {
-      val content = fileReader(path)
-      val map: Map<String, Any?> = Yaml().load(content) ?: emptyMap()
-      log.info("Loaded settings from {}", path)
-      parseSettings(map)
-    } catch (e: YAMLException) {
-      throw SettingsException("Unable to read settings from $path file", e)
-    } catch (e: IOException) {
-      throw SettingsException("Unable to read settings from $path file", e)
+    var lastException: IOException? = null
+    for (ext in listOf("yaml", "yml")) {
+      val path = settingsPath(profile, ext)
+      try {
+        val content = fileReader(path)
+        return try {
+          val map: Map<String, Any?> = Yaml().load(content) ?: emptyMap()
+          log.info("Loaded settings from {}", path)
+          parseSettings(map)
+        } catch (e: YAMLException) {
+          throw SettingsException("Unable to read settings from $path file", e)
+        }
+      } catch (e: IOException) {
+        lastException = e
+      }
     }
+    val path = settingsPath(profile, "yml")
+    throw SettingsException("Unable to read settings from $path file", lastException!!)
   }
 
-  private fun settingsPath(profile: String): Path =
-      Paths.get(if (profile.isNotEmpty()) "data/config-$profile.yml" else "data/config.yml")
+  private fun settingsBaseName(profile: String): String =
+      if (profile == "default") "config" else "config-$profile"
+
+  private fun settingsPath(profile: String, ext: String): Path =
+      Paths.get("data/${settingsBaseName(profile)}.$ext")
 
   private fun parseSettings(map: Map<String, Any?>): Settings {
     val httpMap = map["http"] as? Map<*, *> ?: emptyMap<Any, Any>()
