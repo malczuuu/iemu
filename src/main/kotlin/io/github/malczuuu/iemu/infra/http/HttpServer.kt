@@ -1,37 +1,38 @@
 package io.github.malczuuu.iemu.infra.http
 
-import io.github.malczuuu.iemu.domain.ConnectionService
-import io.github.malczuuu.iemu.domain.FirmwareService
-import io.github.malczuuu.iemu.domain.StateService
+import io.github.malczuuu.iemu.core.DeviceStateService
+import io.github.malczuuu.iemu.core.LwM2mLifecycle
+import io.github.malczuuu.iemu.core.firmware.FirmwareService
 import io.github.malczuuu.iemu.settings.Settings
 import io.github.problem4j.core.Problem
 import io.github.problem4j.core.ProblemException
 import io.javalin.Javalin
 import io.javalin.http.HttpStatus
 import io.javalin.http.staticfiles.Location
+import io.javalin.json.JavalinJackson3
 import org.slf4j.LoggerFactory
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.json.JsonMapper
 
 class HttpServer(
-    private val httpConfig: Settings.Http,
-    private val lwm2mConfig: Settings.LwM2m,
-    private val webSocketService: WebSocketService,
-    private val stateService: StateService,
-    private val firmwareService: FirmwareService,
-    private val connectionService: ConnectionService,
+    private val settings: Settings.Http,
     private val mapper: JsonMapper,
+    private val webSocket: WebSocketHandler,
+    private val deviceStateService: DeviceStateService,
+    private val firmwareService: FirmwareService,
+    private val lwM2mManager: LwM2mLifecycle,
 ) {
 
   fun start() {
-    val state = StateEndpoint(stateService, mapper)
-    val firmware = FirmwareEndpoint(firmwareService, mapper)
-    val connection = ConnectionEndpoint(lwm2mConfig, connectionService, mapper)
+    val state = StateEndpoint(deviceStateService)
+    val firmware = FirmwareEndpoint(firmwareService)
+    val connection = LwM2mClientEndpoint(lwM2mManager)
 
     val app = Javalin.create { config ->
       config.http.generateEtags = true
       config.startup.showJavalinBanner = false
       config.staticFiles.add("/static", Location.CLASSPATH)
+      config.jsonMapper(JavalinJackson3(jsonMapper = mapper, useVirtualThreads = true))
 
       config.requestLogger.http { ctx, executionTimeMs ->
         log.debug(
@@ -44,62 +45,52 @@ class HttpServer(
         )
       }
 
-      config.routes.get("/api/connection", connection::get)
-      config.routes.post("/api/connection", connection::connect)
-      config.routes.delete("/api/connection", connection::disconnect)
+      config.routes.get("/api/lwm2m-client", connection::get)
+      config.routes.post("/api/lwm2m-client", connection::connect)
+      config.routes.delete("/api/lwm2m-client", connection::disconnect)
       config.routes.get("/api/state", state::get)
       config.routes.patch("/api/state", state::patch)
       config.routes.get("/api/firmware", firmware::get)
 
       config.routes.ws("/api/websocket") { ws ->
-        ws.onConnect(webSocketService::onConnect)
-        ws.onMessage(webSocketService::onMessage)
-        ws.onClose(webSocketService::onClose)
-        ws.onError(webSocketService::onError)
+        ws.onConnect(webSocket::onConnect)
+        ws.onMessage(webSocket::onMessage)
+        ws.onClose(webSocket::onClose)
+        ws.onError(webSocket::onError)
       }
 
       config.routes.exception(JacksonException::class.java) { _, ctx ->
         ctx.status(HttpStatus.BAD_REQUEST)
+            .json(Problem.of(HttpStatus.BAD_REQUEST.code, "Failed to parse JSON object"))
             .contentType(Problem.CONTENT_TYPE)
-            .result(
-                mapper.writeValueAsString(
-                    Problem.of(HttpStatus.BAD_REQUEST.code, "Failed to parse JSON object"),
-                ),
-            )
       }
 
       config.routes.exception(ProblemException::class.java) { ex, ctx ->
-        ctx.status(ex.problem.status)
-            .contentType(Problem.CONTENT_TYPE)
-            .result(mapper.writeValueAsString(ex.problem))
+        ctx.status(ex.problem.status).json(ex.problem).contentType(Problem.CONTENT_TYPE)
       }
 
       config.routes.exception(Exception::class.java) { ex, ctx ->
         ctx.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .json(Problem.of(HttpStatus.INTERNAL_SERVER_ERROR.code, ex.message))
             .contentType(Problem.CONTENT_TYPE)
-            .result(
-                mapper.writeValueAsString(
-                    Problem.of(HttpStatus.INTERNAL_SERVER_ERROR.code, ex.message),
-                ),
-            )
       }
 
       config.routes.error(HttpStatus.NOT_FOUND) { ctx ->
         ctx.status(HttpStatus.NOT_FOUND)
+            .json(Problem.of(HttpStatus.NOT_FOUND.code))
             .contentType(Problem.CONTENT_TYPE)
-            .result(mapper.writeValueAsString(Problem.of(HttpStatus.NOT_FOUND.code)))
       }
 
       config.routes.error(HttpStatus.INTERNAL_SERVER_ERROR) { ctx ->
         ctx.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .json(Problem.of(HttpStatus.INTERNAL_SERVER_ERROR.code))
             .contentType(Problem.CONTENT_TYPE)
-            .result(mapper.writeValueAsString(Problem.of(HttpStatus.INTERNAL_SERVER_ERROR.code)))
       }
     }
 
     Runtime.getRuntime().addShutdownHook(Thread { app.stop() })
 
-    app.start(httpConfig.port)
+    app.start(settings.port)
   }
 
   companion object {

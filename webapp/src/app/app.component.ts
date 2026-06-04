@@ -1,7 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, Signal, signal } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  Signal,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { forkJoin, Subscription } from 'rxjs';
-import { ConnectionService } from './core/services/connection.service';
+import { LwM2mClientService } from './core/services/lwm2m-client.service';
 import { FirmwareService } from './core/services/firmware.service';
 import { StateService } from './core/services/state.service';
 import { Theme, ThemeService } from './core/services/theme.service';
@@ -15,6 +22,7 @@ import { StateDTO, StatePatchDTO } from './state/models/state.model';
   selector: 'app-root',
   imports: [CommonModule, StateDisplayComponent],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./app.component.scss'],
   // providers: [provideHttpClient(withInterceptorsFromDi())],
 })
@@ -29,7 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public constructor(
     private stateService: StateService,
     private firmwareService: FirmwareService,
-    private connectionService: ConnectionService,
+    private lwM2mClientService: LwM2mClientService,
     private webSocketService: WebSocketService,
     private themeService: ThemeService,
   ) {
@@ -40,7 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
     forkJoin({
       initialState: this.stateService.getState(),
       initialFirmware: this.firmwareService.getFirmware(),
-      initialConnection: this.connectionService.getConnection(),
+      initialConnection: this.lwM2mClientService.getConnection(),
     }).subscribe(({ initialState, initialFirmware, initialConnection }) => {
       this.state.set(initialState);
       this.firmware.set(initialFirmware);
@@ -86,13 +94,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public onConnect(): void {
-    this.connectionService.connect().subscribe(() => {
+    this.lwM2mClientService.connect().subscribe(() => {
       this.connection.update((c) => (c ? { ...c, connected: true } : c));
     });
   }
 
   public onDisconnect(): void {
-    this.connectionService.disconnect().subscribe(() => {
+    this.lwM2mClientService.disconnect().subscribe(() => {
       this.connection.update((c) => (c ? { ...c, connected: false } : c));
     });
   }

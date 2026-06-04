@@ -1,11 +1,11 @@
-FROM node:24.12.0-slim AS webappbuilder
+FROM node:24-alpine AS webappbuilder
 
 WORKDIR /home/node
 COPY webapp/ ./
 RUN npm i && npm run build
 
 
-FROM gradle:9.3.0-jdk17 AS builder
+FROM gradle:9.5.0-jdk17 AS builder
 
 USER root
 WORKDIR /home/gradle/app

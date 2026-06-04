@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { StateDTO } from '../../../state/models/state.model';
 
 @Component({
   selector: 'app-light-control-card',
   templateUrl: './light-control-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./light-control-card.component.scss'],
 })
 export class LightControlCardComponent {

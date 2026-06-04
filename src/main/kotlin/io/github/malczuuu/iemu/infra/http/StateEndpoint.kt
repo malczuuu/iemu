@@ -1,21 +1,19 @@
 package io.github.malczuuu.iemu.infra.http
 
-import io.github.malczuuu.iemu.domain.StateService
+import io.github.malczuuu.iemu.core.DeviceStateService
 import io.javalin.http.Context
 import io.javalin.http.HttpStatus
-import tools.jackson.databind.json.JsonMapper
+import io.javalin.http.bodyAsClass
 
-class StateEndpoint(private val stateService: StateService, private val mapper: JsonMapper) {
+class StateEndpoint(private val deviceStateService: DeviceStateService) {
 
   fun get(ctx: Context) {
-    ctx.status(HttpStatus.OK)
-        .contentType("application/json")
-        .result(mapper.writeValueAsString(stateService.getState().toDto()))
+    ctx.status(HttpStatus.OK).json(deviceStateService.deviceState.toDto())
   }
 
   fun patch(ctx: Context) {
-    val dto = mapper.readValue(ctx.bodyAsBytes(), StateDto::class.java)
-    stateService.changeState(dto.toUpdate())
+    val dto = ctx.bodyAsClass<DeviceStateDto>()
+    deviceStateService.changeDeviceState(dto.toUpdate())
     ctx.status(HttpStatus.NO_CONTENT)
   }
 }

@@ -1,21 +1,74 @@
 package io.github.malczuuu.iemu.infra.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import io.github.malczuuu.iemu.domain.ConnectionService
-import io.github.malczuuu.iemu.domain.DeviceError
-import io.github.malczuuu.iemu.domain.Firmware
-import io.github.malczuuu.iemu.domain.State
-import io.github.malczuuu.iemu.domain.StateUpdate
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateDeliveryMethod
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateResult
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateState
-import io.github.malczuuu.iemu.settings.Settings
+import io.github.malczuuu.iemu.core.ConnectionState
+import io.github.malczuuu.iemu.core.DeviceError
+import io.github.malczuuu.iemu.core.DeviceState
+import io.github.malczuuu.iemu.core.DeviceStateUpdate
+import io.github.malczuuu.iemu.core.FirmwareState
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateDeliveryMethod
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateResult
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateState
 import java.time.Instant
+
+data class ConnectionStateDto(
+    @JsonProperty("connected") val connected: Boolean,
+    @JsonProperty("endpoint") val endpoint: String?,
+    @JsonProperty("upstream") val upstream: String?,
+    @JsonProperty("localPort") val localPort: Int,
+    @JsonProperty("bootstrap") val bootstrap: Boolean,
+    @JsonProperty("secureMode") val secureMode: Boolean,
+)
+
+fun ConnectionState.toDto(): ConnectionStateDto =
+    ConnectionStateDto(
+        connected = connected,
+        endpoint = endpoint,
+        upstream = upstream,
+        localPort = localPort,
+        bootstrap = bootstrap,
+        secureMode = secureMode,
+    )
+
+data class DeviceStateDto(
+    @JsonProperty("deviceType") val deviceType: String? = null,
+    @JsonProperty("currentTime") val currentTime: String? = null,
+    @JsonProperty("timeZone") val timeZone: String? = null,
+    @JsonProperty("utcOffset") val utcOffset: String? = null,
+    @JsonProperty("errors") val errors: List<ErrorDto>? = null,
+    @JsonProperty("on") val on: Boolean? = null,
+    @JsonProperty("onTime") val onTime: Long? = null,
+    @JsonProperty("dimmer") val dimmer: Int? = null,
+)
+
+fun DeviceState.toDto(): DeviceStateDto =
+    DeviceStateDto(
+        deviceType = deviceType,
+        currentTime = currentTime.toString(),
+        timeZone = timeZone,
+        utcOffset = utcOffset,
+        errors = errors.map { it.toDto() },
+        on = on,
+        onTime = onTime,
+        dimmer = dimmer,
+    )
+
+fun DeviceStateDto.toUpdate(): DeviceStateUpdate =
+    DeviceStateUpdate(
+        currentTime = currentTime?.let { Instant.parse(it) },
+        timeZone = timeZone,
+        utcOffset = utcOffset,
+        on = on,
+        onTime = onTime,
+        dimmer = dimmer,
+    )
 
 data class ErrorDto(
     @JsonProperty("code") val code: Int?,
     @JsonProperty("message") val message: String?,
 )
+
+fun DeviceError.toDto(): ErrorDto = ErrorDto(code = code, message = message)
 
 data class FirmwareDto(
     @JsonProperty("fileChecksum") val fileChecksum: String?,
@@ -40,42 +93,7 @@ data class FirmwareDto(
     get() = deliveryMethod?.value
 }
 
-data class StateDto(
-    @JsonProperty("deviceType") val deviceType: String? = null,
-    @JsonProperty("currentTime") val currentTime: String? = null,
-    @JsonProperty("timeZone") val timeZone: String? = null,
-    @JsonProperty("utcOffset") val utcOffset: String? = null,
-    @JsonProperty("errors") val errors: List<ErrorDto>? = null,
-    @JsonProperty("on") val on: Boolean? = null,
-    @JsonProperty("onTime") val onTime: Long? = null,
-    @JsonProperty("dimmer") val dimmer: Int? = null,
-)
-
-fun State.toDto(): StateDto =
-    StateDto(
-        deviceType = deviceType,
-        currentTime = currentTime.toString(),
-        timeZone = timeZone,
-        utcOffset = utcOffset,
-        errors = errors.map { it.toDto() },
-        on = on,
-        onTime = onTime,
-        dimmer = dimmer,
-    )
-
-fun DeviceError.toDto(): ErrorDto = ErrorDto(code = code, message = message)
-
-fun StateDto.toUpdate(): StateUpdate =
-    StateUpdate(
-        currentTime = currentTime?.let { Instant.parse(it) },
-        timeZone = timeZone,
-        utcOffset = utcOffset,
-        on = on,
-        onTime = onTime,
-        dimmer = dimmer,
-    )
-
-fun Firmware.toDto(): FirmwareDto =
+fun FirmwareState.toDto(): FirmwareDto =
     FirmwareDto(
         fileChecksum = fileChecksum,
         packageUri = packageUri,
@@ -84,23 +102,4 @@ fun Firmware.toDto(): FirmwareDto =
         pkgVersion = packageVersion,
         deliveryMethod = deliveryMethod,
         progress = progress,
-    )
-
-data class ConnectionDto(
-    @JsonProperty("connected") val connected: Boolean,
-    @JsonProperty("endpoint") val endpoint: String?,
-    @JsonProperty("upstream") val upstream: String?,
-    @JsonProperty("localPort") val localPort: Int,
-    @JsonProperty("bootstrap") val bootstrap: Boolean,
-    @JsonProperty("secureMode") val secureMode: Boolean,
-)
-
-fun ConnectionService.toDto(config: Settings.LwM2m): ConnectionDto =
-    ConnectionDto(
-        connected = isStarted(),
-        endpoint = config.endpoint,
-        upstream = config.upstream,
-        localPort = config.localPort,
-        bootstrap = config.bootstrap,
-        secureMode = config.useSecureMode(),
     )

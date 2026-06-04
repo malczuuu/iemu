@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FirmwareDTO } from '../../../state/models/firmware.model';
 
 @Component({
   selector: 'app-firmware-update-card',
   templateUrl: './firmware-update-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./firmware-update-card.component.scss'],
 })
 export class FirmwareUpdateCardComponent {

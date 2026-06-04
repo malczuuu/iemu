@@ -19,7 +19,7 @@ idea {
                 create<Application>("Run [iemu|demo]") {
                     moduleName = "iemu.test"
                     mainClass = "io.github.malczuuu.iemu.AppKt"
-                    programParameters = "--demo"
+                    programParameters = "--profile demo"
                 }
                 create<Gradle>("Clean [iemu]") {
                     taskNames = listOf("clean")

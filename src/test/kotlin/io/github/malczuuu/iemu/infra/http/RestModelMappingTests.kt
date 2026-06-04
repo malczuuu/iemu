@@ -1,11 +1,11 @@
 package io.github.malczuuu.iemu.infra.http
 
-import io.github.malczuuu.iemu.domain.DeviceError
-import io.github.malczuuu.iemu.domain.Firmware
-import io.github.malczuuu.iemu.domain.State
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateDeliveryMethod
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateResult
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateState
+import io.github.malczuuu.iemu.core.DeviceError
+import io.github.malczuuu.iemu.core.DeviceState
+import io.github.malczuuu.iemu.core.FirmwareState
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateDeliveryMethod
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateResult
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateState
 import java.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -16,7 +16,7 @@ class RestModelMappingTests {
   @Test
   fun `State toDto() should map all fields to a StateDto with string currentTime`() {
     val state =
-        State(
+        DeviceState(
             deviceType = "lwm2m_emulator",
             currentTime = Instant.parse("2025-06-01T10:00:00Z"),
             timeZone = "Europe/Warsaw",
@@ -44,7 +44,7 @@ class RestModelMappingTests {
   @Test
   fun `State toDto() should produce an empty errors list when state has no errors`() {
     val state =
-        State(
+        DeviceState(
             deviceType = "lwm2m_emulator",
             currentTime = Instant.parse("2025-01-01T00:00:00Z"),
             timeZone = "UTC",
@@ -62,7 +62,7 @@ class RestModelMappingTests {
 
   @Test
   fun `StateDto toUpdate() should parse currentTime string into an Instant`() {
-    val dto = StateDto(currentTime = "2024-03-15T08:30:00Z", on = true, dimmer = 50)
+    val dto = DeviceStateDto(currentTime = "2024-03-15T08:30:00Z", on = true, dimmer = 50)
 
     val update = dto.toUpdate()
 
@@ -73,7 +73,7 @@ class RestModelMappingTests {
 
   @Test
   fun `StateDto toUpdate() should leave null fields as null in the update`() {
-    val dto = StateDto()
+    val dto = DeviceStateDto()
 
     val update = dto.toUpdate()
 
@@ -88,7 +88,7 @@ class RestModelMappingTests {
   @Test
   fun `Firmware toDto() should map all fields including enum values and packageVersion to pkgVersion`() {
     val firmware =
-        Firmware(
+        FirmwareState(
             file = "bytes".toByteArray(),
             fileChecksum = "sha256:abc",
             packageUri = "http://fw",

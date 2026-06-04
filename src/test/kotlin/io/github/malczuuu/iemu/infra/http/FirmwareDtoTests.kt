@@ -1,8 +1,8 @@
 package io.github.malczuuu.iemu.infra.http
 
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateDeliveryMethod
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateResult
-import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateState
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateDeliveryMethod
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateResult
+import io.github.malczuuu.iemu.infra.lwm2m.firmware.FirmwareUpdateState
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNull

@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.domain.StateService
-import io.github.malczuuu.iemu.domain.StateUpdate
+import io.github.malczuuu.iemu.core.DeviceStateService
+import io.github.malczuuu.iemu.core.DeviceStateUpdate
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler
@@ -13,10 +13,10 @@ import org.eclipse.leshan.core.response.ExecuteResponse
 import org.eclipse.leshan.core.response.ReadResponse
 import org.eclipse.leshan.core.response.WriteResponse
 
-class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
+class DeviceEnabler(private val state: DeviceStateService) : BaseInstanceEnabler() {
 
   init {
-    state.subscribeOnCurrentTimeChange { fireResourcesChange(CURRENT_TIME) }
+    state.onCurrentTimeChange { fireResourcesChange(CURRENT_TIME) }
   }
 
   override fun read(identity: ServerIdentity, resourceId: Int): ReadResponse =
@@ -28,15 +28,15 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
         BATTERY_LEVEL -> ReadResponse.success(resourceId, 100L)
         MEMORY_FREE -> ReadResponse.success(resourceId, Runtime.getRuntime().freeMemory() / 1000)
         ERROR_CODE -> {
-          val errors = state.getState().errors
+          val errors = state.deviceState.errors
           val errorCodes = errors.withIndex().associate { (i, e) -> i to e.code.toLong() }
           ReadResponse.success(resourceId, errorCodes, ResourceModel.Type.INTEGER)
         }
-        CURRENT_TIME -> ReadResponse.success(resourceId, Date.from(state.getState().currentTime))
-        UTC_OFFSET -> ReadResponse.success(resourceId, state.getState().utcOffset)
-        TIMEZONE -> ReadResponse.success(resourceId, state.getState().timeZone)
+        CURRENT_TIME -> ReadResponse.success(resourceId, Date.from(state.deviceState.currentTime))
+        UTC_OFFSET -> ReadResponse.success(resourceId, state.deviceState.utcOffset)
+        TIMEZONE -> ReadResponse.success(resourceId, state.deviceState.timeZone)
         SUPPORTED_BINDINGS_AND_MODES -> ReadResponse.success(resourceId, "U")
-        DEVICE_TYPE -> ReadResponse.success(resourceId, state.getState().deviceType)
+        DEVICE_TYPE -> ReadResponse.success(resourceId, state.deviceState.deviceType)
         HARDWARE_VERSION -> ReadResponse.success(resourceId, "0.0.0")
         SOFTWARE_VERSION -> ReadResponse.success(resourceId, "0.0.0")
         BATTERY_STATUS -> ReadResponse.success(resourceId, 100L)
@@ -50,8 +50,8 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
       value: LwM2mResource,
   ): WriteResponse =
       if (resourceId == CURRENT_TIME) {
-        state.changeState(
-            StateUpdate(
+        state.changeDeviceState(
+            DeviceStateUpdate(
                 currentTime = (value.value as Date).toInstant().truncatedTo(ChronoUnit.SECONDS),
             ),
         )
@@ -63,14 +63,11 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
   override fun execute(identity: ServerIdentity, resourceId: Int, params: String): ExecuteResponse =
       when (resourceId) {
         REBOOT -> ExecuteResponse.success()
-
         FACTORY_RESET -> ExecuteResponse.success()
-
         RESET_ERROR_CODE -> {
           state.resetErrors()
           ExecuteResponse.success()
         }
-
         else -> super.execute(identity, resourceId, params)
       }
 
@@ -122,6 +119,6 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
             MEMORY_TOTAL,
         )
 
-    fun create(deviceService: StateService): DeviceEnabler = DeviceEnabler(deviceService)
+    fun create(deviceService: DeviceStateService): DeviceEnabler = DeviceEnabler(deviceService)
   }
 }

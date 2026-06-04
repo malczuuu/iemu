@@ -9,10 +9,15 @@ The format is based on [Keep a Changelog][keepachangelog], and this project adhe
 ### Added
 
 - Add light/dark theme toggle button on web UI.
+- Add LwM2M connect/disconnect options from browser.
 
 ### Changed
 
-- Transition app from Java to Kotlin.
+- Transition app from Java to Kotlin, refactor insides to simplify codebase.
+- Upgrade Javalin to `7.x`.
+- Change CLI from `--{profileName}` to `--profile {profileName}`.
+- Upgrade Angular to `22.x`, along with project dependencies.
+- Update Bulma CSS to `1.x` and modernize UI.
 
 ### Fixed
 

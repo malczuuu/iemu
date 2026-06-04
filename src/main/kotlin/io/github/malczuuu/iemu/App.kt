@@ -1,16 +1,18 @@
 package io.github.malczuuu.iemu
 
 import io.github.malczuuu.iemu.common.JacksonFactory
-import io.github.malczuuu.iemu.domain.DefaultFirmwareService
-import io.github.malczuuu.iemu.domain.DefaultStateService
+import io.github.malczuuu.iemu.core.DeviceStateService
+import io.github.malczuuu.iemu.core.firmware.FirmwareService
 import io.github.malczuuu.iemu.infra.http.HttpServer
 import io.github.malczuuu.iemu.infra.http.WebSocketEvent
-import io.github.malczuuu.iemu.infra.http.WebSocketService
+import io.github.malczuuu.iemu.infra.http.WebSocketHandler
 import io.github.malczuuu.iemu.infra.http.toDto
-import io.github.malczuuu.iemu.infra.lwm2m.DefaultConnectionService
+import io.github.malczuuu.iemu.infra.lwm2m.LwM2mManager
 import io.github.malczuuu.iemu.settings.CommandLine
 import io.github.malczuuu.iemu.settings.SettingsException
 import io.github.malczuuu.iemu.settings.SettingsReader
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 import org.slf4j.LoggerFactory
 
@@ -35,47 +37,63 @@ fun main(args: Array<String>) {
 
   val mapper = JacksonFactory.jsonMapper
 
-  val webSocketService = WebSocketService()
-  val stateService = DefaultStateService()
-  val firmwareService = DefaultFirmwareService().apply { start() }
+  val webSocketHandler = WebSocketHandler()
+
+  val scheduler = Executors.newScheduledThreadPool(10)
+  val deviceStateService = DeviceStateService(scheduler)
+  val firmwareService = FirmwareService(scheduler).apply { start() }
 
   val statePublish = Runnable {
-    webSocketService.sendMessage(
-        mapper.writeValueAsString(WebSocketEvent("state", stateService.getState().toDto())),
+    webSocketHandler.sendMessage(
+        mapper.writeValueAsString(WebSocketEvent("state", deviceStateService.deviceState.toDto())),
     )
   }
 
   val firmwarePublish = Runnable {
-    webSocketService.sendMessage(
+    webSocketHandler.sendMessage(
         mapper.writeValueAsString(
             WebSocketEvent("firmware", firmwareService.getFirmware().toDto())
         ),
     )
   }
 
-  Runtime.getRuntime().addShutdownHook(Thread { stateService.shutdown() })
-
-  stateService.subscribeOnCurrentTimeChange { statePublish.run() }
-  stateService.subscribeOnStateChange { statePublish.run() }
-  stateService.subscribeOnTimeCounterChange { statePublish.run() }
-  stateService.subscribeOnDimmerChange { statePublish.run() }
-
-  firmwareService.subscribeOnFileChange { firmwarePublish.run() }
-  firmwareService.subscribeOnPackageUriChange { firmwarePublish.run() }
-  firmwareService.subscribeOnStateChange { firmwarePublish.run() }
-  firmwareService.subscribeOnResultChange { firmwarePublish.run() }
-  firmwareService.subscribeOnPackageVersionChange { firmwarePublish.run() }
-  firmwareService.subscribeOnProgressChange { firmwarePublish.run() }
-
-  val connectionService = DefaultConnectionService(settings.lwM2m, stateService, firmwareService)
-  HttpServer(
-          settings.http,
-          settings.lwM2m,
-          webSocketService,
-          stateService,
-          firmwareService,
-          connectionService,
-          mapper,
+  Runtime.getRuntime()
+      .addShutdownHook(
+          Thread {
+            deviceStateService.shutdown()
+            firmwareService.shutdown()
+            scheduler.shutdown()
+            if (!scheduler.awaitTermination(10, TimeUnit.SECONDS)) {
+              val tasks = scheduler.shutdownNow()
+              log.warn(
+                  "Scheduler did not terminate in the specified time, a number of tasks did not terminate: ${tasks.size}"
+              )
+            }
+          }
       )
-      .start()
+
+  deviceStateService.onCurrentTimeChange { statePublish.run() }
+  deviceStateService.onStateChange { statePublish.run() }
+  deviceStateService.onTimeCounterChange { statePublish.run() }
+  deviceStateService.onDimmerChange { statePublish.run() }
+
+  firmwareService.onFileChange { firmwarePublish.run() }
+  firmwareService.onPackageUriChange { firmwarePublish.run() }
+  firmwareService.onStateChange { firmwarePublish.run() }
+  firmwareService.onResultChange { firmwarePublish.run() }
+  firmwareService.onPackageVersionChange { firmwarePublish.run() }
+  firmwareService.onProgressChange { firmwarePublish.run() }
+
+  val lwM2mManager = LwM2mManager(settings.lwM2m, deviceStateService, firmwareService)
+
+  val httpServer =
+      HttpServer(
+          settings.http,
+          mapper,
+          webSocketHandler,
+          deviceStateService,
+          firmwareService,
+          lwM2mManager,
+      )
+  httpServer.start()
 }

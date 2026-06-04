@@ -38,8 +38,8 @@ the device.
 
 ## Configuration Profiles
 
-It's possible to define multiple `.yml` files within `data/` directory and control profile name with `--{profile}`
-program argument.
+It's possible to define multiple `.yml` files within `data/` directory and control profile name with `--profile <name>`
+(or `-p <name>`) program argument.
 
 Consider following configuration files:
 
@@ -52,10 +52,10 @@ data
 
 Then selecting profile name looks following:
 
-| config file       | profile    |
-|-------------------|------------|
-| `config.yml`      |            |
-| `config-demo.yml` | `--demo`   |
+| config file       | profile             |
+|-------------------|---------------------|
+| `config.yml`      |                     |
+| `config-demo.yml` | `--profile demo`    |
 
 ## Run with Docker
 
@@ -80,7 +80,7 @@ docker run --rm -p 4500:4500 malczuuu/iemu
 To run application with `demo` profile, use following command:
 
 ```
-docker run --rm --env APP_ARGS=--demo -p 4500:4500 malczuuu/iemu
+docker run --rm --env APP_ARGS="--profile demo" -p 4500:4500 malczuuu/iemu
 ```
 
 To mount your own profiles, use `/data` volume. Predefined profiles are available in [`data/`](./data) directory for
@@ -124,7 +124,7 @@ Project uses Gradle [`application`][application-plugin] plugin. To run applicati
 To run application with `demo` profile, use following command.
 
 ```bash
-./gradlew run --args="--demo"
+./gradlew run --args="--profile demo"
 ```
 
 Then, browse [client UI](http://localhost:4500/) or check in your LwM2M server if the client is connected.
@@ -148,7 +148,7 @@ directory.
 To run application with `demo` profile, use following command.
 
 ```bash
-./build/install/iemu/bin/iemu --demo
+./build/install/iemu/bin/iemu --profile demo
 ```
 
 For more info about see [Building the distribution][the-distribution] chapter.

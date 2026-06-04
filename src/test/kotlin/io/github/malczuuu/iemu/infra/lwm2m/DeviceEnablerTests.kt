@@ -1,8 +1,8 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.domain.DeviceError
-import io.github.malczuuu.iemu.domain.State
-import io.github.malczuuu.iemu.domain.StateService
+import io.github.malczuuu.iemu.core.DeviceError
+import io.github.malczuuu.iemu.core.DeviceState
+import io.github.malczuuu.iemu.core.DeviceStateService
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 
 class DeviceEnablerTests {
 
-  private val stateService = mockk<StateService>(relaxed = true)
+  private val deviceStateService = mockk<DeviceStateService>(relaxed = true)
   private val identity = mockk<ServerIdentity>(relaxed = true)
   private val model = mockk<ObjectModel>(relaxed = true)
 
@@ -30,7 +30,7 @@ class DeviceEnablerTests {
       errors: List<DeviceError> = emptyList(),
       deviceType: String = "lwm2m_emulator",
   ) =
-      State(
+      DeviceState(
           deviceType = deviceType,
           currentTime = currentTime,
           timeZone = timeZone,
@@ -41,13 +41,13 @@ class DeviceEnablerTests {
           dimmer = 0,
       )
 
-  private fun enabler() = DeviceEnabler(stateService)
+  private fun enabler() = DeviceEnabler(deviceStateService)
 
   @Test
   fun `constructor should subscribe to current time change notifications`() {
     enabler()
 
-    verify { stateService.subscribeOnCurrentTimeChange(any()) }
+    verify { deviceStateService.onCurrentTimeChange(any()) }
   }
 
   @Test
@@ -79,7 +79,7 @@ class DeviceEnablerTests {
 
   @Test
   fun `read() ERROR_CODE should return a map of indexed error codes`() {
-    every { stateService.getState() } returns
+    every { deviceStateService.deviceState } returns
         fullState(
             errors =
                 listOf(DeviceError(code = 1, message = "a"), DeviceError(code = 2, message = "b")),
@@ -92,7 +92,7 @@ class DeviceEnablerTests {
 
   @Test
   fun `read() ERROR_CODE should handle an empty errors list gracefully`() {
-    every { stateService.getState() } returns fullState(errors = emptyList())
+    every { deviceStateService.deviceState } returns fullState(errors = emptyList())
 
     val response = enabler().read(identity, 11)
 
@@ -101,7 +101,7 @@ class DeviceEnablerTests {
 
   @Test
   fun `read() CURRENT_TIME should return the current time from state as a Date response`() {
-    every { stateService.getState() } returns
+    every { deviceStateService.deviceState } returns
         fullState(currentTime = Instant.parse("2024-06-15T12:34:56Z"))
 
     val response = enabler().read(identity, 13)
@@ -111,7 +111,7 @@ class DeviceEnablerTests {
 
   @Test
   fun `read() UTC_OFFSET TIMEZONE DEVICE_TYPE should be sourced from the state service`() {
-    every { stateService.getState() } returns
+    every { deviceStateService.deviceState } returns
         fullState(utcOffset = "+02:00", timeZone = "Europe/Warsaw", deviceType = "custom-type")
 
     val e = enabler()
@@ -130,7 +130,7 @@ class DeviceEnablerTests {
 
   @Test
   fun `write() CURRENT_TIME should forward a truncated instant to StateService`() {
-    every { stateService.changeState(any()) } just Runs
+    every { deviceStateService.changeDeviceState(any()) } just Runs
     val instantWithMillis = Instant.parse("2024-06-15T12:34:56.789Z")
 
     val response =
@@ -143,7 +143,9 @@ class DeviceEnablerTests {
 
     assertTrue(response.isSuccess)
     verify {
-      stateService.changeState(match { it.currentTime == Instant.parse("2024-06-15T12:34:56Z") })
+      deviceStateService.changeDeviceState(
+          match { it.currentTime == Instant.parse("2024-06-15T12:34:56Z") }
+      )
     }
   }
 
@@ -152,17 +154,17 @@ class DeviceEnablerTests {
     val e = enabler()
     assertTrue(e.execute(identity, 4, "").isSuccess)
     assertTrue(e.execute(identity, 5, "").isSuccess)
-    verify(exactly = 0) { stateService.resetErrors() }
+    verify(exactly = 0) { deviceStateService.resetErrors() }
   }
 
   @Test
   fun `execute() RESET_ERROR_CODE should delegate to StateService resetErrors`() {
-    every { stateService.resetErrors() } just Runs
+    every { deviceStateService.resetErrors() } just Runs
 
     val response = enabler().execute(identity, 12, "")
 
     assertTrue(response.isSuccess)
-    verify { stateService.resetErrors() }
+    verify { deviceStateService.resetErrors() }
   }
 
   @Test
@@ -177,8 +179,8 @@ class DeviceEnablerTests {
 
   @Test
   fun `companion object create() should produce a DeviceEnabler and subscribe to current time once`() {
-    val produced = DeviceEnabler.create(stateService)
+    val produced = DeviceEnabler.create(deviceStateService)
 
-    verify(exactly = 1) { stateService.subscribeOnCurrentTimeChange(any()) }
+    verify(exactly = 1) { deviceStateService.onCurrentTimeChange(any()) }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ConnectionDTO } from '../../../state/models/connection.model';
 import { FirmwareDTO } from '../../../state/models/firmware.model';
 import { StateDTO } from '../../../state/models/state.model';
@@ -16,6 +16,7 @@ import { TimeSettingsCardComponent } from '../time-settings-card/time-settings-c
     FirmwareUpdateCardComponent,
   ],
   templateUrl: './state-display.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./state-display.component.scss'],
 })
 export class StateDisplayComponent {

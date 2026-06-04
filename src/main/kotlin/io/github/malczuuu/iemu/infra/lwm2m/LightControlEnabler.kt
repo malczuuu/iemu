@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.domain.StateService
-import io.github.malczuuu.iemu.domain.StateUpdate
+import io.github.malczuuu.iemu.core.DeviceStateService
+import io.github.malczuuu.iemu.core.DeviceStateUpdate
 import org.eclipse.leshan.client.resource.BaseInstanceEnabler
 import org.eclipse.leshan.client.servers.ServerIdentity
 import org.eclipse.leshan.core.model.ObjectModel
@@ -9,19 +9,19 @@ import org.eclipse.leshan.core.node.LwM2mResource
 import org.eclipse.leshan.core.response.ReadResponse
 import org.eclipse.leshan.core.response.WriteResponse
 
-class LightControlEnabler(private val state: StateService) : BaseInstanceEnabler() {
+class LightControlEnabler(private val state: DeviceStateService) : BaseInstanceEnabler() {
 
   init {
-    state.subscribeOnStateChange { fireResourcesChange(ON_OFF) }
-    state.subscribeOnDimmerChange { fireResourcesChange(DIMMER) }
-    state.subscribeOnTimeCounterChange { fireResourcesChange(ON_TIME) }
+    state.onStateChange { fireResourcesChange(ON_OFF) }
+    state.onDimmerChange { fireResourcesChange(DIMMER) }
+    state.onTimeCounterChange { fireResourcesChange(ON_TIME) }
   }
 
   override fun read(identity: ServerIdentity, resourceId: Int): ReadResponse =
       when (resourceId) {
-        ON_OFF -> ReadResponse.success(resourceId, state.getState().on)
-        DIMMER -> ReadResponse.success(resourceId, state.getState().dimmer.toLong())
-        ON_TIME -> ReadResponse.success(resourceId, state.getState().onTime)
+        ON_OFF -> ReadResponse.success(resourceId, state.deviceState.on)
+        DIMMER -> ReadResponse.success(resourceId, state.deviceState.dimmer.toLong())
+        ON_TIME -> ReadResponse.success(resourceId, state.deviceState.onTime)
         CUMULATIVE_ACTIVE_POWER -> ReadResponse.notFound()
         else -> super.read(identity, resourceId)
       }
@@ -33,17 +33,17 @@ class LightControlEnabler(private val state: StateService) : BaseInstanceEnabler
   ): WriteResponse =
       when (resourceId) {
         ON_OFF -> {
-          state.changeState(StateUpdate(on = value.value as Boolean))
+          state.changeDeviceState(DeviceStateUpdate(on = value.value as Boolean))
           WriteResponse.success()
         }
 
         DIMMER -> {
-          state.changeState(StateUpdate(dimmer = (value.value as Long).toInt()))
+          state.changeDeviceState(DeviceStateUpdate(dimmer = (value.value as Long).toInt()))
           WriteResponse.success()
         }
 
         ON_TIME -> {
-          state.changeState(StateUpdate(onTime = value.value as Long))
+          state.changeDeviceState(DeviceStateUpdate(onTime = value.value as Long))
           WriteResponse.success()
         }
 
@@ -62,6 +62,7 @@ class LightControlEnabler(private val state: StateService) : BaseInstanceEnabler
 
     private val SUPPORTED_RESOURCES: Set<Int> = setOf(ON_OFF, DIMMER, ON_TIME)
 
-    fun create(stateService: StateService): LightControlEnabler = LightControlEnabler(stateService)
+    fun create(deviceStateService: DeviceStateService): LightControlEnabler =
+        LightControlEnabler(deviceStateService)
   }
 }
