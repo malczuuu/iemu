@@ -33,11 +33,11 @@ fun main(args: Array<String>) {
         exitProcess(1)
       }
 
-  val mapper = JacksonFactory.getJsonMapper()
+  val mapper = JacksonFactory.jsonMapper
 
   val webSocketService = WebSocketService()
   val stateService = DefaultStateService()
-  val firmwareService = DefaultFirmwareService().also { it.start() }
+  val firmwareService = DefaultFirmwareService().apply { start() }
 
   val statePublish = Runnable {
     webSocketService.sendMessage(

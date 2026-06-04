@@ -128,4 +128,4 @@ tasks.withType<Jar>().configureEach {
     }
 }
 
-defaultTasks("spotlessApply", "build")
+defaultTasks("spotlessApply", "build", "install")

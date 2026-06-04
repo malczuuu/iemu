@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 class StateEndpointTests {
 
   private val stateService = mockk<StateService>()
-  private val mapper = JacksonFactory.getJsonMapper()
+  private val mapper = JacksonFactory.jsonMapper
   private val ctx = mockk<Context>(relaxed = true)
   private val endpoint = StateEndpoint(stateService, mapper)
 

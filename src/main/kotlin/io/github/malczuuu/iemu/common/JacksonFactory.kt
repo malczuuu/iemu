@@ -4,5 +4,5 @@ import tools.jackson.databind.json.JsonMapper
 
 object JacksonFactory {
 
-  fun getJsonMapper(): JsonMapper = JsonMapper.builder().findAndAddModules().build()
+  val jsonMapper: JsonMapper = JsonMapper.builder().findAndAddModules().build()
 }

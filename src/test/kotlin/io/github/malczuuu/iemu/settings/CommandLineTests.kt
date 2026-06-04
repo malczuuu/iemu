@@ -41,14 +41,14 @@ class CommandLineTests {
 
   @Test
   fun `init() should throw when an unknown option is provided`() {
-    assertThrows(IllegalArgumentException::class.java) {
+    assertThrows(SettingsException::class.java) {
       CommandLine(arrayOf("--unknown")).init()
     }
   }
 
   @Test
   fun `init() should throw when --profile is provided without a value`() {
-    assertThrows(IllegalArgumentException::class.java) {
+    assertThrows(SettingsException::class.java) {
       CommandLine(arrayOf("--profile")).init()
     }
   }

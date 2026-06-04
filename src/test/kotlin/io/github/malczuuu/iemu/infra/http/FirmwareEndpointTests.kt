@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 class FirmwareEndpointTests {
 
   private val firmwareService = mockk<FirmwareService>()
-  private val mapper = JacksonFactory.getJsonMapper()
+  private val mapper = JacksonFactory.jsonMapper
   private val ctx = mockk<Context>(relaxed = true)
   private val endpoint = FirmwareEndpoint(firmwareService, mapper)
 
