@@ -1,10 +1,6 @@
 package io.github.malczuuu.iemu
 
-import io.github.malczuuu.iemu.common.ConfigLoadException
-import io.github.malczuuu.iemu.common.ConfigReader
-import io.github.malczuuu.iemu.common.InvalidProfileException
 import io.github.malczuuu.iemu.common.JacksonFactory
-import io.github.malczuuu.iemu.common.ProfileSelector
 import io.github.malczuuu.iemu.domain.DefaultFirmwareService
 import io.github.malczuuu.iemu.domain.DefaultStateService
 import io.github.malczuuu.iemu.infra.http.HttpServer
@@ -12,24 +8,27 @@ import io.github.malczuuu.iemu.infra.http.WebSocketEvent
 import io.github.malczuuu.iemu.infra.http.WebSocketService
 import io.github.malczuuu.iemu.infra.http.toDto
 import io.github.malczuuu.iemu.infra.lwm2m.DefaultConnectionService
+import io.github.malczuuu.iemu.settings.CommandLine
+import io.github.malczuuu.iemu.settings.SettingsException
+import io.github.malczuuu.iemu.settings.SettingsReader
 import kotlin.system.exitProcess
 import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("io.github.malczuuu.iemu.App")
 
 fun main(args: Array<String>) {
-  val profile =
-      try {
-        ProfileSelector(args).getProfileName()
-      } catch (e: InvalidProfileException) {
-        log.error(e.message)
-        exitProcess(-1)
-      }
+  val commandLine = CommandLine(args)
+  try {
+    commandLine.init()
+  } catch (e: Exception) {
+    log.error(e.message)
+    exitProcess(-1)
+  }
 
-  val config =
+  val settings =
       try {
-        ConfigReader().readConfig(profile)
-      } catch (e: ConfigLoadException) {
+        SettingsReader().readSettings(commandLine.profile)
+      } catch (e: SettingsException) {
         log.error(e.message, e.cause)
         exitProcess(1)
       }
@@ -68,10 +67,10 @@ fun main(args: Array<String>) {
   firmwareService.subscribeOnPackageVersionChange { firmwarePublish.run() }
   firmwareService.subscribeOnProgressChange { firmwarePublish.run() }
 
-  val connectionService = DefaultConnectionService(config.lwM2m, stateService, firmwareService)
+  val connectionService = DefaultConnectionService(settings.lwM2m, stateService, firmwareService)
   HttpServer(
-          config.http,
-          config.lwM2m,
+          settings.http,
+          settings.lwM2m,
           webSocketService,
           stateService,
           firmwareService,

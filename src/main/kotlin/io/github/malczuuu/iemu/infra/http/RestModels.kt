@@ -1,7 +1,6 @@
 package io.github.malczuuu.iemu.infra.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.ConnectionService
 import io.github.malczuuu.iemu.domain.DeviceError
 import io.github.malczuuu.iemu.domain.Firmware
@@ -10,6 +9,7 @@ import io.github.malczuuu.iemu.domain.StateUpdate
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateDeliveryMethod
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateResult
 import io.github.malczuuu.iemu.infra.lwm2m.FirmwareUpdateState
+import io.github.malczuuu.iemu.settings.Settings
 import java.time.Instant
 
 data class ErrorDto(
@@ -95,7 +95,7 @@ data class ConnectionDto(
     @JsonProperty("secureMode") val secureMode: Boolean,
 )
 
-fun ConnectionService.toDto(config: Config.LwM2m): ConnectionDto =
+fun ConnectionService.toDto(config: Settings.LwM2m): ConnectionDto =
     ConnectionDto(
         connected = isStarted(),
         endpoint = config.endpoint,

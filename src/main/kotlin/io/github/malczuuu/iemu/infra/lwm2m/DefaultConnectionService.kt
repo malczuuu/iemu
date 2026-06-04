@@ -1,12 +1,12 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.ConnectionService
 import io.github.malczuuu.iemu.domain.FirmwareService
 import io.github.malczuuu.iemu.domain.StateService
+import io.github.malczuuu.iemu.settings.Settings
 
 class DefaultConnectionService(
-    private val config: Config.LwM2m,
+    private val config: Settings.LwM2m,
     private val stateService: StateService,
     private val firmwareService: FirmwareService,
 ) : ConnectionService {

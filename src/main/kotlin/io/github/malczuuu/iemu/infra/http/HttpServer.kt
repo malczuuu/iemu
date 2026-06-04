@@ -1,9 +1,9 @@
 package io.github.malczuuu.iemu.infra.http
 
-import io.github.malczuuu.iemu.common.Config
-import io.github.malczuuu.iemu.domain.FirmwareService
 import io.github.malczuuu.iemu.domain.ConnectionService
+import io.github.malczuuu.iemu.domain.FirmwareService
 import io.github.malczuuu.iemu.domain.StateService
+import io.github.malczuuu.iemu.settings.Settings
 import io.github.problem4j.core.Problem
 import io.github.problem4j.core.ProblemException
 import io.javalin.Javalin
@@ -14,8 +14,8 @@ import tools.jackson.core.JacksonException
 import tools.jackson.databind.json.JsonMapper
 
 class HttpServer(
-    private val httpConfig: Config.Http,
-    private val lwm2mConfig: Config.LwM2m,
+    private val httpConfig: Settings.Http,
+    private val lwm2mConfig: Settings.LwM2m,
     private val webSocketService: WebSocketService,
     private val stateService: StateService,
     private val firmwareService: FirmwareService,

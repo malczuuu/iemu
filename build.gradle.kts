@@ -25,6 +25,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.commons.cli)
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
@@ -34,8 +35,8 @@ dependencies {
     implementation(libs.leshan.client.cf)
 
     implementation(libs.jackson.databind)
-    implementation(libs.jackson.dataformat.yaml)
     implementation(libs.jackson.module.kotlin)
+    implementation(libs.snakeyaml)
 
     implementation(libs.problem4j.core)
     implementation(libs.problem4j.jackson3)

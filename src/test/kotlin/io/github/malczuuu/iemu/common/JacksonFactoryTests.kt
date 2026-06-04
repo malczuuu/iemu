@@ -14,13 +14,4 @@ class JacksonFactoryTests {
     assertNotNull(first)
     assertNotSame(first, second)
   }
-
-  @Test
-  fun `getYamlMapper() should return a fresh YamlMapper instance on every call`() {
-    val first = JacksonFactory.getYamlMapper()
-    val second = JacksonFactory.getYamlMapper()
-
-    assertNotNull(first)
-    assertNotSame(first, second)
-  }
 }

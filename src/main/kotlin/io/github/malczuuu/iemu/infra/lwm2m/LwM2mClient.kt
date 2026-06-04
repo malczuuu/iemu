@@ -1,8 +1,8 @@
 package io.github.malczuuu.iemu.infra.lwm2m
 
-import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.FirmwareService
 import io.github.malczuuu.iemu.domain.StateService
+import io.github.malczuuu.iemu.settings.Settings
 import org.eclipse.californium.core.network.config.NetworkConfig
 import org.eclipse.leshan.client.californium.LeshanClient
 import org.eclipse.leshan.client.californium.LeshanClientBuilder
@@ -19,7 +19,7 @@ import org.eclipse.leshan.core.request.BindingMode
 import org.eclipse.leshan.core.util.Hex
 
 class LwM2mClient(
-    private val config: Config.LwM2m,
+    private val config: Settings.LwM2m,
     private val stateService: StateService,
     private val firmwareService: FirmwareService,
 ) {

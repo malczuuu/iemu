@@ -1,7 +1,7 @@
 package io.github.malczuuu.iemu.infra.http
 
-import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.ConnectionService
+import io.github.malczuuu.iemu.settings.Settings
 import io.github.problem4j.core.Problem
 import io.github.problem4j.core.ProblemException
 import io.javalin.http.Context
@@ -9,7 +9,7 @@ import io.javalin.http.HttpStatus
 import tools.jackson.databind.json.JsonMapper
 
 class ConnectionEndpoint(
-    private val config: Config.LwM2m,
+    private val config: Settings.LwM2m,
     private val connectionService: ConnectionService,
     private val mapper: JsonMapper,
 ) {
