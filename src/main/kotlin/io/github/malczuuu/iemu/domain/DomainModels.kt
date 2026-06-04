@@ -38,7 +38,4 @@ class Firmware(
     val progress: Int,
 )
 
-class FirmwareUpdate(
-    val file: ByteArray? = null,
-    val packageUri: String? = null,
-)
+class FirmwareUpdate(val file: ByteArray? = null, val packageUri: String? = null)

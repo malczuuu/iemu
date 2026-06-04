@@ -14,6 +14,5 @@ import org.gradle.api.Project
  * @return The boolean value of the property, or [defaultValue] if the property is not set.
  * @receiver Gradle [Project] from which the property is read.
  */
-fun Project.getBooleanProperty(name: String, defaultValue: Boolean = false): Boolean {
-  return if (hasProperty(name)) findProperty(name)?.toString() != "false" else defaultValue
-}
+fun Project.getBooleanProperty(name: String, defaultValue: Boolean = false): Boolean =
+    if (hasProperty(name)) findProperty(name)?.toString() != "false" else defaultValue

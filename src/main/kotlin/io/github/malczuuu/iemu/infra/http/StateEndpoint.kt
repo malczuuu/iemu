@@ -5,10 +5,7 @@ import io.javalin.http.Context
 import io.javalin.http.HttpStatus
 import tools.jackson.databind.json.JsonMapper
 
-class StateEndpoint(
-    private val stateService: StateService,
-    private val mapper: JsonMapper,
-) {
+class StateEndpoint(private val stateService: StateService, private val mapper: JsonMapper) {
 
   fun get(ctx: Context) {
     ctx.status(HttpStatus.OK)

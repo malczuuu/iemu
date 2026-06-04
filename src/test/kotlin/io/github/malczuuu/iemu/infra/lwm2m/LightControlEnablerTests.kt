@@ -122,7 +122,6 @@ class LightControlEnablerTests {
   fun `companion object create() should produce an enabler and wire up subscriptions once each`() {
     val produced = LightControlEnabler.create(stateService)
 
-    assertTrue(produced is LightControlEnabler)
     verify(exactly = 1) { stateService.subscribeOnStateChange(any()) }
     verify(exactly = 1) { stateService.subscribeOnDimmerChange(any()) }
     verify(exactly = 1) { stateService.subscribeOnTimeCounterChange(any()) }

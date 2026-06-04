@@ -2,6 +2,7 @@ package io.github.malczuuu.iemu.infra.http
 
 import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.FirmwareService
+import io.github.malczuuu.iemu.domain.ConnectionService
 import io.github.malczuuu.iemu.domain.StateService
 import io.github.problem4j.core.Problem
 import io.github.problem4j.core.ProblemException
@@ -13,16 +14,19 @@ import tools.jackson.core.JacksonException
 import tools.jackson.databind.json.JsonMapper
 
 class HttpServer(
-    private val config: Config.Http,
+    private val httpConfig: Config.Http,
+    private val lwm2mConfig: Config.LwM2m,
     private val webSocketService: WebSocketService,
     private val stateService: StateService,
     private val firmwareService: FirmwareService,
+    private val connectionService: ConnectionService,
     private val mapper: JsonMapper,
 ) {
 
   fun start() {
     val state = StateEndpoint(stateService, mapper)
     val firmware = FirmwareEndpoint(firmwareService, mapper)
+    val connection = ConnectionEndpoint(lwm2mConfig, connectionService, mapper)
 
     val app = Javalin.create { config ->
       config.http.generateEtags = true
@@ -40,6 +44,9 @@ class HttpServer(
         )
       }
 
+      config.routes.get("/api/connection", connection::get)
+      config.routes.post("/api/connection", connection::connect)
+      config.routes.delete("/api/connection", connection::disconnect)
       config.routes.get("/api/state", state::get)
       config.routes.patch("/api/state", state::patch)
       config.routes.get("/api/firmware", firmware::get)
@@ -56,8 +63,8 @@ class HttpServer(
             .contentType(Problem.CONTENT_TYPE)
             .result(
                 mapper.writeValueAsString(
-                    Problem.of(HttpStatus.BAD_REQUEST.code, "Failed to parse JSON object")
-                )
+                    Problem.of(HttpStatus.BAD_REQUEST.code, "Failed to parse JSON object"),
+                ),
             )
       }
 
@@ -72,8 +79,8 @@ class HttpServer(
             .contentType(Problem.CONTENT_TYPE)
             .result(
                 mapper.writeValueAsString(
-                    Problem.of(HttpStatus.INTERNAL_SERVER_ERROR.code, ex.message)
-                )
+                    Problem.of(HttpStatus.INTERNAL_SERVER_ERROR.code, ex.message),
+                ),
             )
       }
 
@@ -92,7 +99,7 @@ class HttpServer(
 
     Runtime.getRuntime().addShutdownHook(Thread { app.stop() })
 
-    app.start(config.port)
+    app.start(httpConfig.port)
   }
 
   companion object {

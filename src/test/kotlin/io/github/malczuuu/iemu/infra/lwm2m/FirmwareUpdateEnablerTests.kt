@@ -84,7 +84,7 @@ class FirmwareUpdateEnablerTests {
     assertTrue(response.isSuccess)
     verify {
       firmware.changeFirmware(
-          match<FirmwareUpdate> { it.file != null && String(it.file!!) == "payload" }
+          match<FirmwareUpdate> { it.file != null && String(it.file) == "payload" },
       )
     }
   }

@@ -40,8 +40,11 @@ class Downloading(
           Idle(file, packageUri, unsupported, packageVersion)
         } else {
           val downloaded = downloader.download(uri)
-          if (downloaded.isEmpty()) fileEmptyFailure(downloaded)
-          else successfulDownloading(downloaded)
+          if (downloaded.isEmpty()) {
+            fileEmptyFailure(downloaded)
+          } else {
+            successfulDownloading(downloaded)
+          }
         }
       } catch (e: URISyntaxException) {
         onURISyntaxException()

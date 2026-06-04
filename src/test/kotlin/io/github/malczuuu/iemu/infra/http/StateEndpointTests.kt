@@ -71,7 +71,7 @@ class StateEndpointTests {
 
     verify {
       ctx.result(
-          match<String> { it.contains("2024-06-15T10:00:00Z") && it.contains("Europe/Warsaw") }
+          match<String> { it.contains("2024-06-15T10:00:00Z") && it.contains("Europe/Warsaw") },
       )
     }
   }

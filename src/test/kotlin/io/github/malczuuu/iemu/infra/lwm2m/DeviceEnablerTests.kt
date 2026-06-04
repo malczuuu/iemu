@@ -82,7 +82,7 @@ class DeviceEnablerTests {
     every { stateService.getState() } returns
         fullState(
             errors =
-                listOf(DeviceError(code = 1, message = "a"), DeviceError(code = 2, message = "b"))
+                listOf(DeviceError(code = 1, message = "a"), DeviceError(code = 2, message = "b")),
         )
 
     val response = enabler().read(identity, 11)
@@ -179,7 +179,6 @@ class DeviceEnablerTests {
   fun `companion object create() should produce a DeviceEnabler and subscribe to current time once`() {
     val produced = DeviceEnabler.create(stateService)
 
-    assertTrue(produced is DeviceEnabler)
     verify(exactly = 1) { stateService.subscribeOnCurrentTimeChange(any()) }
   }
 }

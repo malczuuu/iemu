@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { StateDTO } from '../../../state/models/state.model';
 import { FirmwareDTO } from '../../../state/models/firmware.model';
+import { ConnectionDTO } from '../../../state/models/connection.model';
 
 @Component({
   selector: 'app-state-display',
@@ -14,6 +15,9 @@ export class StateDisplayComponent implements OnInit {
   @Input()
   public firmware!: FirmwareDTO;
 
+  @Input()
+  public connection!: ConnectionDTO;
+
   @Output()
   public onOffToggle: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -22,6 +26,12 @@ export class StateDisplayComponent implements OnInit {
 
   @Output()
   public onTimeReset: EventEmitter<number> = new EventEmitter<number>();
+
+  @Output()
+  public connect: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public disconnect: EventEmitter<void> = new EventEmitter<void>();
 
   public constructor() {}
 

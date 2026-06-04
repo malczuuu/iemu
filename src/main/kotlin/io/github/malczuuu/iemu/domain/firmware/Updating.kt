@@ -24,7 +24,7 @@ private constructor(
   ) : this(file, packageUri, result, packageVersion, Random(), 0)
 
   constructor(
-      firmware: FirmwareUpdateExecution
+      firmware: FirmwareUpdateExecution,
   ) : this(firmware.file, firmware.packageUri, FirmwareUpdateResult.NONE, firmware.packageVersion)
 
   override val state: FirmwareUpdateState = FirmwareUpdateState.UPDATING

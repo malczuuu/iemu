@@ -36,14 +36,17 @@ class LightControlEnabler(private val state: StateService) : BaseInstanceEnabler
           state.changeState(StateUpdate(on = value.value as Boolean))
           WriteResponse.success()
         }
+
         DIMMER -> {
           state.changeState(StateUpdate(dimmer = (value.value as Long).toInt()))
           WriteResponse.success()
         }
+
         ON_TIME -> {
           state.changeState(StateUpdate(onTime = value.value as Long))
           WriteResponse.success()
         }
+
         else -> super.write(identity, resourceId, value)
       }
 

@@ -44,7 +44,7 @@ class DefaultStateServiceTests {
             on = true,
             onTime = 5L,
             dimmer = 60,
-        )
+        ),
     )
 
     verify { currentTime.currentTime = Instant.parse("2020-05-05T00:00:00Z") }

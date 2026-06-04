@@ -9,9 +9,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import org.slf4j.LoggerFactory
 
-class WebSocketService(
-    private val executor: Executor = Executors.newSingleThreadExecutor(),
-) {
+class WebSocketService(private val executor: Executor = Executors.newSingleThreadExecutor()) {
 
   private val sessions: MutableMap<String, WsContext> = mutableMapOf()
 

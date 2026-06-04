@@ -32,9 +32,12 @@
         <app-state-display
           [state]="state()!"
           [firmware]="firmware()!"
+          [connection]="connection()!"
           (onOffToggle)="onOffToggle()"
           (dimmerSave)="onDimmerChanged($event)"
           (onTimeReset)="onOnTimeReset()"
+          (connect)="onConnect()"
+          (disconnect)="onDisconnect()"
         ></app-state-display>
       </div>
     }

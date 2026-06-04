@@ -11,11 +11,9 @@ class ProfileSelector(private val args: Array<String>) {
       return profile
     } else if (args.size > 1) {
       throw InvalidProfileException(
-          "Too many program arguments; expecting either just one [ --{profile} ] or none"
+          "Too many program arguments; expecting either just one [ --{profile} ] or none",
       )
     }
     return ""
   }
 }
-
-class InvalidProfileException(message: String) : RuntimeException(message)

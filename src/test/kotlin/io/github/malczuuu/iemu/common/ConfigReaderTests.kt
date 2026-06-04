@@ -31,7 +31,7 @@ class ConfigReaderTests {
             fileReader = {
               seenPath = it
               yaml
-            }
+            },
         )
 
     val config = reader.readConfig("")
@@ -49,7 +49,7 @@ class ConfigReaderTests {
             fileReader = {
               seenPath = it
               yaml
-            }
+            },
         )
 
     reader.readConfig("dev")

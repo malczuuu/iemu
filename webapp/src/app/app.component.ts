@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnDestroy, OnInit, Signal, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, Signal, signal } from '@angular/core';
 import { forkJoin, Subscription } from 'rxjs';
+import { ConnectionService } from './core/services/connection.service';
 import { FirmwareService } from './core/services/firmware.service';
 import { StateService } from './core/services/state.service';
 import { Theme, ThemeService } from './core/services/theme.service';
 import { WebSocketService } from './core/services/web-socket.service';
 import { StateDisplayComponent } from './shared/components/state-display/state-display.component';
+import { ConnectionDTO } from './state/models/connection.model';
 import { FirmwareDTO } from './state/models/firmware.model';
 import { StateDTO, StatePatchDTO } from './state/models/state.model';
 
@@ -21,11 +23,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public state = signal<StateDTO | null>(null);
   public firmware = signal<FirmwareDTO | null>(null);
+  public connection = signal<ConnectionDTO | null>(null);
   public theme: Signal<Theme>;
 
   public constructor(
     private stateService: StateService,
     private firmwareService: FirmwareService,
+    private connectionService: ConnectionService,
     private webSocketService: WebSocketService,
     private themeService: ThemeService,
   ) {
@@ -36,9 +40,11 @@ export class AppComponent implements OnInit, OnDestroy {
     forkJoin({
       initialState: this.stateService.getState(),
       initialFirmware: this.firmwareService.getFirmware(),
-    }).subscribe(({ initialState, initialFirmware }) => {
+      initialConnection: this.connectionService.getConnection(),
+    }).subscribe(({ initialState, initialFirmware, initialConnection }) => {
       this.state.set(initialState);
       this.firmware.set(initialFirmware);
+      this.connection.set(initialConnection);
     });
 
     this.subscriptions.push(
@@ -61,7 +67,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public isStateReady(): boolean {
-    return !!this.state() && !!this.firmware();
+    return !!this.state() && !!this.firmware() && !!this.connection();
   }
 
   public onOffToggle(): void {
@@ -77,6 +83,18 @@ export class AppComponent implements OnInit, OnDestroy {
   public onOnTimeReset(): void {
     const patch: StatePatchDTO = { onTime: 0 };
     this.stateService.patchState(patch).subscribe(() => null);
+  }
+
+  public onConnect(): void {
+    this.connectionService.connect().subscribe(() => {
+      this.connection.update((c) => (c ? { ...c, connected: true } : c));
+    });
+  }
+
+  public onDisconnect(): void {
+    this.connectionService.disconnect().subscribe(() => {
+      this.connection.update((c) => (c ? { ...c, connected: false } : c));
+    });
   }
 
   public toggleTheme(): void {

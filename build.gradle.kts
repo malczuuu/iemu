@@ -56,7 +56,7 @@ spotless {
     kotlin {
         target("src/**/*.kt", "buildSrc/src/**/*.kt")
 
-        ktfmt("0.62").metaStyle()
+        ktfmt("0.63").metaStyle()
         endWithNewline()
         lineEndings = LineEnding.UNIX
     }

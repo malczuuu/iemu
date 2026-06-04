@@ -11,7 +11,7 @@ import io.github.malczuuu.iemu.infra.http.HttpServer
 import io.github.malczuuu.iemu.infra.http.WebSocketEvent
 import io.github.malczuuu.iemu.infra.http.WebSocketService
 import io.github.malczuuu.iemu.infra.http.toDto
-import io.github.malczuuu.iemu.infra.lwm2m.LwM2mClient
+import io.github.malczuuu.iemu.infra.lwm2m.DefaultConnectionService
 import kotlin.system.exitProcess
 import org.slf4j.LoggerFactory
 
@@ -42,13 +42,15 @@ fun main(args: Array<String>) {
 
   val statePublish = Runnable {
     webSocketService.sendMessage(
-        mapper.writeValueAsString(WebSocketEvent("state", stateService.getState().toDto()))
+        mapper.writeValueAsString(WebSocketEvent("state", stateService.getState().toDto())),
     )
   }
 
   val firmwarePublish = Runnable {
     webSocketService.sendMessage(
-        mapper.writeValueAsString(WebSocketEvent("firmware", firmwareService.getFirmware().toDto()))
+        mapper.writeValueAsString(
+            WebSocketEvent("firmware", firmwareService.getFirmware().toDto())
+        ),
     )
   }
 
@@ -66,8 +68,15 @@ fun main(args: Array<String>) {
   firmwareService.subscribeOnPackageVersionChange { firmwarePublish.run() }
   firmwareService.subscribeOnProgressChange { firmwarePublish.run() }
 
-  if (config.lwM2m.isEnabled) {
-    LwM2mClient(config.lwM2m, stateService, firmwareService).start()
-  }
-  HttpServer(config.http, webSocketService, stateService, firmwareService, mapper).start()
+  val connectionService = DefaultConnectionService(config.lwM2m, stateService, firmwareService)
+  HttpServer(
+          config.http,
+          config.lwM2m,
+          webSocketService,
+          stateService,
+          firmwareService,
+          connectionService,
+          mapper,
+      )
+      .start()
 }

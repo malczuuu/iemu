@@ -4,7 +4,8 @@ enum class FirmwareUpdateState(val value: Int) {
   IDLE(0),
   DOWNLOADING(1),
   DOWNLOADED(2),
-  UPDATING(3);
+  UPDATING(3),
+  ;
 
   companion object {
 

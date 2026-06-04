@@ -51,7 +51,7 @@ class FirmwareUpdateEnabler(private val firmware: FirmwareService) : BaseInstanc
             LwM2mSingleResource.newIntegerResource(UPDATE_RESULT, fw.result.value.toLong()),
             LwM2mSingleResource.newStringResource(PACKAGE_VERSION, fw.packageVersion),
             LwM2mSingleResource.newIntegerResource(MODE, fw.deliveryMethod.value.toLong()),
-        )
+        ),
     )
   }
 
@@ -71,19 +71,17 @@ class FirmwareUpdateEnabler(private val firmware: FirmwareService) : BaseInstanc
         firmware.changeFirmware(FirmwareUpdate(file = value.value as ByteArray))
         WriteResponse.success()
       }
+
       PACKAGE_URI -> {
         firmware.changeFirmware(FirmwareUpdate(packageUri = value.value as String))
         WriteResponse.success()
       }
+
       else -> super.write(identity, resourceId, value)
     }
   }
 
-  override fun execute(
-      identity: ServerIdentity,
-      resourceId: Int,
-      params: String,
-  ): ExecuteResponse =
+  override fun execute(identity: ServerIdentity, resourceId: Int, params: String): ExecuteResponse =
       if (resourceId == UPDATE_ACTION) {
         firmware.executeFirmwareUpdate()
         ExecuteResponse.success()

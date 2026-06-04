@@ -10,7 +10,8 @@ enum class FirmwareUpdateResult(val value: Int) {
   UNSUPPORTED_PACKAGE_TYPE(6),
   INVALID_URI(7),
   FIRMWARE_UPDATE_FAILED(8),
-  UNSUPPORTED_PROTOCOL(9);
+  UNSUPPORTED_PROTOCOL(9),
+  ;
 
   companion object {
     fun initial(): FirmwareUpdateResult = NONE

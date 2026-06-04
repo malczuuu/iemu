@@ -1,6 +1,8 @@
 package io.github.malczuuu.iemu.infra.http
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.github.malczuuu.iemu.common.Config
+import io.github.malczuuu.iemu.domain.ConnectionService
 import io.github.malczuuu.iemu.domain.DeviceError
 import io.github.malczuuu.iemu.domain.Firmware
 import io.github.malczuuu.iemu.domain.State
@@ -82,4 +84,23 @@ fun Firmware.toDto(): FirmwareDto =
         pkgVersion = packageVersion,
         deliveryMethod = deliveryMethod,
         progress = progress,
+    )
+
+data class ConnectionDto(
+    @JsonProperty("connected") val connected: Boolean,
+    @JsonProperty("endpoint") val endpoint: String?,
+    @JsonProperty("upstream") val upstream: String?,
+    @JsonProperty("localPort") val localPort: Int,
+    @JsonProperty("bootstrap") val bootstrap: Boolean,
+    @JsonProperty("secureMode") val secureMode: Boolean,
+)
+
+fun ConnectionService.toDto(config: Config.LwM2m): ConnectionDto =
+    ConnectionDto(
+        connected = isStarted(),
+        endpoint = config.endpoint,
+        upstream = config.upstream,
+        localPort = config.localPort,
+        bootstrap = config.bootstrap,
+        secureMode = config.useSecureMode(),
     )

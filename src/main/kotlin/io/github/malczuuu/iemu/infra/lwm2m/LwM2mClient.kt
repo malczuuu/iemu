@@ -4,6 +4,7 @@ import io.github.malczuuu.iemu.common.Config
 import io.github.malczuuu.iemu.domain.FirmwareService
 import io.github.malczuuu.iemu.domain.StateService
 import org.eclipse.californium.core.network.config.NetworkConfig
+import org.eclipse.leshan.client.californium.LeshanClient
 import org.eclipse.leshan.client.californium.LeshanClientBuilder
 import org.eclipse.leshan.client.`object`.Security
 import org.eclipse.leshan.client.`object`.Server
@@ -28,6 +29,8 @@ class LwM2mClient(
   private val identity: ByteArray = config.security.identity?.toByteArray() ?: ByteArray(0)
   private val psk: ByteArray =
       config.security.psk?.let { Hex.decodeHex(it.toCharArray()) } ?: ByteArray(0)
+
+  @Volatile private var client: LeshanClient? = null
 
   fun start() {
     val models = loadModels()
@@ -76,11 +79,13 @@ class LwM2mClient(
     builder.setObjects(objects)
     builder.setCoapConfig(NetworkConfig().set(NetworkConfig.Keys.EXCHANGE_LIFETIME, 15000))
 
-    val client = builder.build()
+    client = builder.build()
+    client!!.start()
+  }
 
-    Runtime.getRuntime().addShutdownHook(Thread { client.destroy(true) })
-
-    client.start()
+  fun stop() {
+    client?.stop(true)
+    client = null
   }
 
   private fun createDeviceEnabler(model: ObjectModel, id: Int): LwM2mInstanceEnabler =

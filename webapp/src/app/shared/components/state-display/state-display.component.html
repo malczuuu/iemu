@@ -4,6 +4,93 @@
       <table class="table is-hoverable is-fullwidth">
         <tbody>
           <tr>
+            <td colspan="4" class="has-text-weight-bold">LwM2M Connection</td>
+          </tr>
+          <tr>
+            <td style="width: 1%; white-space: nowrap">Endpoint ID</td>
+            <td colspan="3">
+              <input
+                type="text"
+                class="input is-small"
+                [value]="connection.endpoint ?? ''"
+                readonly
+              />
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 1%; white-space: nowrap">Server address</td>
+            <td colspan="3">
+              <input
+                type="text"
+                class="input is-small"
+                [value]="connection.upstream ?? ''"
+                readonly
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>Local port</td>
+            <td colspan="2">
+              <input
+                type="text"
+                class="input is-small"
+                [value]="connection.localPort"
+                readonly
+              />
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Bootstrap</td>
+            <td colspan="2">
+              @if (connection.bootstrap) {
+                <span class="tag is-primary">Yes</span>
+              }
+              @if (!connection.bootstrap) {
+                <span class="tag">No</span>
+              }
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Secure mode</td>
+            <td colspan="2">
+              @if (connection.secureMode) {
+                <span class="tag is-primary">Yes</span>
+              }
+              @if (!connection.secureMode) {
+                <span class="tag">No</span>
+              }
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td colspan="2">
+              @if (connection.connected) {
+                <span class="tag is-success">Connected</span>
+              }
+              @if (!connection.connected) {
+                <span class="tag is-warning">Disconnected</span>
+              }
+            </td>
+            <td class="has-text-right">
+              @if (!connection.connected) {
+                <button class="button is-small is-primary" (click)="connect.emit()">
+                  Connect
+                </button>
+              }
+              @if (connection.connected) {
+                <button class="button is-small is-danger" (click)="disconnect.emit()">
+                  Disconnect
+                </button>
+              }
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4"></td>
+          </tr>
+          <tr>
             <td colspan="4" class="has-text-weight-bold">Time Settings</td>
           </tr>
           <tr>

@@ -52,26 +52,25 @@ class DeviceEnabler(val state: StateService) : BaseInstanceEnabler() {
       if (resourceId == CURRENT_TIME) {
         state.changeState(
             StateUpdate(
-                currentTime = (value.value as Date).toInstant().truncatedTo(ChronoUnit.SECONDS)
-            )
+                currentTime = (value.value as Date).toInstant().truncatedTo(ChronoUnit.SECONDS),
+            ),
         )
         WriteResponse.success()
       } else {
         super.write(identity, resourceId, value)
       }
 
-  override fun execute(
-      identity: ServerIdentity,
-      resourceId: Int,
-      params: String,
-  ): ExecuteResponse =
+  override fun execute(identity: ServerIdentity, resourceId: Int, params: String): ExecuteResponse =
       when (resourceId) {
         REBOOT -> ExecuteResponse.success()
+
         FACTORY_RESET -> ExecuteResponse.success()
+
         RESET_ERROR_CODE -> {
           state.resetErrors()
           ExecuteResponse.success()
         }
+
         else -> super.execute(identity, resourceId, params)
       }
 
