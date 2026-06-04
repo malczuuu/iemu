@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 idea-ext = "1.4.1"
 commons-cli = "1.11.0"
 jackson-databind = "3.1.4"
