@@ -16,7 +16,7 @@ class SettingsReader(
     val path = settingsPath(profile)
     return try {
       val content = fileReader(path)
-      @Suppress("UNCHECKED_CAST") val map: Map<String, Any?> = Yaml().load(content) ?: emptyMap()
+      val map: Map<String, Any?> = Yaml().load(content) ?: emptyMap()
       log.info("Loaded settings from {}", path)
       parseSettings(map)
     } catch (e: YAMLException) {
@@ -29,11 +29,10 @@ class SettingsReader(
   private fun settingsPath(profile: String): Path =
       Paths.get(if (profile.isNotEmpty()) "data/config-$profile.yml" else "data/config.yml")
 
-  @Suppress("UNCHECKED_CAST")
   private fun parseSettings(map: Map<String, Any?>): Settings {
-    val httpMap = map["http"] as? Map<String, Any?> ?: emptyMap()
-    val lwm2mMap = map["lwm2m"] as? Map<String, Any?> ?: emptyMap()
-    val securityMap = lwm2mMap["security"] as? Map<String, Any?> ?: emptyMap()
+    val httpMap = map["http"] as? Map<*, *> ?: emptyMap<Any, Any>()
+    val lwm2mMap = map["lwm2m"] as? Map<*, *> ?: emptyMap<Any, Any>()
+    val securityMap = lwm2mMap["security"] as? Map<*, *> ?: emptyMap<Any, Any>()
 
     return Settings(
         http = Settings.Http(port = (httpMap["port"] as? Int) ?: 4500),
